@@ -17,7 +17,7 @@ enum {
 /*********************************************************************************
 
 GPIO PB[4,5,6,7] | PC[0,1,2,3,4,5,6,7] support all pwm chnn
-if you want use pwm by other pins, read <eaglet gpio lookup table> for more msgs
+if you want use pwm by other pins, read <b80 gpio lookup table> for more msgs
 
 *********************************************************************************/
 

@@ -1,7 +1,7 @@
 /********************************************************************************************************
  * @file	ota.c
  *
- * @brief	This is the source file for 8355
+ * @brief	This is the source file for b80
  *
  * @author	2.4G Group
  * @date	2019

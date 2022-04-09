@@ -1,7 +1,7 @@
 /********************************************************************************************************
  * @file	analog.h
  *
- * @brief	This is the header file for b89
+ * @brief	This is the header file for b80
  *
  * @author	Driver Group
  * @date	2020

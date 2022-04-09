@@ -1,7 +1,7 @@
 /********************************************************************************************************
  * @file	fw_update_phy.h
  *
- * @brief	This is the header file for Eaglet
+ * @brief	This is the header file for b80
  *
  * @author	2.4G Group
  * @date	2021

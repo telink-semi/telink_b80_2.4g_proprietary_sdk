@@ -1,7 +1,7 @@
 /********************************************************************************************************
  * @file	string.c
  *
- * @brief	This is the source file for b85m
+ * @brief	This is the source file for b80
  *
  * @author	Driver Group
  * @date	2020

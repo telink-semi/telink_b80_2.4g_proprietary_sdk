@@ -1,7 +1,7 @@
 /********************************************************************************************************
  * @file	string.h
  *
- * @brief	This is the header file for b85m
+ * @brief	This is the header file for b80
  *
  * @author	Driver Group
  * @date	2020

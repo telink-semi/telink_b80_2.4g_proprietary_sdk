@@ -1,7 +1,7 @@
 /********************************************************************************************************
  * @file    main.c
  *
- * @brief   This is the source file for Eaglet
+ * @brief   This is the source file for b80
  *
  * @author  2.4G Group
  * @date    2021
@@ -70,7 +70,7 @@ static void user_init(unsigned char chnn)
 
     /*
      * rf configuration
-     * notes:Eaglet rx does not support multiple pipes
+     * notes:b80 rx does not support multiple pipes
      */
     ESB_Init(ESB_BITRATE_2MBPS);
 

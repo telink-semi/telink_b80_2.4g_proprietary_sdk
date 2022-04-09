@@ -1,7 +1,7 @@
 /********************************************************************************************************
  * @file     div_mod.S 
  *
- * @brief	This is the boot file for b85m
+ * @brief	This is the boot file for b80
  *
  * @author	Driver Group
  * @date	2020

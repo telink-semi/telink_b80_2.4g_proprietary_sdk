@@ -1,7 +1,7 @@
 /********************************************************************************************************
  * @file	fw_update_phy.c
  *
- * @brief	This is the source file for Eaglet
+ * @brief	This is the source file for b80
  *
  * @author	2.4G Group
  * @date	2021

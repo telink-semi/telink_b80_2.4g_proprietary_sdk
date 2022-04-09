@@ -1,10 +1,10 @@
 /********************************************************************************************************
  * @file	gui.h
  *
- * @brief	This is the header file for 8355
+ * @brief	This is the header file for b80
  *
  * @author	2.4G Group
- * @date	2019
+ * @date	2021
  *
  * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *          All rights reserved.

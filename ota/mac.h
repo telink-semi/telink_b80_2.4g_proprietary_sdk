@@ -1,7 +1,7 @@
 /********************************************************************************************************
  * @file	mac.h
  *
- * @brief	This is the header file for 8355
+ * @brief	This is the header file for b80
  *
  * @author	2.4G Group
  * @date	2019
