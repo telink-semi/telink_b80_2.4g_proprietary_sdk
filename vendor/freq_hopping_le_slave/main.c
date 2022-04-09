@@ -135,7 +135,7 @@ void user_init(void)
 
     //irq configuration
     rf_irq_disable(FLD_RF_IRQ_ALL);
-    rf_irq_enable(FLD_RF_IRQ_RX | FLD_RF_IRQ_FIRST_TIMEOUT); // enable rf rx and rx first timeout irq
+    rf_irq_enable(FLD_RF_IRQ_RX | FLD_RF_IRQ_TX | FLD_RF_IRQ_FIRST_TIMEOUT); // enable rf rx and rx first timeout irq
     irq_enable_type(FLD_IRQ_ZB_RT_EN); //enable RF irq
     irq_enable(); //enable general irq
 }
