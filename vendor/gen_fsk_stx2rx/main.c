@@ -94,7 +94,7 @@ void user_init(void)
 
     gen_fsk_tx_settle_set(149);
 
-    rf_irq_enable(FLD_RF_IRQ_TX); // enable rf tx irq
+    rf_irq_enable(FLD_RF_IRQ_TX | FLD_RF_IRQ_RX | FLD_RF_IRQ_RX_TIMEOUT); // enable rf tx irq
     irq_enable_type(FLD_IRQ_ZB_RT_EN); // enable RF irq
     irq_enable(); // enable general irq
 }
