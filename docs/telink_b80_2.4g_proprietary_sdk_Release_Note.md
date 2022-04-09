@@ -14,6 +14,18 @@
 ### BREAKING CHANGES
 * N/A
 
+### CodeSize
+
+* Flash：
+  * freq_hopping_master: 9kb
+  * freq_hopping_slave: 12kb
+
+* RAM:
+  * freq_hopping_master: 7kb
+  * freq_hopping_slave: 9k
+  
+  
+
 <hr style="border-bottom:2.5px solid rgb(146, 240, 161)">
 
 ### Version
@@ -27,3 +39,13 @@
 
 ### BREAKING CHANGES
 * N/A
+
+### CodeSize
+
+* Flash：
+  * freq_hopping_master: 9kb
+  * freq_hopping_slave: 12kb
+
+* RAM:
+  * freq_hopping_master: 7kb
+  * freq_hopping_slave: 9k
