@@ -68,10 +68,10 @@
 #define Flash_Addr				0x08
 #define Flash_Buff_Len			1
 
-#define BLUE_LED_PIN            GPIO_PB2
-#define GREEN_LED_PIN           GPIO_PB3
-#define WHITE_LED_PIN           GPIO_PB4
-#define RED_LED_PIN             GPIO_PB5
+#define BLUE_LED_PIN            GPIO_PB3
+#define GREEN_LED_PIN           GPIO_PB4
+#define WHITE_LED_PIN           GPIO_PB5
+#define RED_LED_PIN             GPIO_PB6
 #define OTA_SLAVE_TRIG_PIN      GPIO_PF0
 
 unsigned long firmwareVersion;

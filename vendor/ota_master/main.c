@@ -58,10 +58,10 @@
 #define BATT_CHECK_ENABLE       1
 #define VBAT_ALRAM_THRES_MV     2000
 
-#define BLUE_LED_PIN            GPIO_PB2
-#define GREEN_LED_PIN           GPIO_PB3
-#define WHITE_LED_PIN           GPIO_PB4
-#define RED_LED_PIN             GPIO_PB5
+#define BLUE_LED_PIN            GPIO_PB3
+#define GREEN_LED_PIN           GPIO_PB4
+#define WHITE_LED_PIN           GPIO_PB5
+#define RED_LED_PIN             GPIO_PB6
 #define OTA_MASTER_TRIG_PIN     GPIO_PF0
 
 unsigned long firmwareVersion;
