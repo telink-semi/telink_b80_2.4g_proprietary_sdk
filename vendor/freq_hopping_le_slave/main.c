@@ -25,6 +25,9 @@
 
 #define SYNC_BROADCAST_INTERVAL (1250 * 16) // 1.25MS
 
+static unsigned char rx_crc_err_flag = 0;
+static unsigned int rx_crc_err_cnt = 0;
+
 enum
 {
     RX_SHORT_WINDOW_US = 625,
@@ -183,6 +186,8 @@ _attribute_ram_code_sec_noinline_ __attribute__((optimize("-Os"))) void irq_hand
             }
             else
             {
+                rx_crc_err_cnt++;
+                rx_crc_err_flag = 1;
                 if (sync_flg == 1 && ll_ctrl_data.qlty[ll_ctrl_data.chnl_tbl[next_chnn_idx]] > AFH_BAD_CHNL_QLTY_THRES)
                     ll_ctrl_data.qlty[ll_ctrl_data.chnl_tbl[next_chnn_idx]]--;
             }
@@ -418,6 +423,7 @@ _attribute_ram_code_sec_noinline_ u8 ll_flow_process(u8 peer, u8 local)
 {
     local &= ~LL_FLOW_RCVD;
     local &= ~LL_FLOW_SENT;
+
     ///////////////// Flow: SN/NESN   //////////////////////////////////////
     u8 peer_nesn = peer & LL_FLOW_NESN;
     u8 peer_sn = peer & LL_FLOW_SN ? LL_FLOW_NESN : 0;
@@ -427,11 +433,14 @@ _attribute_ram_code_sec_noinline_ u8 ll_flow_process(u8 peer, u8 local)
     //更新local的NESN，
     //更新的原规则是:如果peer_sn与local_nesn相同，则认为是一个新包，此时需要接收新包并toggle nesn
     //如果peer_sn与local_nesn不同，则说明这是一个重传包，啥也不用干
-    if (peer_sn == local_nesn) // 如果此时no RX BUFFER or MCU busy，也可以不toggle nesn,让对方重发此包
+    if (peer_sn == local_nesn && !rx_crc_err_flag) // 如果此时no RX BUFFER or MCU busy，也可以不toggle nesn,让对方重发此包
     {
         local = (local & ~LL_FLOW_NESN) | (peer_sn ? 0 : LL_FLOW_NESN);
         local |= LL_FLOW_RCVD;
     }
+
+    if (rx_crc_err_flag)
+        rx_crc_err_flag = 0;
 
     //下面更新local的SN
     //更新的原规则是:peer_nesn与local_sn不同，说明是一个ACK，将本地的sn+1，并发送新包
