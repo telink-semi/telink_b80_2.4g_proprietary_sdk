@@ -615,7 +615,7 @@ _attribute_ram_code_sec_noinline_ void build_ll_data_packet()
     ptx->type = ll_ctrl_data.snnesn << 2 & 0xc;
     ptx->len = 29;
     ptx->cmd = LL_SYNC_DATA;
-    memcpy(ptx->data, next_chnn_idx, ptx->len);
+    memcpy(ptx->data, (const void *)sycn_ack_frame, ptx->len);
     ptx->data[0] = next_chnn_idx;
 }
 
