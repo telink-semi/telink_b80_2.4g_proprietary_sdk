@@ -220,3 +220,30 @@ u8 * my_fifo_get (my_fifo_t *f)
 	}
 	return 0;
 }
+
+unsigned char sync_word_is_valid(unsigned char *sync_word, unsigned char len, unsigned char th)
+{
+    unsigned char last_bit = 0xff;
+    unsigned char cnt = 0;
+    unsigned char tmp = 0;
+
+
+    for (int i = 0; i < len; i++) {
+     for (int j = 0; j < 8; j++) {
+      tmp = (sync_word[i] >> j) & 0x01;
+         if (last_bit != tmp) {
+          last_bit = tmp;
+          cnt = 1;
+         }
+         else {
+                cnt++;
+         }
+
+         if (cnt >= th) {
+          return 0;
+         }
+        }
+    }
+
+    return 1;
+}

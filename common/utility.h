@@ -79,7 +79,7 @@
 #define foreach(i, n) 			for(int i = 0; i < (n); ++i)
 #define foreach_range(i, s, e) 	for(int i = (s); i < (e); ++i)
 #define foreach_arr(i, arr) 	for(int i = 0; i < ARRAY_SIZE(arr); ++i)
-//  round robbin foreach,   ´ÓÉÏÒ»¸öÖ¸¶¨µÄµã¿ªÊ¼£¬±éÀú,  h ÊÇÒ»¸ö¾²Ì¬±äÁ¿»òÈ«¾Ö±äÁ¿£¬Òª¼Ç×¡ÉÏÒ»´ÎµÄÎ»ÖÃ¡£h ³õÊ¼ÖµÊÇn !!!
+//  round robbin foreach,   ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½Äµã¿ªÊ¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½,  h ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½Ì¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È«ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½×¡ï¿½ï¿½Ò»ï¿½Îµï¿½Î»ï¿½Ã¡ï¿½h ï¿½ï¿½Ê¼Öµï¿½ï¿½n !!!
 #define foreach_hint(i, n, h) 	for(int i = 0, ++h, h=h<n?h:0; i < n; ++h, h=h<n?h:0)
 
 #define ARRAY_SIZE(a) 			(sizeof(a) / sizeof(*a))
@@ -144,4 +144,6 @@ void my_fifo_pop (my_fifo_t *f);
 u8 * my_fifo_get (my_fifo_t *f);
 
 #define		MYFIFO_INIT(name,size,n)		u8 name##_b[size * n]={0};my_fifo_t name = {size,n,0,0, name##_b}
+
+unsigned char sync_word_is_valid(unsigned char *sync_word, unsigned char len, unsigned char th);
 
