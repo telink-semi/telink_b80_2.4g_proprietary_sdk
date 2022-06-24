@@ -21,6 +21,8 @@ volatile unsigned char timer0_expire_flg = 0;
 unsigned int timer0_irq_cnt = 0;
 #define REFRESH_CHNL_MAP_INT_S 5
 
+#define AUTO_FLUSH_CNT_THRES 10
+
 #define AFH_MODE_ENABLE 1
 #define AFH_INT_MAX_S 8
 #define AFH_INT_MIN_S 8
@@ -71,7 +73,6 @@ enum
 };
 
 #define SYNC_TX_INT_MS 500
-//#define SYNC_TX_INT_MS 1000
 
 typedef struct
 {
@@ -103,9 +104,7 @@ typedef struct ll_comm_ctrl_data
     char abd_tail;
     unsigned char chnl_used;
     u8 snnesn;
-    u32 auto_flush_tick;
-    u8 is_nak_or_to;
-    u8 is_flush_tx_buff;
+    u8 con_tx_cnt;
 } ll_comm_ctrl_data_t;
 ll_comm_ctrl_data_t ll_ctrl_data;
 
@@ -144,7 +143,7 @@ unsigned char sync_chnn_idx = 0;
 unsigned int sync_anchor_point = 0;
 volatile unsigned char sync_flg = 0;
 unsigned char sycn_tx_frame[APP_FIX_PAYLOAD_LEN] = {
-    0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 
+    0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10,
     0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f, 0x20,
 };
 
@@ -269,12 +268,6 @@ _attribute_ram_code_sec_noinline_ void proc_user_task()
     {
         timer0_expire_flg = 0;
         refresh_chnl_map();
-    }
-
-    if (ll_ctrl_data.is_nak_or_to == 1 &&
-        clock_time_exceed(ll_ctrl_data.auto_flush_tick, AUTO_FLUSH_TIMER_MS * 1000))
-    {
-        ll_ctrl_data.is_flush_tx_buff = 1;
     }
 }
 
@@ -490,16 +483,13 @@ _attribute_ram_code_sec_noinline_ u8 ll_flow_process(u8 peer, u8 local)
 {
     local &= ~LL_FLOW_RCVD;
     local &= ~LL_FLOW_SENT;
-    ///////////////// Flow: SN/NESN   //////////////////////////////////////
+
     u8 peer_nesn = peer & LL_FLOW_NESN;
     u8 peer_sn = peer & LL_FLOW_SN ? LL_FLOW_NESN : 0;
     u8 local_nesn = local & LL_FLOW_NESN;
     u8 local_sn = local & LL_FLOW_SN ? LL_FLOW_NESN : 0;
 
-    //更新local的NESN，
-    //更新的原规则是:如果peer_sn与local_nesn相同，则认为是一个新包，此时需要接收新包并toggle nesn
-    //如果peer_sn与local_nesn不同，则说明这是一个重传包，啥也不用干
-    if (peer_sn == local_nesn && !rx_crc_err_flag) // 如果此时no RX BUFFER or MCU busy，也可以不toggle nesn,让对方重发此包
+    if (peer_sn == local_nesn && !rx_crc_err_flag)
     {
         local = (local & ~LL_FLOW_NESN) | (peer_sn ? 0 : LL_FLOW_NESN);
         local |= LL_FLOW_RCVD;
@@ -508,23 +498,14 @@ _attribute_ram_code_sec_noinline_ u8 ll_flow_process(u8 peer, u8 local)
     if (rx_crc_err_flag)
         rx_crc_err_flag = 0;
 
-    //下面更新local的SN
-    //更新的原规则是:peer_nesn与local_sn不同，说明是一个ACK，将本地的sn+1，并发送新包
-    // peer_nesn与local_sn相同，则说明是一个NAK,并希望发送旧包（重传）
     if (peer_nesn != local_sn)
     {
         local = (local & ~LL_FLOW_SN) | (peer_nesn << 1);
         local |= LL_FLOW_SENT;
-
-        ll_ctrl_data.is_nak_or_to = 0;
     }
     else
     {
-        if (!ll_ctrl_data.is_nak_or_to)
-        {
-            ll_ctrl_data.is_nak_or_to = 1;
-            ll_ctrl_data.auto_flush_tick = clock_time();
-        }
+        ll_ctrl_data.con_tx_cnt++;
     }
 
     return local;
@@ -664,15 +645,12 @@ _attribute_ram_code_sec_noinline_ void app_cycle_send_task(void)
         rx_payload = gen_fsk_rx_payload_get(rx_packet, &rx_payload_len);
         proc_rx_data();
 
-        if (ll_ctrl_data.snnesn & LL_FLOW_SENT)
-            proc_tx_data();
-        else if (ll_ctrl_data.is_flush_tx_buff) // auto flush occurs
+        if (ll_ctrl_data.snnesn & LL_FLOW_SENT ||
+            ll_ctrl_data.con_tx_cnt >= AUTO_FLUSH_CNT_THRES)
         {
-            ll_ctrl_data.is_flush_tx_buff = 0;
-            ll_ctrl_data.is_nak_or_to = 0;
+            ll_ctrl_data.con_tx_cnt = 0;
             proc_tx_data();
         }
-
         ll_tx_packet_t *ptx = (ll_tx_packet_t *)tx_buffer;
         ptx->type = ll_ctrl_data.snnesn << 2 & 0xc;
 
@@ -693,15 +671,11 @@ _attribute_ram_code_sec_noinline_ void app_cycle_send_task(void)
         // gpio_toggle(DEBUG_PIN);
         gpio_toggle(RED_LED_PIN);
 
-        if (!ll_ctrl_data.is_nak_or_to)
+        ll_ctrl_data.con_tx_cnt++;
+
+        if (ll_ctrl_data.con_tx_cnt >= AUTO_FLUSH_CNT_THRES) // auto flush occurs
         {
-            ll_ctrl_data.is_nak_or_to = 1;
-            ll_ctrl_data.auto_flush_tick = clock_time();
-        }
-        if (ll_ctrl_data.is_flush_tx_buff) // auto flush occurs
-        {
-            ll_ctrl_data.is_flush_tx_buff = 0;
-            ll_ctrl_data.is_nak_or_to = 0;
+            ll_ctrl_data.con_tx_cnt = 0;
             build_ll_data_packet();
         }
 

@@ -28,6 +28,8 @@
 static unsigned char rx_crc_err_flag = 0;
 static unsigned int rx_crc_err_cnt = 0;
 
+#define AUTO_FLUSH_CNT_THRES 10
+
 enum
 {
     RX_SHORT_WINDOW_US = 625,
@@ -88,10 +90,7 @@ typedef struct ll_comm_ctrl_data
     u8 afh_int_max_s;
     u8 snnesn;
     u32 clsf_tick;
-    u32 auto_flush_tick;
-    u8 is_nak_or_to;
-    u8 is_flush_tx_buff;
-
+    u8 con_tx_cnt;
 } ll_comm_ctrl_data_t;
 ll_comm_ctrl_data_t ll_ctrl_data;
 
@@ -307,12 +306,6 @@ _attribute_ram_code_sec_noinline_ void proc_user_task()
         ll_ctrl_data.clsf_tick = clock_time();
         refresh_chnl_map();
     }
-
-    if (ll_ctrl_data.is_nak_or_to == 1 &&
-        clock_time_exceed(ll_ctrl_data.auto_flush_tick, sync_tx_interval_ms * 3 * 1000))
-    {
-        ll_ctrl_data.is_flush_tx_buff = 1;
-    }
 }
 
 void app_sync_init(void);
@@ -450,16 +443,10 @@ _attribute_ram_code_sec_noinline_ u8 ll_flow_process(u8 peer, u8 local)
         // prepare next packet with SN = peer_nesn;
         local = (local & ~LL_FLOW_SN) | (peer_nesn << 1);
         local |= LL_FLOW_SENT;
-
-        ll_ctrl_data.is_nak_or_to = 0;
     }
     else
     {
-        if (!ll_ctrl_data.is_nak_or_to)
-        {
-            ll_ctrl_data.is_nak_or_to = 1;
-            ll_ctrl_data.auto_flush_tick = clock_time();
-        }
+        ll_ctrl_data.con_tx_cnt++;
     }
 
     return local;
@@ -527,17 +514,13 @@ _attribute_ram_code_sec_noinline_ void proc_rx_data_1()
     ll_ctrl_data.snnesn = ll_flow_process(peer, ll_ctrl_data.snnesn);
     if (!(ll_ctrl_data.snnesn & LL_FLOW_SENT))
     {
-        if (ll_ctrl_data.is_flush_tx_buff) // auto flush occurs
-        {
-            ll_ctrl_data.is_flush_tx_buff = 0;
-            ll_ctrl_data.is_nak_or_to = 0;
-        }
-        else
+        if (ll_ctrl_data.con_tx_cnt < AUTO_FLUSH_CNT_THRES)
         {
             return;
         }
     }
 
+    ll_ctrl_data.con_tx_cnt = 0;
     ll_tx_packet_t *ptx = (ll_tx_packet_t *)tx_buffer;
     unsigned char cmd = prx->cmd;
 
@@ -711,16 +694,12 @@ _attribute_ram_code_sec_noinline_ void app_low_energy_task(void)
         rx_first_timeout_flag = 0;
         gpio_toggle(RED_LED_PIN);
         rx_to_cnt++;
+        
+        ll_ctrl_data.con_tx_cnt++;
 
-        if (!ll_ctrl_data.is_nak_or_to)
+        if (ll_ctrl_data.con_tx_cnt >= AUTO_FLUSH_CNT_THRES) // auto flush occurs
         {
-            ll_ctrl_data.is_nak_or_to = 1;
-            ll_ctrl_data.auto_flush_tick = clock_time();
-        }
-        if (ll_ctrl_data.is_flush_tx_buff) // auto flush occurs
-        {
-            ll_ctrl_data.is_flush_tx_buff = 0;
-            ll_ctrl_data.is_nak_or_to = 0;
+            ll_ctrl_data.con_tx_cnt = 0;
             build_ll_data_packet();
         }
 
