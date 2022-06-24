@@ -774,6 +774,7 @@ _attribute_ram_code_sec_noinline_ void proc_tx_data()
         {
             build_ll_data_packet();
         }
+        ll_conn_data[dev_id].con_tx_cnt = 0;
     }
     else // retrans
     {
@@ -878,7 +879,19 @@ _attribute_ram_code_sec_noinline_ void proc_rx_tx_data()
     }
 #endif
 
-    proc_tx_data();
+    if (ll_conn_data[dev_id].con_tx_cnt >= AUTO_FLUSH_CNT_THRES)
+    {
+#if DEBUG_LOG
+        if (dev_id == DEVICE_LOG_NUM)
+            log_msg("------ auto flush occurs ++++++++++++++++:", 0, 0);
+#endif
+        flush_tx_data();
+        ll_conn_data[dev_id].con_tx_cnt = 0;
+    }
+    else
+    {
+        proc_tx_data();
+    }
 
     ll_tx_packet_t *ptx = (ll_tx_packet_t *)tx_buffer;
     ptx->type = ll_conn_data[dev_id].snnesn << 2 & 0xc;
@@ -929,7 +942,6 @@ _attribute_ram_code_sec_noinline_ void app_cycle_send_task(void)
 #endif
 
         rx_flag = 0;
-        ll_conn_data[dev_id].con_tx_cnt = 0;
 
 #if 1
         gpio_toggle(GREEN_LED_PIN);
