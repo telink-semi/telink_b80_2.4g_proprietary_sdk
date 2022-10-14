@@ -4,7 +4,7 @@ PACKAGE_NAME        telink_eaglet_2.4g_proprietary_sdk_S0
 SRC_GIT_URL         http://192.168.48.36/src/2.4g-proprietary/telink_eaglet_2.4g_proprietary_src.git
 
 #                          .cproject                                                        project_name                         module
-CPROJECT            ./.cproject                   2.4g_proprietary_sdk                  adc_sample
+CPROJECT            ./.cproject                   2_4g_proprietary_sdk                  adc_sample
 
 #                          path                                                  macro                                                  macro_val
 MACRO               ./drivers/pm.c        OTP_PROTECTION_CODE_SELECT        OTP_PROTECTION_CODE_S0
@@ -31,7 +31,7 @@ PACKAGE_NAME        telink_eaglet_2.4g_proprietary_sdk_S1
 SRC_GIT_URL         http://192.168.48.36/src/2.4g-proprietary/telink_eaglet_2.4g_proprietary_src.git
 
 #                          .cproject                                                        project_name                         module
-CPROJECT            ./.cproject                   2.4g_proprietary_sdk                  adc_sample
+CPROJECT            ./.cproject                   2_4g_proprietary_sdk                  adc_sample
 
 #                          path                                                  macro                                                  macro_val
 MACRO               ./drivers/pm.c        OTP_PROTECTION_CODE_SELECT        OTP_PROTECTION_CODE_S1
@@ -57,7 +57,7 @@ PACKAGE_NAME        telink_eaglet_2.4g_proprietary_sdk_S2
 SRC_GIT_URL         http://192.168.48.36/src/2.4g-proprietary/telink_eaglet_2.4g_proprietary_src.git
 
 #                          .cproject                                                        project_name                         module
-CPROJECT            ./.cproject                   2.4g_proprietary_sdk                  adc_sample
+CPROJECT            ./.cproject                   2_4g_proprietary_sdk                  adc_sample
 
 #                          path                                                  macro                                                  macro_val
 MACRO               ./drivers/pm.c        OTP_PROTECTION_CODE_SELECT        OTP_PROTECTION_CODE_S2
@@ -83,7 +83,7 @@ PACKAGE_NAME        telink_eaglet_2.4g_proprietary_sdk_S3
 SRC_GIT_URL         http://192.168.48.36/src/2.4g-proprietary/telink_eaglet_2.4g_proprietary_src.git
 
 #                          .cproject                                                        project_name                         module
-CPROJECT            ./.cproject                   2.4g_proprietary_sdk                  adc_sample
+CPROJECT            ./.cproject                   2_4g_proprietary_sdk                  adc_sample
 
 #                          path                                                  macro                                                  macro_val
 MACRO               ./drivers/pm.c        OTP_PROTECTION_CODE_SELECT        OTP_PROTECTION_CODE_S3
@@ -109,7 +109,7 @@ TAG_NAME            V3.1.0
 PACKAGE_NAME        telink_eaglet_2.4g_proprietary_sdk_S0_OTP_NO_RET_NO_EXT32K
 SRC_GIT_URL         http://192.168.48.36/src/2.4g-proprietary/telink_eaglet_2.4g_proprietary_src.git
 #                          .cproject                                                        project_name                         module
-CPROJECT            ./drivers/pm.c                   2.4g_proprietary_sdk                  adc_sample
+CPROJECT            ./drivers/pm.c                   2_4g_proprietary_sdk                  adc_sample
 
 MAKE_WITHOUT_DRIVER_LIB         0
 
@@ -145,7 +145,7 @@ TAG_NAME            V3.1.0
 PACKAGE_NAME        telink_eaglet_2.4g_proprietary_sdk_S1_OTP_NO_RET_NO_EXT32K
 SRC_GIT_URL         http://192.168.48.36/src/2.4g-proprietary/telink_eaglet_2.4g_proprietary_src.git
 #                          .cproject                                                        project_name                         module
-CPROJECT            ./drivers/pm.c                   2.4g_proprietary_sdk                  adc_sample
+CPROJECT            ./drivers/pm.c                   2_4g_proprietary_sdk                  adc_sample
 
 MAKE_WITHOUT_DRIVER_LIB         0
 
@@ -180,7 +180,7 @@ AG_NAME            V3.1.0
 PACKAGE_NAME        telink_eaglet_2.4g_proprietary_sdk_S2_OTP_NO_RET_NO_EXT32K
 SRC_GIT_URL         http://192.168.48.36/src/2.4g-proprietary/telink_eaglet_2.4g_proprietary_src.git
 #                          .cproject                                                        project_name                         module
-CPROJECT            ./drivers/pm.c                   2.4g_proprietary_sdk                  adc_sample
+CPROJECT            ./drivers/pm.c                   2_4g_proprietary_sdk                  adc_sample
 
 MAKE_WITHOUT_DRIVER_LIB         0
 
@@ -216,7 +216,7 @@ AG_NAME            V3.1.0
 PACKAGE_NAME        telink_eaglet_2.4g_proprietary_sdk_S3_OTP_NO_RET_NO_EXT32K
 SRC_GIT_URL         http://192.168.48.36/src/2.4g-proprietary/telink_eaglet_2.4g_proprietary_src.git
 #                          .cproject                                                        project_name                         module
-CPROJECT            ./drivers/pm.c                   2.4g_proprietary_sdk                  adc_sample
+CPROJECT            ./drivers/pm.c                   2_4g_proprietary_sdk                  adc_sample
 
 MAKE_WITHOUT_DRIVER_LIB         0
 
