@@ -1,0 +1,68 @@
+stages:
+  - release_customize_sdk
+
+.release_sdk_template: &release_sdk_template
+  variables:
+    PACK_NAME: "release_sdk_template"
+  stage: release_customize_sdk	
+  tags:
+    - windows_tc32_test
+  script:
+    - sdk_release_customize.sh ./release_sdk_config
+  artifacts:
+    name: "$PACK_NAME"
+    paths:
+    - boot/
+    - common/
+    - demo/
+    - drivers/
+    - epd/
+    - esb_ll/
+    - fw_update/
+    - genfsk_ll/
+    - ota/
+    - tl_esb_ll/
+    - vendor/
+    - .cproject/
+    - .project/
+    - README.md
+    - boot.link/
+    - div_mod.S/
+  when: manual
+
+
+    
+release_sdk_S1:
+  <<: *release_sdk_template
+  variables:
+    PACK_NAME: "telink_eaglet_2.4g_proprietary_sdk_S1"
+
+release_sdk_S2:
+  <<: *release_sdk_template
+  variables:
+    PACK_NAME: "telink_eaglet_2.4g_proprietary_sdk_S2"
+
+release_sdk_S3:
+  <<: *release_sdk_template
+  variables:
+    PACK_NAME: "telink_eaglet_2.4g_proprietary_sdk_S3"
+
+release_sdk_otp_S0:
+  <<: *release_sdk_template
+  variables:
+    PACK_NAME: "telink_eaglet_2.4g_proprietary_sdk_S0_OTP_NO_RET_NO_EXT32K"
+
+release_sdk_otp_S1:
+  <<: *release_sdk_template
+  variables:
+    PACK_NAME: "telink_eaglet_2.4g_proprietary_sdk_S1_OTP_NO_RET_NO_EXT32K"
+
+release_sdk_otp_S2:
+  <<: *release_sdk_template
+  variables:
+    PACK_NAME: "telink_eaglet_2.4g_proprietary_sdk_S2_OTP_NO_RET_NO_EXT32K"
+
+release_sdk_otp_S3:
+  <<: *release_sdk_template
+  variables:
+    PACK_NAME: "telink_eaglet_2.4g_proprietary_sdk_S3_OTP_NO_RET_NO_EXT32K"
