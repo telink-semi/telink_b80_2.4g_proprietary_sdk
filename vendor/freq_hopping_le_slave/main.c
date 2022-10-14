@@ -2,15 +2,15 @@
 #include "genfsk_ll.h"
 #include "common.h"
 
-#define BLUE_LED_PIN GPIO_PB3
-#define GREEN_LED_PIN GPIO_PB4
-#define WHITE_LED_PIN GPIO_PB5
-#define RED_LED_PIN GPIO_PB6
+#define BLUE_LED_PIN GPIO_PA4
+#define GREEN_LED_PIN GPIO_PA5
+#define WHITE_LED_PIN GPIO_PA6
+#define RED_LED_PIN GPIO_PA7
 #define DBG_RXTIMEOUT_IRQ_PIN GPIO_PB7
 #define DBG_RX_IRQ_PIN GPIO_PB2
-#define DBG_SUSPEND_PIN GPIO_PA5
-#define DBG_EXECUTE_TIME GPIO_PA6
-#define DBG_RX_TO_PIN GPIO_PA7
+#define DBG_SUSPEND_PIN GPIO_PB5
+#define DBG_EXECUTE_TIME GPIO_PB6
+#define DBG_RX_TO_PIN GPIO_PB4
 
 #define DBG_SUSPEND 1
 #define TX_INTERVAL (500 * 1000 * 16)
@@ -222,13 +222,13 @@ _attribute_ram_code_sec_noinline_ __attribute__((optimize("-Os"))) void irq_hand
 void user_init(void)
 {
     // gpio config
-    unsigned int pin = GREEN_LED_PIN | RED_LED_PIN | DBG_RX_IRQ_PIN | DBG_RXTIMEOUT_IRQ_PIN | WHITE_LED_PIN | BLUE_LED_PIN;
+    unsigned int pin = GREEN_LED_PIN | RED_LED_PIN  | WHITE_LED_PIN | BLUE_LED_PIN;
     gpio_set_func(pin, AS_GPIO);
     gpio_set_input_en(pin, 0);  // disable output
     gpio_set_output_en(pin, 1); // enable output
     gpio_write(pin, 0);
 
-    pin = DBG_SUSPEND_PIN | DBG_EXECUTE_TIME | DBG_RX_TO_PIN;
+    pin = DBG_SUSPEND_PIN | DBG_EXECUTE_TIME | DBG_RX_IRQ_PIN |DBG_RX_TO_PIN | DBG_RXTIMEOUT_IRQ_PIN;
     gpio_set_func(pin, AS_GPIO);
     gpio_set_input_en(pin, 0);  // disable output
     gpio_set_output_en(pin, 1); // enable output
@@ -319,6 +319,10 @@ _attribute_ram_code_sec_noinline_ int main(void)
     blc_pm_select_internal_32k_crystal();
 
     cpu_wakeup_init(EXTERNAL_XTAL_24M);
+
+    wd_32k_stop();
+
+	user_read_flash_value_calib();
 
     clock_init(SYS_CLK_24M_Crystal);
 

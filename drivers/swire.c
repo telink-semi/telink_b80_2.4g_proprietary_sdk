@@ -1,12 +1,12 @@
 /********************************************************************************************************
  * @file	swire.c
  *
- * @brief	This is the source file for b80
+ * @brief	This is the source file for B80
  *
  * @author	Driver Group
  * @date	2021
  *
- * @par		Copyright (c) 2018, Telink Semiconductor (Shanghai) Co., Ltd.
+ * @par		Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd.
  *			All rights reserved.
  *
  *          The information contained herein is confidential property of Telink

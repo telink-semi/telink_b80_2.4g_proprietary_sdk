@@ -1,9 +1,14 @@
 #include "driver.h"
 
-#define WHITE_LED_PIN                   GPIO_PB5
+#define WHITE_LED_PIN                   GPIO_PA6
 #define DEBUG_IO_PIN                    GPIO_PB0
-#define DEEP_RETENTION_DURATION         500
-#define MAX_DEEP_RETENTION_TIMES        8
+#define DURATION                        500
+#define MAX_TIMES                       8
+#define DEEP_RET_WAKEUP                 1
+#define DEEP_RET_LONG_WAKEUP            2
+#define DEEP_WAKEUP                     3
+#define DEEP_LONG_WAKEUP                4
+#define PM_MODE                         DEEP_RET_LONG_WAKEUP
 
 _attribute_session_(".retention_data") volatile static unsigned char deep_retention_times = 0;
 volatile static unsigned char deep_no_retention_times = 0;
@@ -46,11 +51,15 @@ int main(void)
 
     cpu_wakeup_init(EXTERNAL_XTAL_24M);
 
+    wd_32k_stop();
+
+    user_read_flash_value_calib();
+
     clock_init(SYS_CLK_24M_Crystal);
 
     debug_io_init();
 
-    if (deep_retention_times == MAX_DEEP_RETENTION_TIMES)
+    if (deep_retention_times == MAX_TIMES)
     {
         //resume the SWS for debug
         gpio_set_input_en(GPIO_SWS, 1);
@@ -70,8 +79,20 @@ int main(void)
     deep_no_retention_times++;
 
     gpio_high_z_config();
-    cpu_sleep_wakeup(DEEPSLEEP_MODE_RET_SRAM_LOW16K, PM_WAKEUP_TIMER,
-            ClockTime() + (DEEP_RETENTION_DURATION * CLOCK_16M_SYS_TIMER_CLK_1MS));
+    if(PM_MODE == DEEP_RET_WAKEUP){
+    	cpu_sleep_wakeup(DEEPSLEEP_MODE_RET_SRAM_LOW16K, PM_WAKEUP_TIMER,
+    			ClockTime() + (DURATION * CLOCK_16M_SYS_TIMER_CLK_1MS));
+    }else if(PM_MODE == DEEP_RET_LONG_WAKEUP){
+    	cpu_long_sleep_wakeup(DEEPSLEEP_MODE_RET_SRAM_LOW16K, PM_WAKEUP_TIMER,
+    			DURATION*CLOCK_32K_SYS_TIMER_CLK_1MS);
+    }else if(PM_MODE == DEEP_WAKEUP){
+    	cpu_sleep_wakeup(DEEPSLEEP_MODE, PM_WAKEUP_TIMER,
+    			(clock_time() + DURATION*CLOCK_16M_SYS_TIMER_CLK_1MS));
+    }else{
+    	cpu_long_sleep_wakeup(DEEPSLEEP_MODE, PM_WAKEUP_TIMER,
+    			DURATION*CLOCK_32K_SYS_TIMER_CLK_1MS);
+    }
+
 
     while (1)
     {

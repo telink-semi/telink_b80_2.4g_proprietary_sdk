@@ -1,12 +1,12 @@
 /********************************************************************************************************
  * @file	emi.c
  *
- * @brief	This is the source file for b80
+ * @brief	This is the source file for B80
  *
  * @author	Driver Group
- * @date	2020
+ * @date	2021
  *
- * @par		Copyright (c) 2018, Telink Semiconductor (Shanghai) Co., Ltd.
+ * @par		Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd.
  *			All rights reserved.
  *
  *          The information contained herein is confidential property of Telink
@@ -128,10 +128,16 @@ void rf_emi_rx(RF_ModeTypeDef mode,signed char rf_chn)
 		case RF_MODE_PRIVATE_2M:
 			rf_set_pri_2M_mode();
 			break;
-
+		case RF_MODE_PRIVATE_1M:
+			rf_set_pri_1M_mode();
+			break;
 		default:break;
 	}
 	rf_access_code_comm(0x29417671 );//access code
+	if((mode==RF_MODE_PRIVATE_2M) || (mode==RF_MODE_PRIVATE_1M))
+	{
+		rf_acc_len_set(4);
+	}
 	rf_pn_disable();
 	rf_set_channel(rf_chn,0);//set freq
 	rf_set_tx_rx_off();
@@ -290,7 +296,9 @@ void rf_emi_tx_continue_setup(RF_ModeTypeDef rf_mode,RF_PowerTypeDef power_level
 		case RF_MODE_PRIVATE_2M:
 			rf_set_pri_2M_mode();
 			break;
-
+		case RF_MODE_PRIVATE_1M:
+			rf_set_pri_1M_mode();
+			break;
 		default:break;
 	}
 	rf_pn_disable();
@@ -371,7 +379,9 @@ void rf_emi_tx_burst_setup(RF_ModeTypeDef rf_mode,RF_PowerTypeDef power_level,si
 		case RF_MODE_PRIVATE_2M:
 			rf_set_pri_2M_mode();
 			break;
-
+		case RF_MODE_PRIVATE_1M:
+			rf_set_pri_1M_mode();
+			break;
 		default:break;
 	}
 	rf_pn_disable();
@@ -402,6 +412,7 @@ void rf_emi_tx_burst_setup(RF_ModeTypeDef rf_mode,RF_PowerTypeDef power_level,si
 			break;
 
 		case RF_MODE_PRIVATE_2M:
+		case RF_MODE_PRIVATE_1M:
 			Private_ESB_tx_packet[5] = pkt_type;
 			for( i=0;i<37;i++)
 			{
@@ -452,7 +463,12 @@ void rf_emi_tx_brust_setup_ramp(RF_ModeTypeDef rf_mode,RF_PowerTypeDef power_lev
 		case RF_MODE_ZIGBEE_250K:
 			rf_set_zigbee_250K_mode();
 			break;
-
+		case RF_MODE_PRIVATE_2M:
+			rf_set_pri_2M_mode();
+			break;
+		case RF_MODE_PRIVATE_1M:
+			rf_set_pri_1M_mode();
+			break;
 		default:break;
 	}
 	rf_pn_disable();
@@ -483,7 +499,14 @@ void rf_emi_tx_brust_setup_ramp(RF_ModeTypeDef rf_mode,RF_PowerTypeDef power_lev
 				emi_zigbee_tx_packet[5+i]=tx_data;
 			}
 			break;
-
+		case RF_MODE_PRIVATE_2M:
+		case RF_MODE_PRIVATE_1M:
+			Private_ESB_tx_packet[5] = pkt_type;
+			for( i=0;i<37;i++)
+			{
+				Private_ESB_tx_packet[5+i]=tx_data;
+			}
+			break;
 		default:
 			break;
 	}
@@ -526,7 +549,9 @@ void rf_emi_tx_burst_loop_ramp(RF_ModeTypeDef rf_mode,unsigned char pkt_type)
 	else if(rf_mode==RF_MODE_ZIGBEE_250K)//zigbee
 	{
 		for(int i=0;i<=power;i++)
+		{
 			sub_wr(0x137c, i , 6, 1);
+		}
 
 		rf_tx_pkt(emi_zigbee_tx_packet);
 		while(!rf_tx_finish());
@@ -536,6 +561,23 @@ void rf_emi_tx_burst_loop_ramp(RF_ModeTypeDef rf_mode,unsigned char pkt_type)
 		sleep_ms(4);
 		if(pkt_type==0)
 			rf_phy_test_prbs9(&emi_zigbee_tx_packet[5],37);
+	}
+	else if((rf_mode==RF_MODE_PRIVATE_2M)||(rf_mode==RF_MODE_PRIVATE_1M))
+	{
+		for(int i=0;i<=power;i++)
+		{
+			sub_wr(0x137c, i , 6, 1);
+		}
+		rf_tx_pkt (Private_ESB_tx_packet);
+		while(!rf_tx_finish());
+		rf_tx_finish_clear_flag();
+		for(int i=power;i>=0;i--)
+		{
+			sub_wr(0x137c, i , 6, 1);
+		}
+		sleep_ms(2);
+		if(pkt_type==0)
+			rf_phy_test_prbs9(&Private_ESB_tx_packet[5],37);
 	}
 }
 
@@ -592,7 +634,7 @@ void rf_emi_tx_burst_loop(RF_ModeTypeDef rf_mode,unsigned char pkt_type)
 		if(pkt_type==0)
 			rf_phy_test_prbs9(&emi_zigbee_tx_packet[5],37);
 	}
-	else if(rf_mode==RF_MODE_PRIVATE_2M)
+	else if((rf_mode==RF_MODE_PRIVATE_2M)||(rf_mode==RF_MODE_PRIVATE_1M))
 	{
 		rf_start_stx ((void *)Private_ESB_tx_packet, read_reg32(0x740) + 10);
 		while(!rf_tx_finish());

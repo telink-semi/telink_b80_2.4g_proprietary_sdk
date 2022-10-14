@@ -52,10 +52,10 @@
 #define FW_UPDATE_MASTER_BIN_ADDR   0x20000
 #define FW_UPDATE_FW_VERSION        0x0001
 
-#define GREEN_LED_PIN               GPIO_PB4
-#define WHITE_LED_PIN               GPIO_PB5
-#define RED_LED_PIN                 GPIO_PB6
-#define GPIO_IRQ_PIN				GPIO_PF0 //SW7
+#define GREEN_LED_PIN               GPIO_PA5
+#define WHITE_LED_PIN               GPIO_PA6
+#define RED_LED_PIN                 GPIO_PA7
+#define GPIO_IRQ_PIN				GPIO_PF0 //SW2
 
 unsigned long firmwareVersion;
 volatile unsigned char FW_UPDATE_MasterTrig = 0;
@@ -66,6 +66,11 @@ void user_init(void)
     gpio_set_output_en(GREEN_LED_PIN, 1);           //enable output
     gpio_set_input_en(GREEN_LED_PIN, 0);            //disable input
     gpio_write(GREEN_LED_PIN, 0);
+
+    gpio_set_func(GPIO_PA0 ,AS_GPIO);
+	gpio_set_output_en(GPIO_PA0, 1); 		//enable output
+	gpio_set_input_en(GPIO_PA0 ,0);			//disable input
+	gpio_write(GPIO_PA0, 0);
 
     gpio_set_func(GPIO_IRQ_PIN, AS_GPIO);
     gpio_set_output_en(GPIO_IRQ_PIN, 0);            // disable output
@@ -82,6 +87,10 @@ void user_init(void)
 int main(void)
 {
     cpu_wakeup_init(EXTERNAL_XTAL_24M);
+
+    wd_32k_stop();
+
+	user_read_flash_value_calib();
 
     clock_init(SYS_CLK_24M_Crystal);
 

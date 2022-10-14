@@ -1,9 +1,12 @@
 #include "driver.h"
 
-#define WHITE_LED_PIN           GPIO_PB5
-#define DEBUG_IO_PIN            GPIO_PB0
-#define SUSPEND_DURATION        500
-#define MAX_SUSPEND_TIMES       8
+#define WHITE_LED_PIN                  GPIO_PA6
+#define DEBUG_IO_PIN                   GPIO_PB0
+#define SUSPEND_DURATION               500
+#define MAX_SUSPEND_TIMES              8
+#define SUSPEND_SLEEP_WAKEUP           1
+#define SUSPEND_LONG_SLEEP_WAKEUP      2
+#define PM_MODE                 SUSPEND_LONG_SLEEP_WAKEUP
 
 volatile unsigned char suspend_times = 0;
 
@@ -44,6 +47,10 @@ int main(void)
 
     cpu_wakeup_init(EXTERNAL_XTAL_24M);
 
+    wd_32k_stop();
+
+	user_read_flash_value_calib();
+
     clock_init(SYS_CLK_24M_Crystal);
 
     while (suspend_times < MAX_SUSPEND_TIMES)
@@ -54,7 +61,13 @@ int main(void)
         WaitMs(500);
 
         gpio_high_z_config();
-        cpu_sleep_wakeup(SUSPEND_MODE, PM_WAKEUP_TIMER, ClockTime() + (SUSPEND_DURATION * CLOCK_16M_SYS_TIMER_CLK_1MS));
+        if(PM_MODE == SUSPEND_SLEEP_WAKEUP){
+        cpu_sleep_wakeup(SUSPEND_MODE, PM_WAKEUP_TIMER,
+        		ClockTime() + (SUSPEND_DURATION * CLOCK_16M_SYS_TIMER_CLK_1MS));
+        }else{
+        cpu_long_sleep_wakeup(SUSPEND_MODE, PM_WAKEUP_TIMER,
+        		SUSPEND_DURATION*CLOCK_32K_SYS_TIMER_CLK_1MS);
+        }
         suspend_times++;
     }
 

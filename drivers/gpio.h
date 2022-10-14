@@ -1,46 +1,25 @@
 /********************************************************************************************************
  * @file	gpio.h
  *
- * @brief	This is the header file for b80
+ * @brief	This is the header file for B80
  *
  * @author	Driver Group
- * @date	2020
+ * @date	2021
  *
- * @par     Copyright (c) 2018, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *          All rights reserved.
  *
- *          Redistribution and use in source and binary forms, with or without
- *          modification, are permitted provided that the following conditions are met:
+ *          Licensed under the Apache License, Version 2.0 (the "License");
+ *          you may not use this file except in compliance with the License.
+ *          You may obtain a copy of the License at
  *
- *              1. Redistributions of source code must retain the above copyright
- *              notice, this list of conditions and the following disclaimer.
+ *              http://www.apache.org/licenses/LICENSE-2.0
  *
- *              2. Unless for usage inside a TELINK integrated circuit, redistributions
- *              in binary form must reproduce the above copyright notice, this list of
- *              conditions and the following disclaimer in the documentation and/or other
- *              materials provided with the distribution.
- *
- *              3. Neither the name of TELINK, nor the names of its contributors may be
- *              used to endorse or promote products derived from this software without
- *              specific prior written permission.
- *
- *              4. This software, with or without modification, must only be used with a
- *              TELINK integrated circuit. All other usages are subject to written permission
- *              from TELINK and different commercial license may apply.
- *
- *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
- *              relating to such deletion(s), modification(s) or alteration(s).
- *
- *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
- *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *          Unless required by applicable law or agreed to in writing, software
+ *          distributed under the License is distributed on an "AS IS" BASIS,
+ *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *          See the License for the specific language governing permissions and
+ *          limitations under the License.
  *
  *******************************************************************************************************/
 #pragma once
@@ -50,56 +29,62 @@
 #include "gpio_default.h"
 #include "analog.h"
 
-
-/**
- *  @brief  Define GPIO types. 
- */
 /*
-		Pad 	Default		  General  		 Special1		  Special2		  
-		PA[0] 	GPIO 		 functions 		  PA_KS0			  - 		 	
-		PA[1] 	DM			     - 			  UART_RX 		 	 DM			  	
-		PA[2] 	DP(SWS)          -            UART_TX            DP            	
-		PA[3] 	SWS              -               -               SWS
-		PA[4]   GPIO 		 functions 		  PA_KS4             SWM			 	
-		PA[5] 	GPIO 		 functions 		  PA_KS5 			  - 		  	
-		PA[6] 	GPIO 		 functions 		  PA_KS6 			  - 			
-		PA[7] 	GPIO 		 functions 		  PA_KS7			  - 			
-		PB[0] 	SPI_CN 			 - 			  PB_KS0 			SPI_CN 		
-		PB[1] 	SPI_CK 			 - 			  PB_KS1 			SPI_CK 		
-		PB[2] 	GPIO		 functions 		  PB_KS2 			  - 			
-		PB[3] 	SPI_IO2 		 - 			  PB_KS3 			SPI_IO2 		
-		PB[4] 	GPIO 		 functions 		  PB_KS4 			  - 			
-		PB[5] 	GPIO 		 functions 		  PB_KS5 			  - 			
-		PB[6] 	GPIO 		 functions 		  PB_KS6 		      - 			
-		PB[7] 	GPIO 		 functions 		  PB_KS7 		      -			
-		PC[0] 	GPIO 		 functions 		  PC_KS0 		      - 			
-		PC[1]	GPIO 		 functions 		  PC_KS1 		      - 			
-		PC[2] 	GPIO 		 functions 		  PC_KS2 		      - 		
-		PC[3] 	GPIO 		 functions 		  PC_KS3 			  -
-		PC[4] 	GPIO 		 functions 		  PC_KS4 			  - 		
-		PC[5] 	GPIO 		 functions 		  PC_KS5 			  - 		
-		PC[6] 	GPIO 		 functions 		  PC_KS6 			  - 			
-		PC[7] 	GPIO 		 functions 		  PC_KS7 			  - 			
-		PD[0] 	GPIO 		 functions 		  PD_KS0 			  - 			
-		PD[1]	GPIO 		 functions 		  PD_KS1			  - 			
-		PD[2] 	GPIO 		 functions 		  PD_KS2 			  -				
-		PD[3]	GPIO 		 functions 		  PD_KS3 			  - 				
-		PD[4] 	SPI_IO3 		 - 			  PD_KS4			SPI_IO3			
-		PD[5] 	GPIO 		 functions 		  PD_KS5 			  - 				
-		PD[6] 	GPIO 		 functions 		  PD_KS6 			  - 			
-		PD[7] 	GPIO 		 functions 		  PD_KS7 			  - 		
-		PE[0] 	MSDO 			 -		 		- 				  MOSI 			
-		PE[1] 	MCLK 			 - 				- 				  MCLK 				
-		PE[2] 	MSCN 			 -		 		- 				  MSCN 				
-		PE[3] 	MSDI			 - 				- 				  MISO 			
-		PF[0] 	SPI_MOSI		 - 			  PA_KS1 			SPI_MOSI 		
-		PF[1] 	SPI_MISO 		 - 			  PA_KS2			SPI_MISO 		
-
-	"functions" include 32 functions: WIFI_DENY_I, BLE_STATUS, BLE_ACTIVITY, SPI_CN_IO, SPI_CK_IO, SPI_MOSI_IO,
-		 SPI_MISO_IO, SWM_IO, TX_CYC2PA, RX_CYC2LNA, ANT_SEL2, ANT_SEL1, ANT_SEL0, UART_RTX_IO, CLK_7816,
-		 I2C_SDA_IO, I2C_SCL_IO, UART_RX_I, UART_TX, UART_RTS, UART_CTS_I, PWM5_N, PWM4_N, PWM3_N, PWM2_N,
-		 PWM1_N, PWM0_N, PWM5, PWM4, PWM3, PWM1, PWM0
+    gpio lookup table
+    -support  -not support DF- (support and default)
+ 					 PA0 PA1 PA2 PA3 PA4 PA5 PA6 PA7 PB0 PB1 PB2 PB3 PB4 PB5 PB6 PB7 PC0 PC1 PC2 PC3 PC4 PC5 PC6 PC7 PD0 PD1 PD2 PD3 PD4 PD5 PD6 PD7 PE0 PE1 PE2 PE3 PF0 PF1
+    WIFI_DENY_I		     	  	     	  	  	  	  	  	  	  	  	           	  	              	  	  	  	  	  	  	     	  	     	  	  	  	  
+	BLE_STATUS		     	  	     	  	  	  	  	  	  	  	  	           	  	              	  	  	     	  	  	     	  	  	  	  	  	  	  
+	BLE_ACTIVITY         	  	     	  	  	  	  	  	  	  	  	           	  	           	  	  	  	  	  	  	  	     	  	  	  	  	  	  	  
+	SPI_CSN              	  	        	  	     DF  	  	  	  	           	  	           	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  
+	SPI_CLK			     	  	     	  	  	  	  	  DF  	  	  	           	  	           	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  
+	SPI_MOSI_IO0	     	  	     	  	  	  	  	  	  	  	  	           	  	           	  	  	  	  	  	  	  	  	  	  	  	  	  	     DF  
+	SPI_MISO_IO1	     	  	     	  	  	  	  	  	  	  	  	           	  	           	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  DF
+	SWM				     	  	     	  	  	  	  	  	  	  	  	           	  	           	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  
+	TX_CYC2PA            	  	     	  	  	  	  	  	  	  	  	           	  	           	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  
+	RX_CYC2LNA           	  	     	  	  	  	  	  	  	  	  	           	  	           	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  
+	ANT_SEL2             	  	     	  	  	  	  	  	  	  	  	           	  	           	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  
+	ANT_SEL1             	  	     	     	  	  	  	  	  	  	           	  	           	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  
+	ANT_SEL0             	  	     	  	  	  	  	  	  	  	  	           	  	           	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  
+	UART_RTX             	  	     	  	  	  	  	  	  	  	  	           	  	           	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  
+	CLK_7816             	  	           	  	  	  	  	  	  	           	  	           	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  
+	I2C_SDA              	  	     	  	  	  	  	  	  	  	  	           	  	           	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  
+	I2C_SCL              	  	     	     	  	  	  	  	  	  	           	  	           	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  
+	UART_RX              	  	     	  	  	  	  	     	  	  	           	  	           	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  
+	UART_TX              	  	     	  	  	  	  	  	  	  	  	           	  	           	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  
+	UART_RTS             	  	     	  	  	  	  	  	  	  	  	           	  	           	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  
+	UART_CTS             	  	     	  	  	  	  	  	  	  	  	           	  	           	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  
+	PWM5_N               	  	     	  	  	  	  	  	  	  	  	           	  	           	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  
+	PWM4_N               	  	     	  	  	  	  	  	  	  	  	           	  	           	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  
+	PWM3_N               	  	     	  	  	  	  	  	  	  	  	           	  	           	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  
+	PWM2_N               	  	     	  	  	  	  	  	  	  	  	           	  	           	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  
+	PWM1_N			     	  	     	  	  	  	  	  	  	  	  	           	  	           	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  
+	PWM0_N			     	  	     	  	  	  	  	  	  	  	  	           	  	           	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  
+	PWM5			     	  	     	  	  	  	  	  	  	  	  	           	  	           	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  
+	PWM4			     	  	     	  	  	  	  	  	  	  	  	           	  	           	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  
+	PWM3			     	  	     	  	  	  	  	  	  	  	  	           	  	           	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  
+	PWM1			     	  	     	  	  	  	  	  	  	  	  	           	  	           	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  
+	PWM0			     	  	     	  	  	  	  	  	  	  	  	           	  	           	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  
+	DBG				     	  	     	  	  	  	  	  	  	  	  	           	  	           	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  
+	KEY_SCAN		     	  	     	  	  	  	  	  	  	  	  	           	  	           	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  
+	DM		  		     DF  	     	  	  	  	  	  	  	  	  	           	  	           	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  
+	DP		  		     	  DF     	  	  	  	  	  	  	  	  	           	  	           	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  
+	SWS		  		     	     DF  	  	  	  	  	  	  	  	  	           	  	           	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  
+	SPI_WP_IO2	  	     	  	     	     	  	  	  	  	  DF              	  	           	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  
+	SPI_HOLD_IO3	     	  	     	  	  	  	  	  	  	  	  	           	  	           	  	  	  	  	  	     DF  	  	  	  	  	  	  	  	  
+	MSPI_MOSI		     	        	  	  	  	  	  	  	  	  	           	  	           	  	  	  	  	  	  	  	  	  	     DF  	  	  	  	  
+	MSPI_MCLK		     	        	  	  	  	  	  	  	  	  	           	  	           	  	  	  	  	  	  	  	  	  	  	  	  DF  	  	  	  
+	MSPI_MSCN		     	        	  	  	  	  	  	  	  	  	           	  	           	  	  	  	  	  	  	  	  	  	  	  	  	  DF  	  	  
+	MSPI_MISO		     	        	  	  	  	  	  	  	  	  	           	  	           	  	  	  	  	  	  	  	  	  	  	  	  	     DF  	  
 */
+/**
+ *  @brief  Define GPIO types.
+ * 	@note	the following two point need to noticed when using PB0, PB1, PB3, PD4 and PF0 GPIO ports:
+ *  		1. These pins are not recommend to use as wake-up source;
+ *  		2. Since these pins are output functions by default, even if they are configured with pull-up/pull-down retention,
+ *  		when deep/deep Retention is invoked, they can't maintain high/low level and an abnormal level will occur.
+ *  		Therefore, these pins can't be used in applications where a certain level state needs to be maintained all the time.
+ */
 typedef enum{
 		GPIO_GROUPA    = 0x000,
 		GPIO_GROUPB    = 0x100,
@@ -118,10 +103,10 @@ typedef enum{
 		GPIO_PA7 = GPIO_GROUPA | BIT(7),
 		GPIOA_ALL = GPIO_GROUPA | 0x00ff,
 
-		GPIO_PB0 = GPIO_GROUPB | BIT(0),    GPIO_SPI_CN=GPIO_PB0, // only support SPI_CN  PB_KS0
-		GPIO_PB1 = GPIO_GROUPB | BIT(1),    GPIO_SPI_CK=GPIO_PB1, // only support SPI_CK  PB_KS1
+		GPIO_PB0 = GPIO_GROUPB | BIT(0),    GPIO_SPI_CN=GPIO_PB0, // only support SPI_CSN  PB_KS0
+		GPIO_PB1 = GPIO_GROUPB | BIT(1),    GPIO_SPI_CK=GPIO_PB1, // only support SPI_CLK  PB_KS1
 		GPIO_PB2 = GPIO_GROUPB | BIT(2),
-		GPIO_PB3 = GPIO_GROUPB | BIT(3),    GPIO_SPI_IO2=GPIO_PB3,// only support SPI_IO2  PB_KS3
+		GPIO_PB3 = GPIO_GROUPB | BIT(3),    GPIO_SPI_IO2=GPIO_PB3,// only support SPI_WP_IO2  PB_KS3
 		GPIO_PB4 = GPIO_GROUPB | BIT(4),
 		GPIO_PB5 = GPIO_GROUPB | BIT(5),
 		GPIO_PB6 = GPIO_GROUPB | BIT(6),
@@ -140,18 +125,18 @@ typedef enum{
 		GPIO_PD1 = GPIO_GROUPD | BIT(1),
 		GPIO_PD2 = GPIO_GROUPD | BIT(2),
 		GPIO_PD3 = GPIO_GROUPD | BIT(3),
-		GPIO_PD4 = GPIO_GROUPD | BIT(4),   GPIO_SPI_IO3=GPIO_PD4,// only support  SPI_IO3  PD_KS4
+		GPIO_PD4 = GPIO_GROUPD | BIT(4),   GPIO_SPI_IO3=GPIO_PD4,// only support  SPI_HOLD_IO3  PD_KS4
 		GPIO_PD5 = GPIO_GROUPD | BIT(5),
 		GPIO_PD6 = GPIO_GROUPD | BIT(6),
 		GPIO_PD7 = GPIO_GROUPD | BIT(7),
 
-		GPIO_PE0 = GPIO_GROUPE | BIT(0),  GPIO_MSPI_MISO=GPIO_PE0,// only support MOSI
-		GPIO_PE1 = GPIO_GROUPE | BIT(1),  GPIO_MSPI_MCLK=GPIO_PE1,// only support MCLK
-		GPIO_PE2 = GPIO_GROUPE | BIT(2),  GPIO_MSPI_MSCN=GPIO_PE2,// only support MSCN
-		GPIO_PE3 = GPIO_GROUPE | BIT(3),  GPIO_MSPI_MOSI=GPIO_PE3,// only support MISO
+		GPIO_PE0 = GPIO_GROUPE | BIT(0),  GPIO_MSPI_MISO=GPIO_PE0, // only support MSPI_MOSI
+		GPIO_PE1 = GPIO_GROUPE | BIT(1),  GPIO_MSPI_MCLK=GPIO_PE1, // only support MSPI_MCLK
+		GPIO_PE2 = GPIO_GROUPE | BIT(2),  GPIO_MSPI_MSCN=GPIO_PE2, // only support MSPI_MSCN
+		GPIO_PE3 = GPIO_GROUPE | BIT(3),  GPIO_MSPI_MOSI=GPIO_PE3, // only support MSPI_MISO
 
-		GPIO_PF1 = GPIO_GROUPF | BIT(1),  GPIO_SPI_MISO=GPIO_PF1,// only support SPI_MOSI  PA_KS1
-		GPIO_PF0 = GPIO_GROUPF | BIT(0),  GPIO_SPI_MOSI=GPIO_PF0,// only support SPI_MISO  PA_KS2
+		GPIO_PF1 = GPIO_GROUPF | BIT(1),  GPIO_SPI_MISO=GPIO_PF1,  // only support SPI_MOSI_IO0  KEY_SCAN
+		GPIO_PF0 = GPIO_GROUPF | BIT(0),  GPIO_SPI_MOSI=GPIO_PF0,  // only support SPI_MISO_IO1  KEY_SCAN
 
 
 		GPIO_ALL = 0x600,
@@ -161,58 +146,64 @@ typedef enum{
  *  @brief  Define GPIO function mux types
  */
 typedef enum{
-	    AS_GPIO 	   =  0xff,
+	    AS_GPIO 	   =	0xff,
 
-        AS_DEFAULT     = 0,
-        KSCAN          = 1,
-		DBG            = 2,
+		DM 			   = 	0,
+		DP 			   = 	0,
+		SWS 		   = 	0,
+		SPI_WP_IO2 	   = 	0,
+		SPI_HOLD_IO3   = 	0,
+		MSPI_MOSI	   = 	0,
+		MSPI_MCLK 	   = 	0,
+		MSPI_MSCN 	   = 	0,
+		MSPI_MISO	   = 	0,
 
-		PWM0           = 3,
-		PWM1           = 4,
-		PWM2           = 5,
-		PWM3           = 6,
-		PWM4           = 7,
-		PWM5           = 8,
+        KSCAN          =	1,
+		DBG            =	2,
 
-		PWM0_N         = 9,
-		PWM1_N         = 10,
-		PWM2_N         = 11,
-		PWM3_N         = 12,
-		PWM4_N         = 13,
-		PWM5_N         = 14,
+		PWM0           =	3,
+		PWM1           =	4,
+		PWM2           =	5,
+		PWM3           =	6,
+		PWM4           =	7,
+		PWM5           =	8,
 
-		UART_CTS_I     = 15,
-		UART_RTS       = 16,
-		UART_TX        = 17,
-		UART_RX_I      = 18,
+		PWM0_N         =	9,
+		PWM1_N         =	10,
+		PWM2_N         =	11,
+		PWM3_N         =	12,
+		PWM4_N         =	13,
+		PWM5_N         =	14,
 
-		I2C_SCL        = 19,
-		I2C_SDA        = 20,
+		UART_CTS_I     =	15,
+		UART_RTS       =	16,
+		UART_TX        =	17,
+		UART_RX_I      =	18,
 
-		CLK_7816       = 21,
-		UART_RTX       = 22,
+		I2C_SCL        =	19,
+		I2C_SDA        =	20,
 
-		ATSEL_0        = 23,
-		ATSEL_1        = 24,
-		ATSEL_2        = 25,
+		CLK_7816       =	21,
+		UART_RTX       =	22,
 
-		RX_CYC2LNA     = 26,
-		TX_CYC2PA      = 27,
+		ATSEL_0        =	23,
+		ATSEL_1        =	24,
+		ATSEL_2        =	25,
 
-		SWM	           = 28,
+		RX_CYC2LNA     =	26,
+		TX_CYC2PA      =	27,
 
-		SPI_MISO       = 29,
-		SPI_MOSI       = 30,
-		SPI_CK         = 31,
-		SPI_CN         = 32,
+		SWM	           =	28,
 
-		BLE_ACTIVITY   = 33,
-		BLE_STATUS     = 34,
-		WIFI_DENY_I    = 35,
+		SPI_MISO_IO1   =	29,
+		SPI_MOSI_IO0   =	30,
+		SPI_CLK        =	31,
+		SPI_CSN        =	32,
 
-
+		BLE_ACTIVITY   =	33,
+		BLE_STATUS     =	34,
+		WIFI_DENY_I    =	35,
 }gpio_func_e;
-
 
 typedef enum{
 	Level_Low=0,
@@ -520,6 +511,11 @@ void gpio_set_data_strength(GPIO_PinTypeDef pin, unsigned int value);
  * @param[in] gpio - the pin needs to set its pull-up/down resistor, GPIOE group is not supported
  * @param[in] up_down - the type of the pull-up/down resistor
  * @return    none
+ * @note	* @note	the following two point need to noticed when using PB0, PB1, PB3, PD4 and PF0 GPIO ports:
+ *  		1. These pins are not recommend to use as wake-up source;
+ *  		2. Since these pins are output functions by default, even if they are configured with pull-up/pull-down retention,
+ *  		when deep/deep Retention is invoked, they can't maintain high/low level and an abnormal level will occur.
+ *  		Therefore, these pins can't be used in applications where a certain level state needs to be maintained all the time.
  */
 
 void gpio_setup_up_down_resistor(GPIO_PinTypeDef gpio, GPIO_PullTypeDef up_down);
@@ -696,8 +692,7 @@ static inline void usb_set_pin_en(void)
  */
 static inline void gpio_set_src_irq_group(gpio_group_e group)
 {
-	reg_gpio_irq_sel &= (~group);
-	reg_gpio_irq_sel |= group;
+	reg_gpio_irq_sel = group;
 }
 
 

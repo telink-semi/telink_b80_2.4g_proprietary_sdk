@@ -1,46 +1,25 @@
 /********************************************************************************************************
  * @file	flash_mid136085.c
  *
- * @brief	This is the source file for b80
+ * @brief	This is the source file for B80
  *
  * @author	Driver Group
- * @date	2021
+ * @date	2022
  *
- * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ * @par     Copyright (c) 2022, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *          All rights reserved.
  *
- *          Redistribution and use in source and binary forms, with or without
- *          modification, are permitted provided that the following conditions are met:
+ *          Licensed under the Apache License, Version 2.0 (the "License");
+ *          you may not use this file except in compliance with the License.
+ *          You may obtain a copy of the License at
  *
- *              1. Redistributions of source code must retain the above copyright
- *              notice, this list of conditions and the following disclaimer.
+ *              http://www.apache.org/licenses/LICENSE-2.0
  *
- *              2. Unless for usage inside a TELINK integrated circuit, redistributions
- *              in binary form must reproduce the above copyright notice, this list of
- *              conditions and the following disclaimer in the documentation and/or other
- *              materials provided with the distribution.
- *
- *              3. Neither the name of TELINK, nor the names of its contributors may be
- *              used to endorse or promote products derived from this software without
- *              specific prior written permission.
- *
- *              4. This software, with or without modification, must only be used with a
- *              TELINK integrated circuit. All other usages are subject to written permission
- *              from TELINK and different commercial license may apply.
- *
- *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
- *              relating to such deletion(s), modification(s) or alteration(s).
- *
- *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
- *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *          Unless required by applicable law or agreed to in writing, software
+ *          distributed under the License is distributed on an "AS IS" BASIS,
+ *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *          See the License for the specific language governing permissions and
+ *          limitations under the License.
  *
  *******************************************************************************************************/
 #include "flash_type.h"
@@ -104,6 +83,7 @@ void flash_write_status_mid136085(unsigned short data, mid136085_write_status_bi
  */
 void flash_lock_mid136085(mid136085_lock_block_e data)
 {
+	flash_write_config_mid136085(0x00,FLASH_WRITE_CONFIGURE_WPS_MID136085);
 	flash_write_status_mid136085(data, FLASH_WRITE_STATUS_BP_MID136085);
 }
 
@@ -122,6 +102,7 @@ void flash_lock_mid136085(mid136085_lock_block_e data)
  */
 void flash_unlock_mid136085(void)
 {
+	flash_write_config_mid136085(0x00,FLASH_WRITE_CONFIGURE_WPS_MID136085);
 	flash_write_status_mid136085(FLASH_LOCK_NONE_MID136085, FLASH_WRITE_STATUS_BP_MID136085);
 }
 
@@ -175,13 +156,14 @@ void flash_write_otp_mid136085(unsigned long addr, unsigned long len, unsigned c
 
 /**
  * @brief 		This function serves to erase the data of the Security Registers that you choose.
- * 				You can erase 512-byte one time.
+ * 				You can erase 1024-byte one time.
  * @param[in]   addr	- the address that you want to erase.
  *						the address of the  Security Registers #1 0x001000-0x0011ff
  *						the address of the  Security Registers #2 0x002000-0x0021ff
  *						the address of the  Security Registers #3 0x003000-0x0031ff
  * @return 		none.
  * @note		Even you choose the middle area of the Security Registers,it will erase the whole area.
+ *
  *              Attention: Before calling the FLASH function, please check the power supply voltage of the chip.
  *              Only if the detected voltage is greater than the safe voltage value, the FLASH function can be called.
  *              Taking into account the factors such as power supply fluctuations, the safe voltage value needs to be greater
@@ -219,3 +201,25 @@ void flash_lock_otp_mid136085(mid136085_lock_otp_e data)
 	flash_write_status_mid136085(data, FLASH_WRITE_STATUS_OTP_MID136085);
 }
 
+/**
+ * @brief 		This function write the configure of flash.
+ * @param[in]  	data	- the value of configure.
+ * @param[in]  	bit		- the range of bits to be modified when writing configure.
+ * @return 		none.
+ * @note        Attention: Before calling the FLASH function, please check the power supply voltage of the chip.
+ *              Only if the detected voltage is greater than the safe voltage value, the FLASH function can be called.
+ *              Taking into account the factors such as power supply fluctuations, the safe voltage value needs to be greater
+ *              than the minimum chip operating voltage. For the specific value, please make a reasonable setting according
+ *              to the specific application and hardware circuit.
+ *
+ *              Risk description: When the chip power supply voltage is relatively low, due to the unstable power supply,
+ *              there may be a risk of error in the operation of the flash (especially for the write and erase operations.
+ *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
+ */
+void flash_write_config_mid136085(unsigned char data, mid136085_write_config_bit_e bit)
+{
+	unsigned char config = 0;
+	config=flash_read_config();
+	data |= (config & ~(bit));
+	flash_write_config(FLASH_WRITE_CONFIGURE_CMD_2, data);
+}

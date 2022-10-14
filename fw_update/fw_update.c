@@ -56,9 +56,9 @@
 #define FW_UPDATE_REBOOT_WAIT               (100 * 1000) //in us
 #define FW_UPDATE_BOOT_FLAG_OFFSET          8
 
-#define GREEN_LED_PIN                       GPIO_PB4
-#define WHITE_LED_PIN                       GPIO_PB5
-#define RED_LED_PIN                         GPIO_PB6
+#define GREEN_LED_PIN                       GPIO_PA5
+#define WHITE_LED_PIN                       GPIO_PA6
+#define RED_LED_PIN                         GPIO_PA7
 
 typedef struct {
     unsigned int Type;

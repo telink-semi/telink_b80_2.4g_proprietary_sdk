@@ -1,8 +1,8 @@
 #include "driver.h"
 
 #define CLOCK_SYS_CLOCK_HZ      24000000
-#define UART_TX_PIN_PA4         GPIO_PA4
-#define UART_RX_PIN_PA5         GPIO_PA5
+#define UART_TX_PIN_PD0         GPIO_PD0
+#define UART_RX_PIN_PD1         GPIO_PD1
 /* notes:
  * rec_buff_Len Set up rules:(Both conditions have to be met)
  * 1.The rec_buff_Len value is a multiple of 16     (16 * n)
@@ -52,7 +52,7 @@ void user_init()
     // note: dma addr must be set first before any other uart initialization!
     uart_recbuff_init((unsigned char *)&recv_buff, sizeof(recv_buff));
 
-    uart_gpio_set(UART_TX_PIN_PA4, UART_RX_PIN_PA5);
+    uart_gpio_set(UART_TX_PIN_PD0, UART_RX_PIN_PD1);
 
     uart_reset();
 
@@ -74,6 +74,10 @@ void user_init()
 int main(void)
 {
     cpu_wakeup_init(EXTERNAL_XTAL_24M);
+
+    wd_32k_stop();
+
+	user_read_flash_value_calib();
 
     clock_init(SYS_CLK_24M_Crystal);
 

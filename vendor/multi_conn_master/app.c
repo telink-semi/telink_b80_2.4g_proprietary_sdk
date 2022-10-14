@@ -5,18 +5,18 @@
 #define DEBUG_LOG 0
 #define DEVICE_LOG_NUM 0
 
-#define BLUE_LED_PIN GPIO_PB3
-#define GREEN_LED_PIN GPIO_PB4
-#define WHITE_LED_PIN GPIO_PB5
-#define RED_LED_PIN GPIO_PB6
+#define BLUE_LED_PIN GPIO_PA4
+#define GREEN_LED_PIN GPIO_PA5
+#define WHITE_LED_PIN GPIO_PA6
+#define RED_LED_PIN GPIO_PA7
 
-#define DEBUG_PA6 GPIO_PA6
-#define DEBUG_PA7 GPIO_PA7
+#define DEBUG_PB6 GPIO_PB6
+#define DEBUG_PB7 GPIO_PB7
 #define DEBUG_PB0 GPIO_PB0
 #define DEBUG_PB1 GPIO_PB1
 #define DEBUG_PB2 GPIO_PB2
 
-#define DEBUG_PB7 GPIO_PB7
+#define DEBUG_PB5 GPIO_PB5
 #define DEBUG_PC0 GPIO_PC0
 #define DEBUG_PC1 GPIO_PC1
 
@@ -215,7 +215,7 @@ _attribute_ram_code_sec_noinline_ __attribute__((optimize("-Os"))) void irq_hand
         {
             timer_start(TIMER0);
         }
-        gpio_toggle(DEBUG_PA6);
+        gpio_toggle(DEBUG_PB6);
         reg_system_tick_irq_level = clock_time() ^ BIT(31);
         reg_irq_src = FLD_IRQ_SYSTEM_TIMER;
 
@@ -301,13 +301,13 @@ void user_init(void)
     gpio_set_output_en(pin, 1);
     gpio_write(pin, 0);
 
-    pin = DEBUG_PA6 | DEBUG_PA7;
+    pin = DEBUG_PB6 | DEBUG_PB7;
     gpio_set_func(pin, AS_GPIO);
     gpio_set_input_en(pin, 0);
     gpio_set_output_en(pin, 1);
     gpio_write(pin, 0);
 
-    pin = DEBUG_PB0 | DEBUG_PB1 | DEBUG_PB2 | DEBUG_PB7;
+    pin = DEBUG_PB0 | DEBUG_PB1 | DEBUG_PB2 | DEBUG_PB5;
     gpio_set_func(pin, AS_GPIO);
     gpio_set_input_en(pin, 0);
     gpio_set_output_en(pin, 1);
@@ -373,7 +373,7 @@ _attribute_ram_code_sec_noinline_ void proc_user_task()
         rx_timeout_flag = 0;
         tx_done_flag = 0; // clear broadcast status, when the last broadcast packet rsp by slave? fixme???
 
-        gpio_write(DEBUG_PA7, 0);
+        gpio_write(DEBUG_PB7, 0);
 
         set_conn_rf_len();
         ll_ctrl_data.state = LL_STATE_CONN;
@@ -427,7 +427,7 @@ _attribute_ram_code_sec_noinline_ void start_brct()
     app_sync_init();
     ll_ctrl_data.brct_tick = clock_time();
     ll_ctrl_data.state = LL_STATE_BRCT;
-    gpio_write(DEBUG_PA7, 1);
+    gpio_write(DEBUG_PB7, 1);
 }
 
 _attribute_ram_code_sec_noinline_ void set_conn_rf_len()
@@ -705,7 +705,7 @@ _attribute_ram_code_sec_noinline_ void app_sync_task(void)
             sync_flg = 1;
 
             // temp_anchor_tick = clock_time();
-            gpio_toggle(DEBUG_PA6);
+            gpio_toggle(DEBUG_PB6);
             // temp_anchor_tick_d = temp_anchor_tick - temp_anchor;
             // temp_tick_ms = temp_anchor_tick_d / 16;
             // temp_tick_ms = temp_tick_ms / 1000;

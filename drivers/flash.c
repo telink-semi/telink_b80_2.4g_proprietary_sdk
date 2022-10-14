@@ -1,7 +1,7 @@
 /********************************************************************************************************
  * @file	flash.c
  *
- * @brief	This is the source file for b80
+ * @brief	This is the source file for B80
  *
  * @author	Driver Group
  * @date	2021
@@ -9,38 +9,17 @@
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *          All rights reserved.
  *
- *          Redistribution and use in source and binary forms, with or without
- *          modification, are permitted provided that the following conditions are met:
+ *          Licensed under the Apache License, Version 2.0 (the "License");
+ *          you may not use this file except in compliance with the License.
+ *          You may obtain a copy of the License at
  *
- *              1. Redistributions of source code must retain the above copyright
- *              notice, this list of conditions and the following disclaimer.
+ *              http://www.apache.org/licenses/LICENSE-2.0
  *
- *              2. Unless for usage inside a TELINK integrated circuit, redistributions
- *              in binary form must reproduce the above copyright notice, this list of
- *              conditions and the following disclaimer in the documentation and/or other
- *              materials provided with the distribution.
- *
- *              3. Neither the name of TELINK, nor the names of its contributors may be
- *              used to endorse or promote products derived from this software without
- *              specific prior written permission.
- *
- *              4. This software, with or without modification, must only be used with a
- *              TELINK integrated circuit. All other usages are subject to written permission
- *              from TELINK and different commercial license may apply.
- *
- *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
- *              relating to such deletion(s), modification(s) or alteration(s).
- *
- *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
- *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *          Unless required by applicable law or agreed to in writing, software
+ *          distributed under the License is distributed on an "AS IS" BASIS,
+ *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *          See the License for the specific language governing permissions and
+ *          limitations under the License.
  *
  *******************************************************************************************************/
 #include "flash.h"
@@ -52,9 +31,12 @@
 /*
  *	If add flash type, need pay attention to the read uid command and the bit number of status register
 	Flash Type	uid CMD			MID		Company		Sector Erase Time(MAX)
-	P25D40L		0x4b		0x136085	PUYA		20ms
+	GD25LD10C	0x4b(AN)	0x1160C8	GD			500ms
+	GD25LD40C	0x4b		0x1360C8	GD			500ms
+	P25Q40SU    0x4b        0x136085    PUYA        30ms
+	P25D09U		0x4b		0x114485	PUYA		20ms
  */
-unsigned int flash_support_mid[] = {0x136085};
+unsigned int flash_support_mid[] = {0x1160c8,0x1360c8,0x136085,0x114485};
 const unsigned int FLASH_CNT = sizeof(flash_support_mid)/sizeof(*flash_support_mid);
 
 flash_hander_t flash_read_page = flash_read_data;
@@ -429,6 +411,46 @@ void flash_read_uid(unsigned char idcmd, unsigned char *buf)
 	}
 }
 
+/**
+ * @brief 		This function is used to write the configure of the flash,P25Q40SU uses this function.
+ * @param[in]   cmd			- the write command.
+ * @param[out]  data		- the start address of the data buffer.
+ * @return 		none.
+ * @note        Attention: Before calling the FLASH function, please check the power supply voltage of the chip.
+ *              Only if the detected voltage is greater than the safe voltage value, the FLASH function can be called.
+ *              Taking into account the factors such as power supply fluctuations, the safe voltage value needs to be greater
+ *              than the minimum chip operating voltage. For the specific value, please make a reasonable setting according
+ *              to the specific application and hardware circuit.
+ *
+ *              Risk description: When the chip power supply voltage is relatively low, due to the unstable power supply,
+ *              there may be a risk of error in the operation of the flash (especially for the write and erase operations.
+ *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
+ */
+void flash_write_config(unsigned char cmd,unsigned char data)
+{
+	flash_mspi_write_ram(cmd, 0, 0, &data, 1);
+}
+
+/**
+ * @brief 		This function is used to read the configure of the flash,P25Q40SU uses this function.
+ * @return 		the value of configure.
+ * @note        Attention: Before calling the FLASH function, please check the power supply voltage of the chip.
+ *              Only if the detected voltage is greater than the safe voltage value, the FLASH function can be called.
+ *              Taking into account the factors such as power supply fluctuations, the safe voltage value needs to be greater
+ *              than the minimum chip operating voltage. For the specific value, please make a reasonable setting according
+ *              to the specific application and hardware circuit.
+ *
+ *              Risk description: When the chip power supply voltage is relatively low, due to the unstable power supply,
+ *              there may be a risk of error in the operation of the flash (especially for the write and erase operations.
+ *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
+ */
+unsigned char  flash_read_config(void)
+{
+	unsigned char config=0;
+	flash_mspi_read_ram(FLASH_READ_CONFIGURE_CMD, 0, 0, 0, &config, 1);
+	return config;
+}
+
 /*******************************************************************************************************************
  *												Secondary interface
  ******************************************************************************************************************/
@@ -493,6 +515,8 @@ unsigned int flash_get_vendor(unsigned int flash_mid)
 	case 0x00004051:
 		return FLASH_ETOX_GD;
 	case 0x00006085:
+		return FLASH_SONOS_PUYA;
+	case 0x00004485:
 		return FLASH_SONOS_PUYA;
 	case 0x000060EB:
 		return FLASH_SONOS_TH;

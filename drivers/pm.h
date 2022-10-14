@@ -1,46 +1,25 @@
 /********************************************************************************************************
  * @file	pm.h
  *
- * @brief	This is the header file for b80
+ * @brief	This is the header file for B80
  *
  * @author	Driver Group
- * @date	2020
+ * @date	2021
  *
- * @par     Copyright (c) 2018, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *          All rights reserved.
  *
- *          Redistribution and use in source and binary forms, with or without
- *          modification, are permitted provided that the following conditions are met:
+ *          Licensed under the Apache License, Version 2.0 (the "License");
+ *          you may not use this file except in compliance with the License.
+ *          You may obtain a copy of the License at
  *
- *              1. Redistributions of source code must retain the above copyright
- *              notice, this list of conditions and the following disclaimer.
+ *              http://www.apache.org/licenses/LICENSE-2.0
  *
- *              2. Unless for usage inside a TELINK integrated circuit, redistributions
- *              in binary form must reproduce the above copyright notice, this list of
- *              conditions and the following disclaimer in the documentation and/or other
- *              materials provided with the distribution.
- *
- *              3. Neither the name of TELINK, nor the names of its contributors may be
- *              used to endorse or promote products derived from this software without
- *              specific prior written permission.
- *
- *              4. This software, with or without modification, must only be used with a
- *              TELINK integrated circuit. All other usages are subject to written permission
- *              from TELINK and different commercial license may apply.
- *
- *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
- *              relating to such deletion(s), modification(s) or alteration(s).
- *
- *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
- *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *          Unless required by applicable law or agreed to in writing, software
+ *          distributed under the License is distributed on an "AS IS" BASIS,
+ *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *          See the License for the specific language governing permissions and
+ *          limitations under the License.
  *
  *******************************************************************************************************/
 #pragma once
@@ -53,36 +32,7 @@
 
 #define PM_LONG_SUSPEND_EN					1
 
-#ifndef PM_TIM_RECOVER_MODE
-#define PM_TIM_RECOVER_MODE			    	0
-#endif
-
-
-#define XTAL_READY_CHECK_TIMING_OPTIMIZE	1
-
 #define RAM_CRC_EN							0		//if use RAM_CRC func, retention ldo will turn down to 0.6V in A1, A0 is 0.8V.
-
-//when timer wakeup,the DCDC delay time is accurate,but other wake-up sources wake up,
-//this time is ((PM_DCDC_DELAY_CYCLE+1)*2-1)*32us ~ (PM_DCDC_DELAY_CYCLE+1)*2*32us
-#define PM_DCDC_DELAY_DURATION     					250   // delay_time_us = (PM_DCDC_DELAY_CYCLE+1)*2*32us
-												  // 2 * 1/16k = 125 uS, 3 * 1/16k = 187.5 uS  4*1/16k = 250 uS
-
-#define PM_XTAL_MANUAL_MODE_DELAY		    200  //150  200
-
-#if(PM_DCDC_DELAY_DURATION == 62)
-#define PM_DCDC_DELAY_CYCLE		0
-#elif(PM_DCDC_DELAY_DURATION == 125)
-#define PM_DCDC_DELAY_CYCLE		1
-#elif(PM_DCDC_DELAY_DURATION == 187)
-#define PM_DCDC_DELAY_CYCLE		2
-#elif(PM_DCDC_DELAY_DURATION == 250)
-#define PM_DCDC_DELAY_CYCLE		3
-#endif
-
-#define EARLYWAKEUP_TIME_US_SUSPEND 		(PM_DCDC_DELAY_DURATION + PM_XTAL_MANUAL_MODE_DELAY + 200)  //100: code running time margin//154  //175
-#define EARLYWAKEUP_TIME_US_DEEP_RET    	(PM_DCDC_DELAY_DURATION + 90)//(PM_DCDC_DELAY_DURATION + 32)
-//#define EARLYWAKEUP_TIME_US_DEEP	    	(PM_DCDC_DELAY_DURATION + 32 + ((SOFT_START_DLY)*62))
-#define EMPTYRUN_TIME_US       	    		(EARLYWAKEUP_TIME_US_SUSPEND + 200)
 
 #define EARLYWAKEUP_TIME			19
 #define	tick_32k_tick_per_ms		32
@@ -99,7 +49,7 @@
  * 	      Reset these analog registers only by power cycle
  */
 
-#define DEEP_ANA_REG0                       0x3a //initial value =0x00
+#define DEEP_ANA_REG0                       0x3a //initial value =0x00	[Bit1] The crystal oscillator failed to start normally.The customer cannot change!
 #define DEEP_ANA_REG1                       0x3b //initial value =0x00
 #define DEEP_ANA_REG2                       0x3c //initial value =0x0f
 
@@ -119,12 +69,15 @@
 
 
 //ana3b system used, user can not use
-#define SYS_DEEP_ANA_REG 					DEEP_ANA_REG1
+//#define SYS_DEEP_ANA_REG 					DEEP_ANA_REG1
 #define WAKEUP_STATUS_TIMER_CORE     	    ( WAKEUP_STATUS_TIMER | WAKEUP_STATUS_CORE)
 #define WAKEUP_STATUS_TIMER_PAD		        ( WAKEUP_STATUS_TIMER | WAKEUP_STATUS_PAD)
 
 /**
  * @brief sleep mode.
+ * @note	After entering suspend mode,the registers of linklayer and modem return to default values,so the
+ * 			functions in rf.h need to be reconfigured after suspend. (The registers with base address 0x400,
+ * 			0xf00,0x1200 need to be reconfigured.)
  */
 typedef enum {
 	//available mode for customer
@@ -178,6 +131,35 @@ typedef enum {
 	 PM_POWER_USB  			= BIT(1),	//weather to power on the USB before suspend.
 }pm_suspend_power_cfg_e;
 
+/**
+ * @brief	wakeup tick type definition
+ */
+typedef enum {
+	 PM_TICK_STIMER_16M		= 0,
+	 PM_TICK_32K			= 1,
+}pm_wakeup_tick_type_e;
+
+/**
+ * @brief	early wakeup time
+ */
+typedef struct {
+	unsigned short  suspend;	/*< suspend_early_wakeup_time_us >*/
+	unsigned short  deep_ret;	/*< deep_ret_early_wakeup_time_us >*/
+	unsigned short  deep;		/*< deep_early_wakeup_time_us >*/
+	unsigned short  min;		/*< sleep_min_time_us >*/
+}pm_early_wakeup_time_us_s;
+
+extern volatile pm_early_wakeup_time_us_s g_pm_early_wakeup_time_us;
+
+/**
+ * @brief	hardware delay time
+ */
+typedef struct {
+	unsigned short  deep_r_delay_cycle ;			/**< hardware delay time, deep_r_delay_us = (deep_r_delay_cycle+1) * 1/16k */
+	unsigned short  suspend_ret_r_delay_cycle ;		/**< hardware delay time, suspend_ret_r_delay_us = (suspend_ret_r_delay_cycle+1) * 1/16k */
+}pm_r_delay_cycle_s;
+
+extern volatile pm_r_delay_cycle_s g_pm_r_delay_cycle;
 
 /**
  * @brief   deepsleep wakeup by external xtal
@@ -201,18 +183,22 @@ typedef struct{
 	unsigned char rsvd;
 }pm_para_t;
 
+
+/**
+ * @brief	vdd_1v2 voltage definition
+ */
+typedef enum {
+	 VDD_1V2_1V35   = 0x07,
+	 VDD_1V2_1V3    = 0x06,
+	 VDD_1V2_1V25   = 0x05,
+	 VDD_1V2_1V2    = 0x04,
+	 VDD_1V2_1V15   = 0x03,
+	 VDD_1V2_1V1    = 0x02,
+	 VDD_1V2_1V05   = 0x01,
+	 VDD_1V2_1V0    = 0x00,
+}pm_vdd_1v2_voltage_e;
+
 extern _attribute_aligned_(4) pm_para_t	pmParam;
-
-#if (PM_TIM_RECOVER_MODE)
-
-typedef struct{
-	unsigned int   tick_sysClk;
-	unsigned int   tick_32k;
-	unsigned int   recover_flag;
-}pm_tim_recover_t;
-
-extern _attribute_aligned_(4) pm_tim_recover_t			pm_timRecover;
-#endif
 
 
 typedef int (*suspend_handler_t)(void);
@@ -233,20 +219,6 @@ static inline void ram_crc_en_timing(unsigned int RAM_CRC_16K_Timing, unsigned i
 {
 	RAM_CRC_EN_16KRAM_TIME = RAM_CRC_16K_Timing;
 	RAM_CRC_EN_32KRAM_TIME = RAM_CRC_32K_Timing;
-}
-
-
-/**
- * @brief      This function serves to change the timing of soft start delay.
- * @param[in]  none.
- * @return     none.
- */
-extern unsigned char SOFT_START_DLY;
-extern unsigned int EARLYWAKEUP_TIME_US_DEEP;
-static inline void soft_start_dly_time(unsigned char soft_start_time)
-{
-	SOFT_START_DLY = soft_start_time;
-	EARLYWAKEUP_TIME_US_DEEP = PM_DCDC_DELAY_DURATION + 90 + ((SOFT_START_DLY)*62);
 }
 
 /**
@@ -301,38 +273,22 @@ static inline int pm_get_wakeup_src(void)
 void pm_set_suspend_power_cfg(pm_suspend_power_cfg_e value, unsigned char on_off);
 
 /**
- * @brief   This function serves to wake up cpu from stall mode by timer0.
- * @param   tick - capture value of timer0.
- * @return  none.
+ * @brief		This function will put the cpu into the stall state, and then wake up by the specified wakeup source.
+ * 				All interrupt sources can wake the CPU from stall mode.
+ * 				Depending on the configuration, the execution flow after waking up will be different:
+ * 				If the bit corresponding to the wake-up source in the register reg_irq_mask is enabled and the total interrupt is turned on,
+ * 				the CPU will be interrupted first after waking up from the stall state, and then continue to execute.
+ * 				If the bit corresponding to the wake-up source in the register reg_irq_mask is disabled,
+ * 				the CPU will continue to execute after waking up from the stall state.
+ * 				No matter which execution flow is taken after wake-up, the interrupt flag corresponding to the wake-up source needs to be clear after wake-up.
+ * @param[in]	irq_mask - interrupt source for wake up.
+ * @return		none.
  */
-void cpu_stall_wakeup_by_timer0(unsigned int tick);
-
-/**
- * @brief   This function serves to wake up cpu from stall mode by timer1.
- * @param   tick - capture value of timer1.
- * @return  none.
- */
-void cpu_stall_wakeup_by_timer1(unsigned int tick);
-
-/**
- * @brief   This function serves to wake up cpu from stall mode by timer2.
- * @param   tick - capture value of timer2.
- * @return  none.
- */
-void cpu_stall_wakeup_by_timer2(unsigned int tick);
-
-/**
- * @brief   This function serves to wake up cpu from stall mode by timer1 or RF TX done irq.
- * @param   WakeupSrc  - timer1.
- * @param   IntervalUs - capture value of timer1.
- * @param   sysclktick - tick value of per us based on system clock.
- * @return  none.
- */
-unsigned int cpu_stall(int WakeupSrc, unsigned int IntervalUs,unsigned int sysclktick);
+void cpu_stall_wakeup(irq_list_e irq_mask);
 
 /**
  * @brief      This function configures a GPIO pin as the wakeup pin.
- * @param[in]  pin - the pin needs to be configured as wakeup pin
+ * @param[in]  pin - the pins can be set to all GPIO except PB0, PB1, PB3, PD4, PF0 and GPIOE groups.
  * @param[in]  pol - the wakeup polarity of the pad pin(0: low-level wakeup, 1: high-level wakeup)
  * @param[in]  en  - enable or disable the wakeup function for the pan pin(1: Enable, 0: Disable)
  * @return     none
@@ -397,24 +353,27 @@ extern  pm_tim_recover_handler_t pm_tim_recover;
  * @brief      This function serves to set the working mode of MCU based on 32k rc,e.g. suspend mode, deepsleep mode, deepsleep with SRAM retention mode and shutdown mode.
  				This chip use 1.5V power supply,the 32k rc ppm about 2000,if need the accuracy higher,need use software to improve it. 
  * @param[in]  sleep_mode - sleep mode type select.
- * @param[in]  wakeup_src - wake up source select.
+ * @param[in]  wakeup_src - wake up source select, and if only KEY_SCAN is set as the wake-up source in sleep mode (there is no Timer wake-up source), the 32K watchdog will be turned off inside the function..
  * @param[in]  wakeup_tick - the time of short sleep, which means MCU can sleep for less than 5 minutes.
  * @return     indicate whether the cpu is wake up successful.
  */
-int  cpu_sleep_wakeup_32k_rc(SleepMode_TypeDef sleep_mode,  SleepWakeupSrc_TypeDef wakeup_src, unsigned int  wakeup_tick);
+int  cpu_sleep_wakeup_32k_rc(SleepMode_TypeDef sleep_mode,  SleepWakeupSrc_TypeDef wakeup_src, pm_wakeup_tick_type_e wakeup_tick_type, unsigned int  wakeup_tick);
 
 /**
  * @brief      This function serves to set the working mode of MCU based on 32k crystal,e.g. suspend mode, deepsleep mode, deepsleep with SRAM retention mode and shutdown mode.
  * @param[in]  sleep_mode - sleep mode type select.
- * @param[in]  wakeup_src - wake up source select.
+ * @param[in]  wakeup_src - wake up source select, and if only KEY_SCAN is set as the wake-up source in sleep mode (there is no Timer wake-up source), the 32K watchdog will be turned off inside the function..
  * @param[in]  wakeup_tick - the time of short sleep, which means MCU can sleep for less than 5 minutes.
  * @return     indicate whether the cpu is wake up successful.
  */
-int  cpu_sleep_wakeup_32k_xtal(SleepMode_TypeDef sleep_mode,  SleepWakeupSrc_TypeDef wakeup_src, unsigned int  wakeup_tick);
+int  cpu_sleep_wakeup_32k_xtal(SleepMode_TypeDef sleep_mode,  SleepWakeupSrc_TypeDef wakeup_src, pm_wakeup_tick_type_e wakeup_tick_type, unsigned int  wakeup_tick);
 
-typedef int (*cpu_pm_handler_t)(SleepMode_TypeDef sleep_mode,  SleepWakeupSrc_TypeDef wakeup_src, unsigned int  wakeup_tick);
+typedef int (*cpu_pm_handler_t)(SleepMode_TypeDef sleep_mode,  SleepWakeupSrc_TypeDef wakeup_src, pm_wakeup_tick_type_e wakeup_tick_type, unsigned int  wakeup_tick);
 
-extern 	cpu_pm_handler_t  		 cpu_sleep_wakeup;
+extern 	cpu_pm_handler_t  		 cpu_sleep_wakeup_and_longsleep;
+
+#define cpu_sleep_wakeup(sleep_mode, wakeup_src, wakeup_tick)  cpu_sleep_wakeup_and_longsleep(sleep_mode, wakeup_src, PM_TICK_STIMER_16M, wakeup_tick)
+#define cpu_long_sleep_wakeup(sleep_mode, wakeup_src, wakeup_tick)  cpu_sleep_wakeup_and_longsleep(sleep_mode, wakeup_src, PM_TICK_32K, wakeup_tick)
 
 /**
  * @brief      This function serves to determine whether wake up source is internal 32k RC.
@@ -423,10 +382,9 @@ extern 	cpu_pm_handler_t  		 cpu_sleep_wakeup;
  */
 static inline void blc_pm_select_internal_32k_crystal(void)
 {
-	cpu_sleep_wakeup 	 	= cpu_sleep_wakeup_32k_rc;
-	pm_tim_recover  	 	= pm_tim_recover_32k_rc;
-
-	blt_miscParam.pm_enter_en 	= 1; // allow enter pm, 32k rc does not need to wait for 32k clk to be stable
+	cpu_sleep_wakeup_and_longsleep	= cpu_sleep_wakeup_32k_rc;
+	pm_tim_recover					= pm_tim_recover_32k_rc;
+	blt_miscParam.pm_enter_en		= 1; // allow enter pm, 32k rc does not need to wait for 32k clk to be stable
 }
 
 extern void check_32k_clk_stable(void);
@@ -438,11 +396,10 @@ extern void check_32k_clk_stable(void);
  */
 static inline void blc_pm_select_external_32k_crystal(void)
 {
-	cpu_sleep_wakeup 	 	= cpu_sleep_wakeup_32k_xtal;
-	pm_check_32k_clk_stable = check_32k_clk_stable;
-	pm_tim_recover		 	= pm_tim_recover_32k_xtal;
-
-	blt_miscParam.pad32k_en 	= 1; // set '1': 32k clk src use external 32k crystal
+	cpu_sleep_wakeup_and_longsleep	= cpu_sleep_wakeup_32k_xtal;
+	pm_check_32k_clk_stable			= check_32k_clk_stable;
+	pm_tim_recover					= pm_tim_recover_32k_xtal;
+	blt_miscParam.pad32k_en			= 1; // set '1': 32k clk src use external 32k crystal
 }
 /**
  * @brief		This function serves to set flash voltage vdd_f.TO ensure the vdd_f is enough to supply the flash,need to calibration the vdd_f.
@@ -450,6 +407,34 @@ static inline void blc_pm_select_external_32k_crystal(void)
  * @return		none.
  */
 void pm_set_vdd_f(Flash_VoltageDef voltage_ldo);
+
+/**
+ * @brief		This function serves to set dig_ldo vdd_1v2.
+ *              for otp products, if all codes cannot be executed in ram code, there is a risk of crash. need to enable 32K watchdog and trim vDD1V2 voltage to reduce the risk.
+ * @param[in]	vdd_1v2_voltage - the vdd_1v2 need to set.
+ * @return		none.
+ */
+void pm_set_vdd_1v2(pm_vdd_1v2_voltage_e vdd_1v2_voltage);
+
+/**
+ * @brief		This function is used to configure the early wake-up time.
+ * @param[in]	param - deep/suspend/deep_retention r_delay time.(default value: suspend/deep_ret=7, deep=15)
+ * @return		none.
+ */
+void pm_set_wakeup_time_param(pm_r_delay_cycle_s param);
+
+/**
+ * @brief		This function is used in applications where the crystal oscillator is relatively slow to start.
+ * 				When the start-up time is very slow, you can call this function to avoid restarting caused
+ * 				by insufficient crystal oscillator time (it is recommended to leave a certain margin when setting).
+ * @param[in]	delay_us - This time setting is related to the parameter nopnum, which is about the execution time of the for loop
+ * 							in the ramcode(default value: 200).
+ * @param[in]	loopnum - The time for the crystal oscillator to stabilize is approximately: loopnum*40us(default value: 10).
+ * @param[in]	nopnum - The number of for loops used to wait for the crystal oscillator to stabilize after suspend wakes up.
+ * 						 for(i = 0; i < nopnum; i++){ asm("tnop"); }(default value: Flash=250, OTP=Flash-60).
+ * @return		none.
+ */
+void pm_set_xtal_stable_timer_param(unsigned int delay_us, unsigned int loopnum, unsigned int nopnum);
 
 /**********************************  Internal APIs (not for user)***************************************************/
 extern  unsigned short 		    tl_multi_addr;
@@ -468,17 +453,6 @@ void cpu_set_32k_tick(unsigned int tick);
 
 void soft_reboot_dly13ms_use24mRC(void);
 
-void pm_set_32k_watchdog_interval(unsigned int interval_offset);
 
-#if PM_LONG_SLEEP_WAKEUP_EN
-/**
- * @brief      This function servers to wake up the cpu from sleep mode.
- * @param[in]  sleep_mode - sleep mode type select.
- * @param[in]  wakeup_src - wake up source select.
- * @param[in]  SleepDurationUs - the time of sleep.
- * @return     indicate whether the cpu is wake up successful.
- */
-int pm_long_sleep_wakeup (SleepMode_TypeDef sleep_mode, SleepWakeupSrc_TypeDef wakeup_src, unsigned int  SleepDurationUs);
-#endif
 
 

@@ -1,8 +1,8 @@
 #include "driver.h"
 
-#define GREEN_LED_PIN           GPIO_PB4
-#define WHITE_LED_PIN           GPIO_PB5
-#define RED_LED_PIN             GPIO_PB6
+#define GREEN_LED_PIN           GPIO_PA5
+#define WHITE_LED_PIN           GPIO_PA6
+#define RED_LED_PIN             GPIO_PA7
 #define SAMPLE_INTPUT_PIN       GPIO_PC7
 #define PULSE_OUTPUT_PIN        GPIO_PB2
 
@@ -61,6 +61,10 @@ void user_init(void)
 _attribute_ram_code_sec_noinline_ int main(void)
 {
     cpu_wakeup_init(EXTERNAL_XTAL_24M);
+
+    wd_32k_stop();
+
+	user_read_flash_value_calib();
 
     clock_init(SYS_CLK_24M_Crystal);
 

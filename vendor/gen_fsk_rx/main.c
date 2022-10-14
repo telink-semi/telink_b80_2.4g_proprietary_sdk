@@ -1,7 +1,7 @@
 #include "driver.h"
 #include "genfsk_ll.h"
 
-#define GREEN_LED_PIN           GPIO_PB4
+#define GREEN_LED_PIN           GPIO_PA5
 #define RX_BUF_LEN              64
 #define RX_BUF_NUM              4
 volatile static unsigned char rx_buf[RX_BUF_LEN * RX_BUF_NUM] __attribute__ ((aligned (4))) = {};
@@ -82,6 +82,10 @@ void user_init(void)
 int main(void)
 {
     cpu_wakeup_init(EXTERNAL_XTAL_24M);
+
+    wd_32k_stop();
+
+	user_read_flash_value_calib();
 
     clock_init(SYS_CLK_24M_Crystal);
 

@@ -58,10 +58,10 @@
 #define BATT_CHECK_ENABLE       1
 #define VBAT_ALRAM_THRES_MV     2000
 
-#define BLUE_LED_PIN            GPIO_PB3
-#define GREEN_LED_PIN           GPIO_PB4
-#define WHITE_LED_PIN           GPIO_PB5
-#define RED_LED_PIN             GPIO_PB6
+#define BLUE_LED_PIN            GPIO_PA4
+#define GREEN_LED_PIN           GPIO_PA5
+#define WHITE_LED_PIN           GPIO_PA6
+#define RED_LED_PIN             GPIO_PA7
 #define OTA_MASTER_TRIG_PIN     GPIO_PF0
 
 unsigned long firmwareVersion;
@@ -91,6 +91,11 @@ static unsigned char  battery_power_check()
 void user_init(void)
 {
     //  key related pins config
+    gpio_set_func(GPIO_PA0 ,AS_GPIO);
+	gpio_set_output_en(GPIO_PA0, 1); 		//enable output
+	gpio_set_input_en(GPIO_PA0 ,0);			//disable input
+	gpio_write(GPIO_PA0, 0);
+
     gpio_set_func(OTA_MASTER_TRIG_PIN, AS_GPIO);
     gpio_set_output_en(OTA_MASTER_TRIG_PIN, 0);            // disable output
     gpio_set_input_en(OTA_MASTER_TRIG_PIN, 1);             // enable input
@@ -115,6 +120,10 @@ int main(void)
 	blc_pm_select_internal_32k_crystal();
 
     cpu_wakeup_init(EXTERNAL_XTAL_24M);
+
+    wd_32k_stop();
+
+	user_read_flash_value_calib();
 
     clock_init(SYS_CLK_24M_Crystal);
 

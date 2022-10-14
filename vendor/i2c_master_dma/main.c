@@ -2,8 +2,8 @@
 #include "driver.h"
 
 #define CLOCK_SYS_CLOCK_HZ              24000000
-#define I2C_SDA_PIN                     GPIO_PA4
-#define I2C_SCL_PIN                     GPIO_PA5
+#define I2C_SDA_PIN                     GPIO_PB5
+#define I2C_SCL_PIN                     GPIO_PB4
 #define DBG_DATA_LEN                    16
 #define DBG_DATA_NUM	                16
 
@@ -34,6 +34,10 @@ void user_init()
 int main (void)
 {
     cpu_wakeup_init(EXTERNAL_XTAL_24M);
+
+    wd_32k_stop();
+
+	user_read_flash_value_calib();
 
     clock_init(SYS_CLK_24M_Crystal);
 

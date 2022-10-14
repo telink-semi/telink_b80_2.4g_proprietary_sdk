@@ -50,10 +50,10 @@
 #include "mac.h"
 #include "genfsk_ll.h"
 
-#define BLUE_LED_PIN            GPIO_PB3
-#define GREEN_LED_PIN           GPIO_PB4
-#define WHITE_LED_PIN           GPIO_PB5
-#define RED_LED_PIN             GPIO_PB6
+#define BLUE_LED_PIN            GPIO_PA4
+#define GREEN_LED_PIN           GPIO_PA5
+#define WHITE_LED_PIN           GPIO_PA6
+#define RED_LED_PIN             GPIO_PA7
 
 //#define OTA_MASTER_EN          1
 #define MSG_QUEUE_LEN          4

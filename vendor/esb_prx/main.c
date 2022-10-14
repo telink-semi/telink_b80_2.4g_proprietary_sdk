@@ -47,7 +47,7 @@
 #include "driver.h"
 #include "esb_ll.h"
 
-#define GREEN_LED_PIN           GPIO_PB4
+#define GREEN_LED_PIN           GPIO_PA5
 #define ACK_PAYLOAD_LEN         32
 
 static volatile unsigned int rx_interval_us, rx_timestamp, rx_rssi = 0;
@@ -103,6 +103,10 @@ static void user_init(unsigned char chnn)
 int main(void)
 {
     cpu_wakeup_init(EXTERNAL_XTAL_24M);
+
+    wd_32k_stop();
+
+	user_read_flash_value_calib();
 
     clock_init(SYS_CLK_24M_Crystal);
 

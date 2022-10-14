@@ -48,8 +48,8 @@
 #include "tl_esb_ll.h"
 #include "assert.h"
 
-#define GREEN_LED_PIN           GPIO_PB4
-#define WHITE_LED_PIN           GPIO_PB5
+#define GREEN_LED_PIN           GPIO_PA5
+#define WHITE_LED_PIN           GPIO_PA6
 trf_esb_payload_t tx_payload = TRF_ESB_CREATE_PAYLOAD(TRF_ESB_PIPE0,
                                 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
                                 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10,
@@ -128,6 +128,10 @@ int main(void)
     unsigned char err_code;
 
     cpu_wakeup_init(EXTERNAL_XTAL_24M);
+
+    wd_32k_stop();
+
+	user_read_flash_value_calib();
 
     clock_init(SYS_CLK_24M_Crystal);
 

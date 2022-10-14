@@ -4,7 +4,8 @@
 #define FLASH_SECURITY_ADDR     0x001000
 #define FLASH_BUFF_LEN          256
 #define FLASH_OTP_LOCK          0
-#define GREEN_LED_PIN           GPIO_PB4
+#define GREEN_LED_PIN           GPIO_PA5
+#define RED_LED_PIN             GPIO_PA7
 
 volatile unsigned char Flash_Read_Buff[FLASH_BUFF_LEN]={0};
 volatile unsigned char Flash_Write_Buff[FLASH_BUFF_LEN]= {
@@ -77,6 +78,96 @@ volatile unsigned short status5=0;
 volatile unsigned int  mid=0;
 unsigned char uid[16]={0};
 
+void flash_mid1160c8_test(void)
+{
+	int i;
+
+	status1 = flash_read_status_mid1160c8();
+	flash_lock_mid1160c8(FLASH_LOCK_LOW_64K_MID1160C8);
+	status2 = flash_read_status_mid1160c8();
+	flash_erase_sector(FLASH_ADDR);
+	flash_read_page(FLASH_ADDR+0x80,FLASH_BUFF_LEN,(unsigned char *)Flash_Read_Buff);
+	for(i=0; i<FLASH_BUFF_LEN; i++){
+		if(Flash_Read_Buff[i] != Flash_Write_Buff[i]){
+			err_status.lock_err = 1;
+			while(1);
+		}
+	}
+	check_status.lock_check = 1;
+
+	flash_unlock_mid1160c8();
+	status3 = flash_read_status_mid1160c8();
+	flash_erase_sector(FLASH_ADDR);
+	flash_read_page(FLASH_ADDR+0x80,FLASH_BUFF_LEN,(unsigned char *)Flash_Read_Buff);
+	for(i=0; i<FLASH_BUFF_LEN; i++){
+		if(Flash_Read_Buff[i] != 0xff){
+			err_status.unlock_err = 1;
+			while(1);
+		}
+	}
+	check_status.unlock_check = 1;
+}
+
+void flash_mid1360c8_test(void)
+{
+	int i;
+
+	status1 = flash_read_status_mid1360c8();
+	flash_lock_mid1360c8(FLASH_LOCK_LOW_256K_MID1360C8);
+	status2 = flash_read_status_mid1360c8();
+	flash_erase_sector(FLASH_ADDR);
+	flash_read_page(FLASH_ADDR+0x80,FLASH_BUFF_LEN,(unsigned char *)Flash_Read_Buff);
+	for(i=0; i<FLASH_BUFF_LEN; i++){
+		if(Flash_Read_Buff[i] != Flash_Write_Buff[i]){
+			err_status.lock_err = 1;
+			while(1);
+		}
+	}
+	check_status.lock_check = 1;
+
+	flash_unlock_mid1360c8();
+	status3 = flash_read_status_mid1360c8();
+	flash_erase_sector(FLASH_ADDR);
+	flash_read_page(FLASH_ADDR+0x80,FLASH_BUFF_LEN,(unsigned char *)Flash_Read_Buff);
+	for(i=0; i<FLASH_BUFF_LEN; i++){
+		if(Flash_Read_Buff[i] != 0xff){
+			err_status.unlock_err = 1;
+			while(1);
+		}
+	}
+	check_status.unlock_check = 1;
+}
+
+void flash_mid114485_test(void)
+{
+	int i;
+
+	status1 = flash_read_status_mid114485();
+	flash_lock_mid114485(FLASH_LOCK_LOW_64K_MID114485);
+	status2 = flash_read_status_mid114485();
+	flash_erase_sector(FLASH_ADDR);
+	flash_read_page(FLASH_ADDR+0x80,FLASH_BUFF_LEN,(unsigned char *)Flash_Read_Buff);
+	for(i=0; i<FLASH_BUFF_LEN; i++){
+		if(Flash_Read_Buff[i] != Flash_Write_Buff[i]){
+			err_status.lock_err = 1;
+			while(1);
+		}
+	}
+	check_status.lock_check = 1;
+
+	flash_unlock_mid114485();
+	status3 = flash_read_status_mid114485();
+	flash_erase_sector(FLASH_ADDR);
+	flash_read_page(FLASH_ADDR+0x80,FLASH_BUFF_LEN,(unsigned char *)Flash_Read_Buff);
+	for(i=0; i<FLASH_BUFF_LEN; i++){
+		if(Flash_Read_Buff[i] != 0xff){
+			err_status.unlock_err = 1;
+			while(1);
+		}
+	}
+	check_status.unlock_check = 1;
+}
+
 void flash_mid136085_test(void)
 {
     int i;
@@ -144,6 +235,7 @@ void flash_mid136085_test(void)
 
 
 
+
 #if (BATT_CHECK_ENABLE)
 static unsigned char  battery_power_check()
 {
@@ -208,11 +300,20 @@ static void  user_init(void)
 
     switch(mid)
     {
-    case 0x136085:
-        flash_mid136085_test();
-        break;
-    default:
-        break;
+    case 0x1160c8:
+		flash_mid1160c8_test();
+		break;
+	case 0x1360c8:
+		flash_mid1360c8_test();
+		break;
+	case 0x136085:
+		flash_mid136085_test();
+		break;
+	case 0x114485:
+		flash_mid114485_test();
+		break;
+	default:
+		break;
     }
 }
 
@@ -221,6 +322,10 @@ static void  user_init(void)
 int main(void)
 {
     cpu_wakeup_init(EXTERNAL_XTAL_24M);
+
+    wd_32k_stop();
+
+	user_read_flash_value_calib();
 
     clock_init(SYS_CLK_24M_Crystal);
 

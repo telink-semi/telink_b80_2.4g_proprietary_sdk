@@ -1,46 +1,25 @@
 /********************************************************************************************************
  * @file	uart.c
  *
- * @brief	This is the source file for b80
+ * @brief	This is the source file for B80
  *
  * @author	Driver Group
- * @date	2020
+ * @date	2021
  *
- * @par     Copyright (c) 2018, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *          All rights reserved.
  *
- *          Redistribution and use in source and binary forms, with or without
- *          modification, are permitted provided that the following conditions are met:
+ *          Licensed under the Apache License, Version 2.0 (the "License");
+ *          you may not use this file except in compliance with the License.
+ *          You may obtain a copy of the License at
  *
- *              1. Redistributions of source code must retain the above copyright
- *              notice, this list of conditions and the following disclaimer.
+ *              http://www.apache.org/licenses/LICENSE-2.0
  *
- *              2. Unless for usage inside a TELINK integrated circuit, redistributions
- *              in binary form must reproduce the above copyright notice, this list of
- *              conditions and the following disclaimer in the documentation and/or other
- *              materials provided with the distribution.
- *
- *              3. Neither the name of TELINK, nor the names of its contributors may be
- *              used to endorse or promote products derived from this software without
- *              specific prior written permission.
- *
- *              4. This software, with or without modification, must only be used with a
- *              TELINK integrated circuit. All other usages are subject to written permission
- *              from TELINK and different commercial license may apply.
- *
- *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
- *              relating to such deletion(s), modification(s) or alteration(s).
- *
- *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
- *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *          Unless required by applicable law or agreed to in writing, software
+ *          distributed under the License is distributed on an "AS IS" BASIS,
+ *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *          See the License for the specific language governing permissions and
+ *          limitations under the License.
  *
  *******************************************************************************************************/
 #include "uart.h"
@@ -592,6 +571,25 @@ void uart_set_cts(unsigned char Enable, unsigned char Select,GPIO_PinTypeDef pin
 }
 
 
+/**
+ * @brief      This function selects  pin for spi master or slave mode.
+ * @param[in]  pin  - the selected pin.
+ * @return     none
+ */
+void uart_set_pin_mux(GPIO_PinTypeDef pin,gpio_func_e function)
+{
+	if (pin != 0)
+	{
+		 //When the pad is configured with mux input and a pull-up resistor is required, gpio_input_en needs to be placed before gpio_function_dis,
+		 //otherwise first set gpio_input_disable and then call the mux function interface,the mux pad will may misread the short low-level timing.confirmed by minghai.20210709.
+		gpio_set_input_en(pin, 1);
+		//note: pullup setting must before uart gpio config, cause it will lead to ERR data to uart RX buffer(confirmed by sihui&sunpeng)
+		//PM_PIN_PULLUP_1M   PM_PIN_PULLUP_10K
+		gpio_setup_up_down_resistor(pin, PM_PIN_PULLUP_10K);  //must, for stability and prevent from current leakage
+		gpio_set_func( pin, function);
+	}
+}
+
 
 /**
 * @brief      This function serves to select pin for UART module.
@@ -601,17 +599,8 @@ void uart_set_cts(unsigned char Enable, unsigned char Select,GPIO_PinTypeDef pin
 */
 void uart_gpio_set(GPIO_PinTypeDef tx_pin,GPIO_PinTypeDef rx_pin)
 {
-	 //When the pad is configured with mux input and a pull-up resistor is required, gpio_input_en needs to be placed before gpio_function_dis,
-	 //otherwise first set gpio_input_disable and then call the mux function interface,the mux pad will may misread the short low-level timing.confirmed by minghai.20210709.
-	gpio_set_input_en(tx_pin, 1);
-	gpio_set_input_en(rx_pin, 1);
-	//note: pullup setting must before uart gpio config, cause it will lead to ERR data to uart RX buffer(confirmed by sihui&sunpeng)
-	//PM_PIN_PULLUP_1M   PM_PIN_PULLUP_10K
-	gpio_setup_up_down_resistor(tx_pin, PM_PIN_PULLUP_10K);  //must, for stability and prevent from current leakage
-	gpio_setup_up_down_resistor(rx_pin, PM_PIN_PULLUP_10K);  //must  for stability and prevent from current leakage
-	gpio_set_func(tx_pin,UART_TX);
-	gpio_set_func(rx_pin,UART_RX_I);
-
+	uart_set_pin_mux(tx_pin,(tx_pin != GPIO_PA2) ? UART_TX:1);
+	uart_set_pin_mux(rx_pin,(rx_pin != GPIO_PA1) ? UART_RX_I:1);
 }
 /**
  * @brief   This function enables the irq when UART module receives error data.

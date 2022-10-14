@@ -7,13 +7,13 @@
 
 #define DEVICE_D_ID 0
 
-#define BLUE_LED_PIN GPIO_PB3
-#define GREEN_LED_PIN GPIO_PB4
-#define WHITE_LED_PIN GPIO_PB5
-#define RED_LED_PIN GPIO_PB6
+#define BLUE_LED_PIN GPIO_PA4
+#define GREEN_LED_PIN GPIO_PA5
+#define WHITE_LED_PIN GPIO_PA6
+#define RED_LED_PIN GPIO_PA7
 
-#define DEBUG_PA6 GPIO_PA6
-#define DEBUG_PA7 GPIO_PA7
+#define DEBUG_PB6 GPIO_PB6
+#define DEBUG_PB7 GPIO_PB7
 #define DEBUG_PB0 GPIO_PB0
 #define DEBUG_PB1 GPIO_PB1
 #define DEBUG_PB2 GPIO_PB2
@@ -102,10 +102,6 @@ typedef struct ll_comm_ctrl_data
     u8 snnesn;
     u32 clsf_tick;
     u8 con_tx_cnt;
-    u32 auto_flush_tick;
-    u8 is_nak_or_to;
-    u8 is_flush_tx_buff;
-
 } ll_comm_ctrl_data_t;
 ll_comm_ctrl_data_t ll_ctrl_data;
 
@@ -185,6 +181,9 @@ unsigned int sync_tx_cnt = 0, sync_rx_cnt = 0, sync_first_timeout_cnt = 0;
 unsigned char sync_first_tx = 0;
 unsigned char need_clsf_flag = 0;
 
+unsigned int rx_to_cnt = 0;
+int m_bad_chnl_times = 0;
+
 unsigned char broadcast_chnn_idx = 0;
 unsigned char broadcast_channel_map[3] = {8, 18, 28};
 
@@ -245,7 +244,7 @@ void user_init(void)
     gpio_set_output_en(pin, 1);
     gpio_write(pin, 0);
 
-    pin = DEBUG_PA6 | DEBUG_PA7;
+    pin = DEBUG_PB6 | DEBUG_PB7;
     gpio_set_func(pin, AS_GPIO);
     gpio_set_input_en(pin, 0);
     gpio_set_output_en(pin, 1);
@@ -332,12 +331,6 @@ _attribute_ram_code_sec_noinline_ void proc_user_task()
         ll_ctrl_data.clsf_tick = clock_time();
         refresh_chnl_map();
     }
-
-    if (ll_ctrl_data.is_nak_or_to == 1 &&
-        clock_time_exceed(ll_ctrl_data.auto_flush_tick, sync_tx_interval_ms * 3 * 1000))
-    {
-        ll_ctrl_data.is_flush_tx_buff = 1;
-    }
 }
 
 void app_sync_init(void);
@@ -351,6 +344,10 @@ _attribute_ram_code_sec_noinline_ int main(void)
     blc_pm_select_internal_32k_crystal();
 
     cpu_wakeup_init(EXTERNAL_XTAL_24M);
+
+    wd_32k_stop();
+
+	user_read_flash_value_calib();
 
     clock_init(SYS_CLK_24M_Crystal);
 
@@ -479,8 +476,6 @@ _attribute_ram_code_sec_noinline_ u8 ll_flow_process(u8 peer, u8 local)
         // prepare next packet with SN = peer_nesn;
         local = (local & ~LL_FLOW_SN) | (peer_nesn << 1);
         local |= LL_FLOW_SENT;
-
-        ll_ctrl_data.is_nak_or_to = 0;
     }
     else
     {
@@ -555,15 +550,13 @@ _attribute_ram_code_sec_noinline_ void proc_rx_data_1()
     ll_ctrl_data.snnesn = ll_flow_process(peer, ll_ctrl_data.snnesn);
     if (!(ll_ctrl_data.snnesn & LL_FLOW_SENT))
     {
-        if (ll_ctrl_data.con_tx_cnt >= AUTO_FLUSH_CNT_THRES)
-        {
-            ll_ctrl_data.con_tx_cnt = 0;
-        }
-        else
+        if (ll_ctrl_data.con_tx_cnt < AUTO_FLUSH_CNT_THRES)
         {
             return;
         }
     }
+
+    ll_ctrl_data.con_tx_cnt = 0;
 
     ll_tx_packet_t *ptx = (ll_tx_packet_t *)tx_buffer;
     unsigned char cmd = prx->cmd;
@@ -657,7 +650,7 @@ _attribute_ram_code_sec_noinline_ void app_low_energy_task(void)
     {
         tx_done_flag = 0;
         sync_tx_cnt++;
-        gpio_toggle(DEBUG_PA7);
+        gpio_toggle(DEBUG_PB7);
         if (sync_first_tx == 1)
         {
             sync_first_tx = 0;
@@ -724,10 +717,8 @@ _attribute_ram_code_sec_noinline_ void app_low_energy_task(void)
     {
         gpio_toggle(GREEN_LED_PIN);
 
-        gpio_toggle(DEBUG_PA6);
+        gpio_toggle(DEBUG_PB6);
         sync_rx_cnt++;
-
-        ll_ctrl_data.con_tx_cnt = 0;
 
         rx_flag = 0;
         rx_timestamp = gen_fsk_rx_timestamp_get((unsigned char *)rx_packet);
@@ -756,6 +747,12 @@ _attribute_ram_code_sec_noinline_ void app_low_energy_task(void)
 #endif
 
         ll_ctrl_data.con_tx_cnt++;
+
+        if (ll_ctrl_data.con_tx_cnt >= AUTO_FLUSH_CNT_THRES) // auto flush occurs
+        {
+            ll_ctrl_data.con_tx_cnt = 0;
+            build_ll_data_packet();
+        }
 
         next_rx_point = next_rx_point + (sync_tx_interval_ms * CLOCK_16M_SYS_TIMER_CLK_1MS);
 

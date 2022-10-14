@@ -1,6 +1,6 @@
 #include "driver.h"
 
-#define GREEN_LED_PIN           GPIO_PB4
+#define GREEN_LED_PIN           GPIO_PA5
 #define CLOCK_SYS_CLOCK_HZ      24000000
 
 enum {
@@ -28,6 +28,10 @@ void user_init(void)
 int main(void)
 {
     cpu_wakeup_init(EXTERNAL_XTAL_24M);
+
+    wd_32k_stop();
+
+	user_read_flash_value_calib();
 
     clock_init(SYS_CLK_24M_Crystal);
 

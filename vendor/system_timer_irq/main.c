@@ -30,6 +30,10 @@ int main(void)
 {
     cpu_wakeup_init(EXTERNAL_XTAL_24M);
 
+    wd_32k_stop();
+
+	user_read_flash_value_calib();
+
     clock_init(SYS_CLK_24M_Crystal);
 
     user_init();

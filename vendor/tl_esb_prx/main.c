@@ -47,9 +47,9 @@
 #include "driver.h"
 #include "tl_esb_ll.h"
 
-#define GREEN_LED_PIN           GPIO_PB4
-#define WHITE_LED_PIN           GPIO_PB5
-#define RED_LED_PIN             GPIO_PB6
+#define GREEN_LED_PIN           GPIO_PA5
+#define WHITE_LED_PIN           GPIO_PA6
+#define RED_LED_PIN             GPIO_PA7
 
 trf_esb_payload_t rx_payload;
 trf_esb_payload_t ack_payload = TRF_ESB_CREATE_PAYLOAD(TRF_ESB_PIPE0,
@@ -139,6 +139,10 @@ int main(void)
     unsigned char err_code;
 
     cpu_wakeup_init(EXTERNAL_XTAL_24M);
+
+    wd_32k_stop();
+
+	user_read_flash_value_calib();
 
     clock_init(SYS_CLK_24M_Crystal);
 

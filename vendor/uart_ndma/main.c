@@ -1,8 +1,8 @@
 #include "driver.h"
 
 #define CLOCK_SYS_CLOCK_HZ      24000000
-#define UART_TX_PIN_PA4         GPIO_PA4
-#define UART_RX_PIN_PA5         GPIO_PA5
+#define UART_TX_PIN_PD0         GPIO_PD0
+#define UART_RX_PIN_PD1         GPIO_PD1
 
 #define UART_RX_TRIG_LEVEL      1       //B85/B87/B89 can only be 1,B80 can be 1 or 4.
 #define RECV_BUF_LEN            16
@@ -50,7 +50,7 @@ void user_init()
 {
     WaitMs(1000); //leave enough time for SWS_reset when power on
 
-    uart_gpio_set(UART_TX_PIN_PA4, UART_RX_PIN_PA5);
+    uart_gpio_set(UART_TX_PIN_PD0, UART_RX_PIN_PD1);
 
     uart_reset();
 
@@ -72,6 +72,10 @@ void user_init()
 int main()
 {
     cpu_wakeup_init(EXTERNAL_XTAL_24M);
+
+    wd_32k_stop();
+
+	user_read_flash_value_calib();
 
     clock_init(SYS_CLK_24M_Crystal);
 

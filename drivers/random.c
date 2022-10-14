@@ -1,7 +1,7 @@
 /********************************************************************************************************
  * @file	random.c
  *
- * @brief	This is the source file for b80
+ * @brief	This is the source file for B80
  *
  * @author	Driver Group
  * @date	2021
@@ -130,32 +130,14 @@ unsigned short adc_rng_result(void)
  */
 void rng_init(void)
 {
-	//set R_max_mc,R_max_c,R_max_s
-	//set R_max_mc,R_max_c,R_max_s
-	adc_set_length_capture_state_for_chn_misc_rns(0xf0);//max_mc=240
-	adc_set_length_set_state(0x0a);//	R_max_s=10
-	//set total length for sampling state machine and channel
-	adc_set_chn_enable(ADC_MISC_CHN);//same//adc_set_chn_enable_and_max_state_cnt(ADC_MISC_CHN, 2);
-	adc_set_max_state_cnt(0x02);//same
-
-	//set channel Vref
-	adc_set_ref_voltage(ADC_VREF_1P2V);
-
 	//set Vbat divider select,
 	adc_set_vref_vbat_divider(ADC_VBAT_DIVIDER_OFF);
 
 	//set channel mode and channel
-	adc_set_ain_channel_differential_mode(VBAT, GND);
-
-	//set resolution for RNG
-	adc_set_resolution(RES14);
-
-	//Number of ADC clock cycles in sampling phase
-	adc_set_tsample_cycle(SAMPLING_CYCLES_6);
+	adc_set_ain_chn_misc(VBAT, GND);
 
 	//set Analog input pre-scaling and
 	adc_set_ain_pre_scaler(ADC_PRESCALER_1F8);//  ADC_PRESCALER_1F8
-
 }
 
 void random_generator_init(void)
@@ -177,7 +159,7 @@ void random_generator_init(void)
  * @param[in] none.
  * @return    the value of one random number.
  */
-_attribute_ram_code_sec_noinline_ unsigned int rand(void)  //16M clock, code in flash 23us, code in sram 4us
+unsigned int rand(void)  //16M clock, code in flash 23us, code in sram 4us
 {
 	rnd_m_w = 18000 * (rnd_m_w & 0xffff) + (rnd_m_w >> 16);
 	rnd_m_z = 36969 * (rnd_m_z & 0xffff) + (rnd_m_z >> 16);

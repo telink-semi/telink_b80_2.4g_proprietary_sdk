@@ -1,61 +1,68 @@
 /********************************************************************************************************
  * @file	watchdog.c
  *
- * @brief	This is the source file for b80
+ * @brief	This is the source file for B80
  *
  * @author	Driver Group
- * @date	2020
+ * @date	2021
  *
- * @par     Copyright (c) 2018, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *          All rights reserved.
  *
- *          Redistribution and use in source and binary forms, with or without
- *          modification, are permitted provided that the following conditions are met:
+ *          Licensed under the Apache License, Version 2.0 (the "License");
+ *          you may not use this file except in compliance with the License.
+ *          You may obtain a copy of the License at
  *
- *              1. Redistributions of source code must retain the above copyright
- *              notice, this list of conditions and the following disclaimer.
+ *              http://www.apache.org/licenses/LICENSE-2.0
  *
- *              2. Unless for usage inside a TELINK integrated circuit, redistributions
- *              in binary form must reproduce the above copyright notice, this list of
- *              conditions and the following disclaimer in the documentation and/or other
- *              materials provided with the distribution.
- *
- *              3. Neither the name of TELINK, nor the names of its contributors may be
- *              used to endorse or promote products derived from this software without
- *              specific prior written permission.
- *
- *              4. This software, with or without modification, must only be used with a
- *              TELINK integrated circuit. All other usages are subject to written permission
- *              from TELINK and different commercial license may apply.
- *
- *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
- *              relating to such deletion(s), modification(s) or alteration(s).
- *
- *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
- *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *          Unless required by applicable law or agreed to in writing, software
+ *          distributed under the License is distributed on an "AS IS" BASIS,
+ *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *          See the License for the specific language governing permissions and
+ *          limitations under the License.
  *
  *******************************************************************************************************/
 #include "register.h"
+#include "pm.h"
+#include "analog.h"
 
 /**
- * @brief     This function set the seconds period.It is likely with WD_SetInterval.
- *            Just this function calculate the value to set the register automatically .
- * @param[in] period_s - The seconds to set. unit is second
+ * @brief     start 32k watchdog.
  * @return    none
+ * @note      For otp products, if all codes cannot be executed in ram code, there will be a risk of crash,
+ *            so 32K watchdog needs to be enabled to reduce the risk (this interface must be put in ram code to reduce the risk, if put in text segment, there will be a risk of error).
  */
-void wd_set_interval_ms(unsigned int period_ms,unsigned long int tick_per_ms)
-{
-	static unsigned short tmp_period_ms = 0;
-	tmp_period_ms = (period_ms*tick_per_ms>>18);
-	reg_tmr2_tick = 0x00000000;    //reset tick register
-	reg_tmr_ctrl=(reg_tmr_ctrl&(~FLD_TMR_WD_CAPT))|((tmp_period_ms<<9)&FLD_TMR_WD_CAPT);//set the capture register
+_attribute_ram_code_sec_noinline_ void wd_32k_start(void){
+
+	analog_write(0x70, analog_read(0x70) | 0x01);
 }
 
+/**
+ * @brief     stop 32k watchdog.
+ * @return    none
+ * @note      For otp products, if all codes cannot be executed in ram code, there will be a risk of crash,
+ *            so 32K watchdog needs to be enabled to reduce the risk (this interface must be put in ram code to reduce the risk, if put in text segment, there will be a risk of error).
+ */
+_attribute_ram_code_sec_noinline_ void wd_32k_stop(void){
+
+	analog_write(0x70, analog_read(0x70) & 0xfe);
+}
+
+/**
+ * @brief     This function set the watchdog trigger time.
+ * @param[in] period_ms - The watchdog trigger time. Unit is  millisecond, ranges from 1~134,217,720ms.
+ * @return    none
+ * @note      For otp products, if all codes cannot be executed in ram code, there will be a risk of crash,
+ *            so 32K watchdog needs to be enabled to reduce the risk (this interface must be put in ram code to reduce the risk, if put in text segment, there will be a risk of error).
+ */
+_attribute_ram_code_sec_noinline_ void wd_32k_set_interval_ms(unsigned int period_ms)
+{
+	unsigned int tmp_period_ms = 0;
+
+	tmp_period_ms = pm_get_32k_tick() + 32 * period_ms;
+
+	analog_write(0x73, tmp_period_ms >> 24);
+	analog_write(0x72, tmp_period_ms >> 16);
+	analog_write(0x71, tmp_period_ms >> 8);
+	analog_write(0x70,(analog_read(0x70)&(~BIT_RNG(5,7)))|(tmp_period_ms&0xe0));
+}

@@ -1,7 +1,7 @@
 #include "driver.h"
 
-#define WAKEUP_PIN          GPIO_PF0    //SW7
-#define WHITE_LED_PIN       GPIO_PB5
+#define WAKEUP_PIN          GPIO_PC0
+#define WHITE_LED_PIN       GPIO_PA6
 
 _attribute_session_(".ram_code") static void gpio_high_z_config(void)
 {
@@ -42,6 +42,10 @@ int main(void)
     blc_pm_select_internal_32k_crystal();
 
     cpu_wakeup_init(EXTERNAL_XTAL_24M);
+
+    wd_32k_stop();
+
+	user_read_flash_value_calib();
 
     clock_init(SYS_CLK_24M_Crystal);
 

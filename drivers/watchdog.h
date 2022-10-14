@@ -1,60 +1,77 @@
 /********************************************************************************************************
  * @file	watchdog.h
  *
- * @brief	This is the header file for b80
+ * @brief	This is the header file for B80
  *
  * @author	Driver Group
- * @date	2020
+ * @date	2021
  *
- * @par     Copyright (c) 2018, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *          All rights reserved.
  *
- *          Redistribution and use in source and binary forms, with or without
- *          modification, are permitted provided that the following conditions are met:
+ *          Licensed under the Apache License, Version 2.0 (the "License");
+ *          you may not use this file except in compliance with the License.
+ *          You may obtain a copy of the License at
  *
- *              1. Redistributions of source code must retain the above copyright
- *              notice, this list of conditions and the following disclaimer.
+ *              http://www.apache.org/licenses/LICENSE-2.0
  *
- *              2. Unless for usage inside a TELINK integrated circuit, redistributions
- *              in binary form must reproduce the above copyright notice, this list of
- *              conditions and the following disclaimer in the documentation and/or other
- *              materials provided with the distribution.
- *
- *              3. Neither the name of TELINK, nor the names of its contributors may be
- *              used to endorse or promote products derived from this software without
- *              specific prior written permission.
- *
- *              4. This software, with or without modification, must only be used with a
- *              TELINK integrated circuit. All other usages are subject to written permission
- *              from TELINK and different commercial license may apply.
- *
- *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
- *              relating to such deletion(s), modification(s) or alteration(s).
- *
- *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
- *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *          Unless required by applicable law or agreed to in writing, software
+ *          distributed under the License is distributed on an "AS IS" BASIS,
+ *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *          See the License for the specific language governing permissions and
+ *          limitations under the License.
  *
  *******************************************************************************************************/
+/**	@page WATCHDOG
+ *
+ *	Introduction
+ *	===============
+ *	 -----------------------------------------------------------------------------------------------------------------------------------------------
+ *	|  watchdog mode | timer source |            Usage scenarios                         |                          note                            |
+ *  |-----------------------------------------------------------------------------------------------------------------------------------------------
+ *  |                |              |                                                    |the timer watchdog does not work while sleep              |
+ *  | timer watchdog | system clock | only reset exceptions that occur during active     |(because its clock source is no longer available)         |
+ *  |                |              |                                                    |                                                          |
+ *  |-----------------------------------------------------------------------------------------------------------------------------------------------
+ *  |                |              |                                                    |1.If want to use 32K watchdog to handle sleep exceptions, |
+ *  |                |              |                                                    |need to pay attention:if there is no timer as the wake-up |
+ *  |                |              |                                                    |source in the sleep state,32K watchdog cannot be enabled. |
+ *  |                |              |                                                    |                                                          |
+ *  |                |              | 1. reset exceptions that occur during active       |                                                          |                                                         |
+ *  | 32k watchdog   | 32k timer    | 2. reser exceptions thar occur during sleep wakeup |2.Because the 32K clock source may also be used by other  |
+ *  |                |              |                                                    |modules,the 32K watchdog has no action to clear watchdog, |
+ *  |                |              |                                                    |and can only feed the dog by resetting the capture value. |
+ *  |                |              |                                                    |The correct operation process is:                         |
+ *  |                |              |                                                    |wd_32k_stop->wd_32k_set_interval_ms->wd_32k_start;        |
+ *  |                |              |                                                    |(If set the capture value without stopping,there will be  |
+ *  |                |              |                                                    |some intermediate values that can cause an abnormal reset)|
+ *   ------------------------------------------------------------------------------------------------------------------------------------------------
+ *	API Reference
+ *	===============
+ *	Header File: watchdog.h
+ */
 #pragma once
 
 
 #include "register.h"
 
 /**
- * @brief     This function set the seconds period.It is likely with WD_SetInterval.
- *            Just this function calculate the value to set the register automatically .
- * @param[in] period_s - The seconds to set. unit is second
+ * @brief     This function set the feed dog capture value (capture_tick), the clock source is the system clock.
+ * 			  When this capture value is reached, the chip will restart. The actual capture value is only high 14Bits will work,
+ * 			  so there will be some deviation from the set value, the deviation can be calculated by the following principle,
+ * 			  the actual capture value is: capture_tick = (period_ms*tick_per_ms) & 0xfff30000.
+ * @param[in] period_ms - feeding period time, the unit is ms
+ * @param[in] tick_per_ms - tick value required for 1ms under system clock timing
  * @return    none
  */
-extern void wd_set_interval_ms(unsigned int period_ms,unsigned long int tick_per_ms);
+static inline void wd_set_interval_ms(unsigned int period_ms,unsigned long int tick_per_ms)
+{
+	static unsigned short tmp_period_ms = 0;
+	tmp_period_ms = (period_ms*tick_per_ms>>18);
+	reg_tmr2_tick = 0x00000000;    //reset tick register
+	reg_wd_ctrl0 =(reg_wd_ctrl0 &(~FLD_WD_CAPT0))|((tmp_period_ms<<1)& FLD_WD_CAPT0);//set the capture register
+	reg_wd_ctrl1 =(reg_wd_ctrl1 &(~FLD_WD_CAPT1))|((tmp_period_ms>>8)&FLD_WD_CAPT1);//set the capture register
+}
 
 /**
  * @brief     start watchdog. ie enable watchdog
@@ -62,8 +79,9 @@ extern void wd_set_interval_ms(unsigned int period_ms,unsigned long int tick_per
  * @return    none
  */
 static inline void wd_start(void){
-	BM_SET(reg_tmr_ctrl, FLD_TMR2_EN);
-	BM_SET(reg_tmr_ctrl, FLD_TMR_WD_EN);
+    BM_SET(reg_tmr_ctrl8, FLD_TMR2_EN);
+	BM_SET(reg_wd_ctrl1, FLD_WD_EN);
+
 }
 /**
  * @brief     stop watchdog. ie disable watchdog
@@ -71,9 +89,8 @@ static inline void wd_start(void){
  * @return    none
  */
 static inline void wd_stop(void){
-	BM_CLR(reg_tmr_ctrl, FLD_TMR_WD_EN);
+	BM_CLR(reg_wd_ctrl1, FLD_WD_EN);
 }
-
 /**
  * @brief     clear watchdog.
  * @param[in] none
@@ -84,3 +101,27 @@ static inline void wd_clear(void)
 	reg_tmr_sta = FLD_TMR_STA_WD;
 }
 
+/**
+ * @brief     start 32k watchdog.
+ * @return    none
+ * @note      For otp products, if all codes cannot be executed in ram code, there will be a risk of crash,
+ *            so 32K watchdog needs to be enabled to reduce the risk (this interface must be put in ram code to reduce the risk, if put in text segment, there will be a risk of error).
+ */
+_attribute_ram_code_sec_noinline_ void wd_32k_start(void);
+
+/**
+ * @brief     stop 32k watchdog.
+ * @return    none
+ * @note      For otp products, if all codes cannot be executed in ram code, there will be a risk of crash,
+ *            so 32K watchdog needs to be enabled to reduce the risk (this interface must be put in ram code to reduce the risk, if put in text segment, there will be a risk of error).
+ */
+_attribute_ram_code_sec_noinline_ void wd_32k_stop(void);
+
+/**
+ * @brief     This function set the watchdog trigger time.
+ * @param[in] period_ms - The watchdog trigger time. Unit is  millisecond, ranges from 1~134,217,720ms.
+ * @return    none
+ * @note      For otp products, if all codes cannot be executed in ram code, there will be a risk of crash,
+ *            so 32K watchdog needs to be enabled to reduce the risk (this interface must be put in ram code to reduce the risk, if put in text segment, there will be a risk of error).
+ */
+_attribute_ram_code_sec_noinline_ void wd_32k_set_interval_ms(unsigned int period_ms);
