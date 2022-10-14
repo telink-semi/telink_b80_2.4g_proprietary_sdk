@@ -39,13 +39,9 @@ MACRO               ./common/sdk_version.h                  B80_SDK_VERSION_NUM 
 MACRO               ./../common/sdk_version.h                  B80_SDK_VERSION_NUM                        B80_S1_V3.1.0
 
 LIB_OBJ             ./drivers/pm_32k_calib.o
-REPLACED_LIB_PATH   ./genfsk_ll/8208_core_drv_lib.a
 LIB_OBJ             ./drivers/ pm_32k_xtal.o
-REPLACED_LIB_PATH   ./genfsk_ll/8208_core_drv_lib.a
 LIB_OBJ             ./drivers/pm_32k_rc.o  
-REPLACED_LIB_PATH   ./genfsk_ll/8208_core_drv_lib.a
 LIB_OBJ             ./drivers/pm.o
-REPLACED_LIB_PATH   ./genfsk_ll/8208_core_drv_lib.a
 LIB_OBJ             ./drivers/rf_drv.o 
 REPLACED_LIB_PATH   ./drivers/8208_core_drv_lib.a
 [release_sdk_S1_end]
