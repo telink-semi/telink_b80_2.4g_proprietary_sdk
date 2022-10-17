@@ -4,23 +4,18 @@ PACKAGE_NAME        telink_eaglet_2.4g_proprietary_sdk_S0
 SRC_GIT_URL         http://192.168.48.36/src/2.4g-proprietary/telink_eaglet_2.4g_proprietary_src.git
 
 #                          .cproject                                                        project_name                         module
-CPROJECT            ./.cproject                   2_4g_proprietary_sdk                  adc_sample
+CPROJECT            ./.cproject                   2_4g_proprietary_sdk                  ADC_SAMPLE
 
 #                          path                                                  macro                                                  macro_val
 MACRO               ./drivers/pm.c        OTP_PROTECTION_CODE_SELECT        OTP_PROTECTION_CODE_S0
 MACRO               ./common/sdk_version.h                  B80_SDK_VERSION_NUM                        B80_S0_V3.1.0
 MACRO               ./../common/sdk_version.h                  B80_SDK_VERSION_NUM                        B80_S0_V3.1.0
 
-IB_OBJ             ./drivers/pm_32k_calib.o
-REPLACED_LIB_PATH   ./genfsk_ll/8208_core_drv_lib.a
+IB_OBJ              ./drivers/pm_32k_calib.o
 LIB_OBJ             ./drivers/ pm_32k_xtal.o
-REPLACED_LIB_PATH   ./genfsk_ll/8208_core_drv_lib.a
 LIB_OBJ             ./drivers/pm_32k_rc.o  
-REPLACED_LIB_PATH   ./genfsk_ll/8208_core_drv_lib.a
 LIB_OBJ             ./drivers/pm.o
-REPLACED_LIB_PATH   ./genfsk_ll/8208_core_drv_lib.a
 LIB_OBJ             ./drivers/rf_drv.o 
-REPLACED_LIB_PATH   ./drivers/8208_core_drv_lib.a
 REPLACED_LIB_PATH   ./drivers/8208_core_drv_lib.a
 [release_sdk_S0_end]
 
@@ -31,7 +26,7 @@ PACKAGE_NAME        telink_eaglet_2.4g_proprietary_sdk_S1
 SRC_GIT_URL         http://192.168.48.36/src/2.4g-proprietary/telink_eaglet_2.4g_proprietary_src.git
 
 #                          .cproject                                                        project_name                         module
-CPROJECT            ./.cproject                   2_4g_proprietary_sdk                  adc_sample
+CPROJECT            ./.cproject                   2_4g_proprietary_sdk                  ADC_SAMPLE
 
 #                          path                                                  macro                                                  macro_val
 MACRO               ./drivers/pm.c        OTP_PROTECTION_CODE_SELECT        OTP_PROTECTION_CODE_S1
@@ -53,21 +48,17 @@ PACKAGE_NAME        telink_eaglet_2.4g_proprietary_sdk_S2
 SRC_GIT_URL         http://192.168.48.36/src/2.4g-proprietary/telink_eaglet_2.4g_proprietary_src.git
 
 #                          .cproject                                                        project_name                         module
-CPROJECT            ./.cproject                   2_4g_proprietary_sdk                  adc_sample
+CPROJECT            ./.cproject                   2_4g_proprietary_sdk                  ADC_SAMPLE
 
 #                          path                                                  macro                                                  macro_val
 MACRO               ./drivers/pm.c        OTP_PROTECTION_CODE_SELECT        OTP_PROTECTION_CODE_S2
 MACRO               ./common/sdk_version.h                  B80_SDK_VERSION_NUM                        B80_S2_V3.1.0
 MACRO               ./../common/sdk_version.h                  B80_SDK_VERSION_NUM                        B80_S2_V3.1.0
 
-LIB_OBJ             ./drivers/pm_32k_calib.o
-REPLACED_LIB_PATH   ./genfsk_ll/8208_core_drv_lib.a
+IB_OBJ              ./drivers/pm_32k_calib.o
 LIB_OBJ             ./drivers/ pm_32k_xtal.o
-REPLACED_LIB_PATH   ./genfsk_ll/8208_core_drv_lib.a
 LIB_OBJ             ./drivers/pm_32k_rc.o  
-REPLACED_LIB_PATH   ./genfsk_ll/8208_core_drv_lib.a
 LIB_OBJ             ./drivers/pm.o
-REPLACED_LIB_PATH   ./genfsk_ll/8208_core_drv_lib.a
 LIB_OBJ             ./drivers/rf_drv.o 
 REPLACED_LIB_PATH   ./drivers/8208_core_drv_lib.a
 [release_sdk_S2_end]
@@ -79,21 +70,17 @@ PACKAGE_NAME        telink_eaglet_2.4g_proprietary_sdk_S3
 SRC_GIT_URL         http://192.168.48.36/src/2.4g-proprietary/telink_eaglet_2.4g_proprietary_src.git
 
 #                          .cproject                                                        project_name                         module
-CPROJECT            ./.cproject                   2_4g_proprietary_sdk                  adc_sample
+CPROJECT            ./.cproject                   2_4g_proprietary_sdk                  ADC_SAMPLE
 
 #                          path                                                  macro                                                  macro_val
 MACRO               ./drivers/pm.c        OTP_PROTECTION_CODE_SELECT        OTP_PROTECTION_CODE_S3
 MACRO               ./common/sdk_version.h                  B80_SDK_VERSION_NUM                        B80_S3_V3.1.0
 MACRO               ./../common/sdk_version.h                  B80_SDK_VERSION_NUM                        B80_S3_V3.1.0
 
-LIB_OBJ             ./drivers/pm_32k_calib.o
-REPLACED_LIB_PATH   ./genfsk_ll/8208_core_drv_lib.a
+IB_OBJ              ./drivers/pm_32k_calib.o
 LIB_OBJ             ./drivers/ pm_32k_xtal.o
-REPLACED_LIB_PATH   ./genfsk_ll/8208_core_drv_lib.a
 LIB_OBJ             ./drivers/pm_32k_rc.o  
-REPLACED_LIB_PATH   ./genfsk_ll/8208_core_drv_lib.a
 LIB_OBJ             ./drivers/pm.o
-REPLACED_LIB_PATH   ./genfsk_ll/8208_core_drv_lib.a
 LIB_OBJ             ./drivers/rf_drv.o 
 REPLACED_LIB_PATH   ./drivers/8208_core_drv_lib.a
 [release_sdk_S3_end]
@@ -105,7 +92,7 @@ TAG_NAME            V3.1.0
 PACKAGE_NAME        telink_eaglet_2.4g_proprietary_sdk_S0_OTP_NO_RET_NO_EXT32K
 SRC_GIT_URL         http://192.168.48.36/src/2.4g-proprietary/telink_eaglet_2.4g_proprietary_src.git
 #                          .cproject                                                        project_name                         module
-CPROJECT            ./drivers/pm.c                   2_4g_proprietary_sdk                  adc_sample
+CPROJECT            ./drivers/pm.c                   2_4g_proprietary_sdk                  ADC_SAMPLE
 
 MAKE_WITHOUT_DRIVER_LIB         0
 
@@ -122,14 +109,10 @@ MACRO               ./../drivers/compiler.h                              BLC_PM_
 MACRO               ./../common/sdk_version.h                   B80_SDK_VERSION_NUM                        B80_S0_OTP_NO_RET_NO_EXT32K_V3.1.0
 
 
-LIB_OBJ             ./drivers/pm_32k_calib.o
-REPLACED_LIB_PATH   ./genfsk_ll/8208_core_drv_lib.a
+IB_OBJ              ./drivers/pm_32k_calib.o
 LIB_OBJ             ./drivers/ pm_32k_xtal.o
-REPLACED_LIB_PATH   ./genfsk_ll/8208_core_drv_lib.a
 LIB_OBJ             ./drivers/pm_32k_rc.o  
-REPLACED_LIB_PATH   ./genfsk_ll/8208_core_drv_lib.a
 LIB_OBJ             ./drivers/pm.o
-REPLACED_LIB_PATH   ./genfsk_ll/8208_core_drv_lib.a
 LIB_OBJ             ./drivers/rf_drv.o 
 REPLACED_LIB_PATH   ./drivers/8208_core_drv_lib.a
 [release_sdk_otp_S0_end]
@@ -141,7 +124,7 @@ TAG_NAME            V3.1.0
 PACKAGE_NAME        telink_eaglet_2.4g_proprietary_sdk_S1_OTP_NO_RET_NO_EXT32K
 SRC_GIT_URL         http://192.168.48.36/src/2.4g-proprietary/telink_eaglet_2.4g_proprietary_src.git
 #                          .cproject                                                        project_name                         module
-CPROJECT            ./drivers/pm.c                   2_4g_proprietary_sdk                  adc_sample
+CPROJECT            ./drivers/pm.c                   2_4g_proprietary_sdk                  ADC_SAMPLE
 
 MAKE_WITHOUT_DRIVER_LIB         0
 
@@ -158,14 +141,10 @@ MACRO               ./../drivers/compiler.h                              BLC_PM_
 MACRO               ./../common/sdk_version.h                   B80_SDK_VERSION_NUM                        B80_S1_OTP_NO_RET_NO_EXT32K_V3.1.0
 
 
-LIB_OBJ             ./drivers/pm_32k_calib.o
-REPLACED_LIB_PATH   ./genfsk_ll/8208_core_drv_lib.a
+IB_OBJ              ./drivers/pm_32k_calib.o
 LIB_OBJ             ./drivers/ pm_32k_xtal.o
-REPLACED_LIB_PATH   ./genfsk_ll/8208_core_drv_lib.a
 LIB_OBJ             ./drivers/pm_32k_rc.o  
-REPLACED_LIB_PATH   ./genfsk_ll/8208_core_drv_lib.a
 LIB_OBJ             ./drivers/pm.o
-REPLACED_LIB_PATH   ./genfsk_ll/8208_core_drv_lib.a
 LIB_OBJ             ./drivers/rf_drv.o 
 REPLACED_LIB_PATH   ./drivers/8208_core_drv_lib.a
 [release_sdk_otp_S1_end]
@@ -176,7 +155,7 @@ AG_NAME            V3.1.0
 PACKAGE_NAME        telink_eaglet_2.4g_proprietary_sdk_S2_OTP_NO_RET_NO_EXT32K
 SRC_GIT_URL         http://192.168.48.36/src/2.4g-proprietary/telink_eaglet_2.4g_proprietary_src.git
 #                          .cproject                                                        project_name                         module
-CPROJECT            ./drivers/pm.c                   2_4g_proprietary_sdk                  adc_sample
+CPROJECT            ./drivers/pm.c                   2_4g_proprietary_sdk                  ADC_SAMPLE
 
 MAKE_WITHOUT_DRIVER_LIB         0
 
@@ -193,14 +172,10 @@ MACRO               ./../drivers/compiler.h                              BLC_PM_
 MACRO               ./../common/sdk_version.h                   B80_SDK_VERSION_NUM                        B80_S2_OTP_NO_RET_NO_EXT32K_V3.1.0
 
 
-LIB_OBJ             ./drivers/pm_32k_calib.o
-REPLACED_LIB_PATH   ./genfsk_ll/8208_core_drv_lib.a
+IB_OBJ              ./drivers/pm_32k_calib.o
 LIB_OBJ             ./drivers/ pm_32k_xtal.o
-REPLACED_LIB_PATH   ./genfsk_ll/8208_core_drv_lib.a
 LIB_OBJ             ./drivers/pm_32k_rc.o  
-REPLACED_LIB_PATH   ./genfsk_ll/8208_core_drv_lib.a
 LIB_OBJ             ./drivers/pm.o
-REPLACED_LIB_PATH   ./genfsk_ll/8208_core_drv_lib.a
 LIB_OBJ             ./drivers/rf_drv.o 
 REPLACED_LIB_PATH   ./drivers/8208_core_drv_lib.a
 [release_sdk_otp_S2_end]
@@ -212,7 +187,7 @@ AG_NAME            V3.1.0
 PACKAGE_NAME        telink_eaglet_2.4g_proprietary_sdk_S3_OTP_NO_RET_NO_EXT32K
 SRC_GIT_URL         http://192.168.48.36/src/2.4g-proprietary/telink_eaglet_2.4g_proprietary_src.git
 #                          .cproject                                                        project_name                         module
-CPROJECT            ./drivers/pm.c                   2_4g_proprietary_sdk                  adc_sample
+CPROJECT            ./drivers/pm.c                   2_4g_proprietary_sdk                  ADC_SAMPLE
 
 MAKE_WITHOUT_DRIVER_LIB         0
 
@@ -229,14 +204,10 @@ MACRO               ./../drivers/compiler.h                              BLC_PM_
 MACRO               ./../common/sdk_version.h                   B80_SDK_VERSION_NUM                        B80_S3_OTP_NO_RET_NO_EXT32K_V3.1.0
 
 
-LIB_OBJ             ./drivers/pm_32k_calib.o
-REPLACED_LIB_PATH   ./genfsk_ll/8208_core_drv_lib.a
+IB_OBJ              ./drivers/pm_32k_calib.o
 LIB_OBJ             ./drivers/ pm_32k_xtal.o
-REPLACED_LIB_PATH   ./genfsk_ll/8208_core_drv_lib.a
 LIB_OBJ             ./drivers/pm_32k_rc.o  
-REPLACED_LIB_PATH   ./genfsk_ll/8208_core_drv_lib.a
 LIB_OBJ             ./drivers/pm.o
-REPLACED_LIB_PATH   ./genfsk_ll/8208_core_drv_lib.a
 LIB_OBJ             ./drivers/rf_drv.o 
 REPLACED_LIB_PATH   ./drivers/8208_core_drv_lib.a
 [release_sdk_otp_S3_end]
