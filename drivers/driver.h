@@ -65,4 +65,5 @@
 #include "stimer.h"
 #include "sdk_version.h"
 #include "calibration.h"
+#include "rf_pa.h"
 

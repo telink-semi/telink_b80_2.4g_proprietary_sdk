@@ -149,6 +149,19 @@ typedef enum {
     GEN_FSK_STATE_OFF = 0xff, //close the RF transceiver
 } gen_fsk_state_t;
 
+/** An enum describing the radio's routine mode.
+ *
+ */
+typedef enum {
+	GEN_FSK_MD_TX ,         //gen_fsk_tx
+	GEN_FSK_MD_RX,          //gen_fsk_rx
+	GEN_FSK_MD_STX,         //gen_fsk_stx
+	GEN_FSK_MD_SRX,         //gen_fsk_srx
+	GEN_FSK_MD_SRX2TX,      //gen_fsk_srx2rx
+	GEN_FSK_MD_STX2RX,      //gen_fsk_stx2tx
+} gen_fsk_mode_t;
+extern volatile  gen_fsk_mode_t gen_fsk_current_mode;
+
 /** An enum describing the packet format of on-air data.
  *
  */
