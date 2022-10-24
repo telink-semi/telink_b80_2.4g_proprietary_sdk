@@ -15,7 +15,7 @@ stages:
     paths:
     - boot/
     - common/
-    - demo/
+    - docs/
     - drivers/
     - epd/
     - esb_ll/
