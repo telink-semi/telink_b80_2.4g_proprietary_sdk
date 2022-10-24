@@ -1,5 +1,33 @@
 # Release Note
 
+# V3.2.0
+
+### Version
+* SDK version : telink_b80_2.4g_proprietary_sdk V3.2.0.
+
+### Features
+* Add rf_pa diver.
+* Add gen_fsk_pa routine.
+
+### BREAKING CHANGES
+
+* N/A
+
+# V3.2.0
+
+### Version
+* SDK 版本: telink_b80_2.4g_proprietary_sdk V3.2.0。
+
+### Features
+* 增加rf_pa驱动。
+* 增加gen_fsk_pa例程。
+
+### BREAKING CHANGES
+
+* N/A
+
+
+
 # V3.1.0
 
 ### Version
