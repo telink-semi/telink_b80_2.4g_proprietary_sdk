@@ -1,4 +1,4 @@
-# V3.2.0
+## V3.2.0
 
 ### Version
 * SDK version : telink_b80_2.4g_proprietary_sdk V3.2.0
@@ -11,7 +11,7 @@
 
 * N/A
 
-# V3.2.0
+## V3.2.0
 
 ### Version
 * SDK 版本: telink_b80_2.4g_proprietary_sdk V3.2.0
