@@ -1,9 +1,7 @@
-# Release Note
-
 # V3.2.0
 
 ### Version
-* SDK version : telink_b80_2.4g_proprietary_sdk V3.2.0.
+* SDK version : telink_b80_2.4g_proprietary_sdk V3.2.0
 
 ### Features
 * Add rf_pa diver.
@@ -16,7 +14,7 @@
 # V3.2.0
 
 ### Version
-* SDK 版本: telink_b80_2.4g_proprietary_sdk V3.2.0。
+* SDK 版本: telink_b80_2.4g_proprietary_sdk V3.2.0
 
 ### Features
 * 增加rf_pa驱动。
