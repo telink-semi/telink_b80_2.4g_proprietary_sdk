@@ -31,6 +31,7 @@
 #include "pm_32k_calib.h"
 #include "random.h"
 #include "rf_drv.h"
+#include "rf_private.h"
 #include "swire.h"
 
 #include "bsp.h"
