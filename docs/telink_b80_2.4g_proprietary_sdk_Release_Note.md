@@ -1,3 +1,33 @@
+## V3.2.1
+
+### Version
+* SDK version : telink_b80_2.4g_proprietary_sdk V3.2.1
+
+### Features
+*  change channel step setting from one to 0.5.
+
+### Bug Fixes
+* Update MI related enumeration variables.
+
+### BREAKING CHANGES
+
+* N/A
+
+## V3.2.1
+
+### Version
+* SDK 版本: telink_b80_2.4g_proprietary_sdk V3.2.1
+
+### Features
+* 将channel step从一个step修改到0.5 step。
+
+### Bug Fixes
+* 更新 MI 相关的枚举变量。
+
+### BREAKING CHANGES
+
+* N/A
+
 ## V3.2.0
 
 ### Version
