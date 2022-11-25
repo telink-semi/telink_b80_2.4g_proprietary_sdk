@@ -32,6 +32,10 @@ stages:
   when: manual
 
 
+release_sdk_S0:
+  <<: *release_sdk_template
+  variables:
+    PACK_NAME: "telink_eaglet_2.4g_proprietary_sdk_S0"
     
 release_sdk_S1:
   <<: *release_sdk_template
