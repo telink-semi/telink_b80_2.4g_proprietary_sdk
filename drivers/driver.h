@@ -57,7 +57,7 @@
 #include "timer.h"
 #include "s7816.h"
 #include "printf.h"
-#include "otp.h"
+#include "./otp/otp.h"
 #include "usbhw.h"
 #include "ir_learn.h"
 #include "qdec.h"
