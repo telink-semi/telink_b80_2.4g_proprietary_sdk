@@ -28,7 +28,7 @@
 #include "dfifo.h"
 #include "timer.h"
 #include "flash.h"
-#include "pm.h"
+#include "lib/include/pm.h"
 _attribute_data_retention_
 volatile unsigned short g_adc_vref = 1175;//ADC calibration value voltage (unit:mV).
 _attribute_data_retention_

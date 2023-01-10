@@ -25,7 +25,7 @@
 #pragma once
 
 #include "clock.h"
-#include "pm.h"
+#include "lib/include/pm.h"
 #include "analog.h"
 #include "register.h"
 

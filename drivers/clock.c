@@ -27,8 +27,8 @@
 #include "irq.h"
 #include "analog.h"
 #include "timer.h"
-#include "pm.h"
-#include "./otp/otp.h"
+#include "lib/include/pm.h"
+#include "lib/include/otp/otp.h"
 #include "compiler.h"
 
 
