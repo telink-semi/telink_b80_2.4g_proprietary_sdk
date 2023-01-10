@@ -1,4 +1,7 @@
 [release_sdk_S0]
+
+CI_FUNC             V1.0
+
 TAG_NAME            V3.2.1
 PACKAGE_NAME        telink_eaglet_2.4g_proprietary_sdk_S0
 SRC_GIT_URL         http://192.168.48.36/src/2.4g-proprietary/telink_eaglet_2.4g_proprietary_src.git
