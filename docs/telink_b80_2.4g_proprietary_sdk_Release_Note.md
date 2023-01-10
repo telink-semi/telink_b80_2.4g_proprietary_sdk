@@ -1,3 +1,43 @@
+## V3.2.2
+
+### Version
+* SDK version : telink_b80_2.4g_proprietary_sdk V3.2.2
+
+### Refactoring
+* Refactoring the lib library file
+
+### Features
+
+* N/A
+
+### Bug Fixes
+
+* N/A
+
+### BREAKING CHANGES
+
+* N/A
+
+## V3.2.2
+
+### Version
+* SDK 版本: telink_b80_2.4g_proprietary_sdk V3.2.2
+
+### Refactoring
+* 重构lib库文件
+
+### Features
+
+* N/A
+
+### Bug Fixes
+
+* N/A
+
+### BREAKING CHANGES
+
+* N/A
+
 ## V3.2.1
 
 ### Version
