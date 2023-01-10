@@ -20,6 +20,9 @@ REPLACED_LIB_PATH   ./drivers/lib/8208_core_drv_lib.a
 
 
 [release_sdk_S1]
+
+CI_FUNC             V1.0
+
 TAG_NAME            V3.2.1
 PACKAGE_NAME        telink_eaglet_2.4g_proprietary_sdk_S1
 SRC_GIT_URL         http://192.168.48.36/src/2.4g-proprietary/telink_eaglet_2.4g_proprietary_src.git
@@ -38,6 +41,9 @@ REPLACED_LIB_PATH   ./drivers/lib/8208_core_drv_lib.a
 
 
 [release_sdk_S2]
+
+CI_FUNC             V1.0
+
 TAG_NAME            V3.2.1
 PACKAGE_NAME        telink_eaglet_2.4g_proprietary_sdk_S2
 SRC_GIT_URL         http://192.168.48.36/src/2.4g-proprietary/telink_eaglet_2.4g_proprietary_src.git
@@ -56,6 +62,9 @@ REPLACED_LIB_PATH   ./drivers/lib/8208_core_drv_lib.a
 
 
 [release_sdk_S3]
+
+CI_FUNC             V1.0
+
 TAG_NAME            V3.2.1
 PACKAGE_NAME        telink_eaglet_2.4g_proprietary_sdk_S3
 SRC_GIT_URL         http://192.168.48.36/src/2.4g-proprietary/telink_eaglet_2.4g_proprietary_src.git
@@ -75,6 +84,9 @@ REPLACED_LIB_PATH   ./drivers/lib/8208_core_drv_lib.a
 
 
 [release_sdk_otp_S0]
+
+CI_FUNC             V1.0
+
 TAG_NAME            V3.2.1
 PACKAGE_NAME        telink_eaglet_2.4g_proprietary_sdk_S0_OTP_NO_RET_NO_EXT32K
 SRC_GIT_URL         http://192.168.48.36/src/2.4g-proprietary/telink_eaglet_2.4g_proprietary_src.git
@@ -103,6 +115,9 @@ REPLACED_LIB_PATH   ./drivers/lib/8208_core_drv_lib.a
 
 
 [release_sdk_otp_S1]
+
+CI_FUNC             V1.0
+
 TAG_NAME            V3.2.1
 PACKAGE_NAME        telink_eaglet_2.4g_proprietary_sdk_S1_OTP_NO_RET_NO_EXT32K
 SRC_GIT_URL         http://192.168.48.36/src/2.4g-proprietary/telink_eaglet_2.4g_proprietary_src.git
@@ -130,6 +145,9 @@ REPLACED_LIB_PATH   ./drivers/lib/8208_core_drv_lib.a
 
 
 [release_sdk_otp_S2]
+
+CI_FUNC             V1.0
+
 AG_NAME            V3.2.1
 PACKAGE_NAME        telink_eaglet_2.4g_proprietary_sdk_S2_OTP_NO_RET_NO_EXT32K
 SRC_GIT_URL         http://192.168.48.36/src/2.4g-proprietary/telink_eaglet_2.4g_proprietary_src.git
@@ -158,6 +176,9 @@ REPLACED_LIB_PATH   ./drivers/lib/8208_core_drv_lib.a
 
 
 [release_sdk_otp_S3]
+
+CI_FUNC             V1.0
+
 AG_NAME            V3.2.1
 PACKAGE_NAME        telink_eaglet_2.4g_proprietary_sdk_S3_OTP_NO_RET_NO_EXT32K
 SRC_GIT_URL         http://192.168.48.36/src/2.4g-proprietary/telink_eaglet_2.4g_proprietary_src.git
