@@ -1,4 +1,7 @@
 [release_sdk_S0]
+
+CI_FUNC             V1.0
+
 TAG_NAME            V3.2.1
 PACKAGE_NAME        telink_eaglet_2.4g_proprietary_sdk_S0
 SRC_GIT_URL         http://192.168.48.36/src/2.4g-proprietary/telink_eaglet_2.4g_proprietary_src.git
@@ -11,17 +14,15 @@ MACRO               ./drivers/pm.c        OTP_PROTECTION_CODE_SELECT        OTP_
 MACRO               ./common/sdk_version.h                  B80_SDK_VERSION_NUM                        B80_S0_V3.2.1
 MACRO               ./../common/sdk_version.h                  B80_SDK_VERSION_NUM                        B80_S0_V3.2.1
 
-LIB_OBJ             ./ADC_SAMPLE/drivers/pm_32k_calib.o
-LIB_OBJ             ./ADC_SAMPLE/drivers/pm_32k_xtal.o
-LIB_OBJ             ./ADC_SAMPLE/drivers/pm_32k_rc.o  
-LIB_OBJ             ./ADC_SAMPLE/drivers/pm.o
-LIB_OBJ             ./ADC_SAMPLE/drivers/rf_drv.o 
-LIB_OBJ             ./ADC_SAMPLE/drivers/rf_private.o 
-REPLACED_LIB_PATH   ./drivers/8208_core_drv_lib.a
+LIB_OBJ             ./ADC_SAMPLE/drivers/lib/src 
+REPLACED_LIB_PATH   ./drivers/lib/8208_core_drv_lib.a
 [release_sdk_S0_end]
 
 
 [release_sdk_S1]
+
+CI_FUNC             V1.0
+
 TAG_NAME            V3.2.1
 PACKAGE_NAME        telink_eaglet_2.4g_proprietary_sdk_S1
 SRC_GIT_URL         http://192.168.48.36/src/2.4g-proprietary/telink_eaglet_2.4g_proprietary_src.git
@@ -34,17 +35,15 @@ MACRO               ./drivers/pm.c        OTP_PROTECTION_CODE_SELECT        OTP_
 MACRO               ./common/sdk_version.h                  B80_SDK_VERSION_NUM                        B80_S1_V3.2.1
 MACRO               ./../common/sdk_version.h                  B80_SDK_VERSION_NUM                        B80_S1_V3.2.1
 
-LIB_OBJ             ./ADC_SAMPLE/drivers/pm_32k_calib.o
-LIB_OBJ             ./ADC_SAMPLE/drivers/pm_32k_xtal.o
-LIB_OBJ             ./ADC_SAMPLE/drivers/pm_32k_rc.o  
-LIB_OBJ             ./ADC_SAMPLE/drivers/pm.o
-LIB_OBJ             ./ADC_SAMPLE/drivers/rf_drv.o 
-LIB_OBJ             ./ADC_SAMPLE/drivers/rf_private.o 
-REPLACED_LIB_PATH   ./drivers/8208_core_drv_lib.a
+LLIB_OBJ             ./ADC_SAMPLE/drivers/lib/src 
+REPLACED_LIB_PATH   ./drivers/lib/8208_core_drv_lib.a
 [release_sdk_S1_end]
 
 
 [release_sdk_S2]
+
+CI_FUNC             V1.0
+
 TAG_NAME            V3.2.1
 PACKAGE_NAME        telink_eaglet_2.4g_proprietary_sdk_S2
 SRC_GIT_URL         http://192.168.48.36/src/2.4g-proprietary/telink_eaglet_2.4g_proprietary_src.git
@@ -57,17 +56,15 @@ MACRO               ./drivers/pm.c        OTP_PROTECTION_CODE_SELECT        OTP_
 MACRO               ./common/sdk_version.h                  B80_SDK_VERSION_NUM                        B80_S2_V3.2.1
 MACRO               ./../common/sdk_version.h                  B80_SDK_VERSION_NUM                        B80_S2_V3.2.1
 
-LIB_OBJ             ./ADC_SAMPLE/drivers/pm_32k_calib.o
-LIB_OBJ             ./ADC_SAMPLE/drivers/pm_32k_xtal.o
-LIB_OBJ             ./ADC_SAMPLE/drivers/pm_32k_rc.o  
-LIB_OBJ             ./ADC_SAMPLE/drivers/pm.o
-LIB_OBJ             ./ADC_SAMPLE/drivers/rf_drv.o 
-LIB_OBJ             ./ADC_SAMPLE/drivers/rf_private.o 
-REPLACED_LIB_PATH   ./drivers/8208_core_drv_lib.a
+LIB_OBJ             ./ADC_SAMPLE/drivers/lib/src 
+REPLACED_LIB_PATH   ./drivers/lib/8208_core_drv_lib.a
 [release_sdk_S2_end]
 
 
 [release_sdk_S3]
+
+CI_FUNC             V1.0
+
 TAG_NAME            V3.2.1
 PACKAGE_NAME        telink_eaglet_2.4g_proprietary_sdk_S3
 SRC_GIT_URL         http://192.168.48.36/src/2.4g-proprietary/telink_eaglet_2.4g_proprietary_src.git
@@ -80,18 +77,16 @@ MACRO               ./drivers/pm.c        OTP_PROTECTION_CODE_SELECT        OTP_
 MACRO               ./common/sdk_version.h                  B80_SDK_VERSION_NUM                        B80_S3_V3.2.1
 MACRO               ./../common/sdk_version.h                  B80_SDK_VERSION_NUM                        B80_S3_V3.2.1
 
-LIB_OBJ             ./ADC_SAMPLE/drivers/pm_32k_calib.o
-LIB_OBJ             ./ADC_SAMPLE/drivers/pm_32k_xtal.o
-LIB_OBJ             ./ADC_SAMPLE/drivers/pm_32k_rc.o  
-LIB_OBJ             ./ADC_SAMPLE/drivers/pm.o
-LIB_OBJ             ./ADC_SAMPLE/drivers/rf_drv.o 
-LIB_OBJ             ./ADC_SAMPLE/drivers/rf_private.o 
-REPLACED_LIB_PATH   ./drivers/8208_core_drv_lib.a
+LIB_OBJ             ./ADC_SAMPLE/drivers/lib/src 
+REPLACED_LIB_PATH   ./drivers/lib/8208_core_drv_lib.a
 [release_sdk_S3_end]
 
 
 
 [release_sdk_otp_S0]
+
+CI_FUNC             V1.0
+
 TAG_NAME            V3.2.1
 PACKAGE_NAME        telink_eaglet_2.4g_proprietary_sdk_S0_OTP_NO_RET_NO_EXT32K
 SRC_GIT_URL         http://192.168.48.36/src/2.4g-proprietary/telink_eaglet_2.4g_proprietary_src.git
@@ -113,18 +108,16 @@ MACRO               ./../drivers/compiler.h                              BLC_PM_
 MACRO               ./../common/sdk_version.h                   B80_SDK_VERSION_NUM                        B80_S0_OTP_NO_RET_NO_EXT32K_V3.2.1
 
 
-LIB_OBJ             ./ADC_SAMPLE/drivers/pm_32k_calib.o
-LIB_OBJ             ./ADC_SAMPLE/drivers/pm_32k_xtal.o
-LIB_OBJ             ./ADC_SAMPLE/drivers/pm_32k_rc.o  
-LIB_OBJ             ./ADC_SAMPLE/drivers/pm.o
-LIB_OBJ             ./ADC_SAMPLE/drivers/rf_drv.o 
-LIB_OBJ             ./ADC_SAMPLE/drivers/rf_private.o 
-REPLACED_LIB_PATH   ./drivers/8208_core_drv_lib.a
+LIB_OBJ             ./ADC_SAMPLE/drivers/lib/src 
+REPLACED_LIB_PATH   ./drivers/lib/8208_core_drv_lib.a
 [release_sdk_otp_S0_end]
 
 
 
 [release_sdk_otp_S1]
+
+CI_FUNC             V1.0
+
 TAG_NAME            V3.2.1
 PACKAGE_NAME        telink_eaglet_2.4g_proprietary_sdk_S1_OTP_NO_RET_NO_EXT32K
 SRC_GIT_URL         http://192.168.48.36/src/2.4g-proprietary/telink_eaglet_2.4g_proprietary_src.git
@@ -146,17 +139,15 @@ MACRO               ./../drivers/compiler.h                              BLC_PM_
 MACRO               ./../common/sdk_version.h                   B80_SDK_VERSION_NUM                        B80_S1_OTP_NO_RET_NO_EXT32K_V3.2.1
 
 
-LIB_OBJ             ./ADC_SAMPLE/drivers/pm_32k_calib.o
-LIB_OBJ             ./ADC_SAMPLE/drivers/pm_32k_xtal.o
-LIB_OBJ             ./ADC_SAMPLE/drivers/pm_32k_rc.o  
-LIB_OBJ             ./ADC_SAMPLE/drivers/pm.o
-LIB_OBJ             ./ADC_SAMPLE/drivers/rf_drv.o 
-LIB_OBJ             ./ADC_SAMPLE/drivers/rf_private.o 
-REPLACED_LIB_PATH   ./drivers/8208_core_drv_lib.a
+LIB_OBJ             ./ADC_SAMPLE/drivers/lib/src 
+REPLACED_LIB_PATH   ./drivers/lib/8208_core_drv_lib.a
 [release_sdk_otp_S1_end]
 
 
 [release_sdk_otp_S2]
+
+CI_FUNC             V1.0
+
 AG_NAME            V3.2.1
 PACKAGE_NAME        telink_eaglet_2.4g_proprietary_sdk_S2_OTP_NO_RET_NO_EXT32K
 SRC_GIT_URL         http://192.168.48.36/src/2.4g-proprietary/telink_eaglet_2.4g_proprietary_src.git
@@ -178,18 +169,16 @@ MACRO               ./../drivers/compiler.h                              BLC_PM_
 MACRO               ./../common/sdk_version.h                   B80_SDK_VERSION_NUM                        B80_S2_OTP_NO_RET_NO_EXT32K_V3.2.1
 
 
-LIB_OBJ             ./ADC_SAMPLE/drivers/pm_32k_calib.o
-LIB_OBJ             ./ADC_SAMPLE/drivers/pm_32k_xtal.o
-LIB_OBJ             ./ADC_SAMPLE/drivers/pm_32k_rc.o  
-LIB_OBJ             ./ADC_SAMPLE/drivers/pm.o
-LIB_OBJ             ./ADC_SAMPLE/drivers/rf_drv.o 
-LIB_OBJ             ./ADC_SAMPLE/drivers/rf_private.o 
-REPLACED_LIB_PATH   ./drivers/8208_core_drv_lib.a
+LIB_OBJ             ./ADC_SAMPLE/drivers/lib/src 
+REPLACED_LIB_PATH   ./drivers/lib/8208_core_drv_lib.a
 [release_sdk_otp_S2_end]
 
 
 
 [release_sdk_otp_S3]
+
+CI_FUNC             V1.0
+
 AG_NAME            V3.2.1
 PACKAGE_NAME        telink_eaglet_2.4g_proprietary_sdk_S3_OTP_NO_RET_NO_EXT32K
 SRC_GIT_URL         http://192.168.48.36/src/2.4g-proprietary/telink_eaglet_2.4g_proprietary_src.git
@@ -211,11 +200,6 @@ MACRO               ./../drivers/compiler.h                              BLC_PM_
 MACRO               ./../common/sdk_version.h                   B80_SDK_VERSION_NUM                        B80_S3_OTP_NO_RET_NO_EXT32K_V3.2.1
 
 
-LIB_OBJ             ./ADC_SAMPLE/drivers/pm_32k_calib.o
-LIB_OBJ             ./ADC_SAMPLE/drivers/pm_32k_xtal.o
-LIB_OBJ             ./ADC_SAMPLE/drivers/pm_32k_rc.o  
-LIB_OBJ             ./ADC_SAMPLE/drivers/pm.o
-LIB_OBJ             ./ADC_SAMPLE/drivers/rf_drv.o 
-LIB_OBJ             ./ADC_SAMPLE/drivers/rf_private.o 
-REPLACED_LIB_PATH   ./drivers/8208_core_drv_lib.a
+LIB_OBJ             ./ADC_SAMPLE/drivers/lib/src 
+REPLACED_LIB_PATH   ./drivers/lib/8208_core_drv_lib.a
 [release_sdk_otp_S3_end]
