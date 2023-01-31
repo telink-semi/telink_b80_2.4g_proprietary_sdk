@@ -109,8 +109,8 @@ void user_init(void)
 
     //indicate LED Pins
     gpio_set_func(BLUE_LED_PIN|GREEN_LED_PIN|WHITE_LED_PIN|RED_LED_PIN, AS_GPIO);
-    gpio_set_func(BLUE_LED_PIN|GREEN_LED_PIN|WHITE_LED_PIN|RED_LED_PIN, AS_GPIO);
-    gpio_set_output_en(BLUE_LED_PIN|GREEN_LED_PIN|WHITE_LED_PIN|RED_LED_PIN, 1); //disable output
+	gpio_set_output_en(BLUE_LED_PIN|GREEN_LED_PIN|WHITE_LED_PIN|RED_LED_PIN, 1); //enable output
+    gpio_set_input_en(BLUE_LED_PIN|GREEN_LED_PIN|WHITE_LED_PIN|RED_LED_PIN, 0); //disable input
     gpio_write(BLUE_LED_PIN|GREEN_LED_PIN|WHITE_LED_PIN|RED_LED_PIN, 0);
 }
 
@@ -153,7 +153,7 @@ int main(void)
             OTA_MasterInit(OTA_MASTER_BIN_ADDR, OTA_FW_VERSION);
             gpio_write(BLUE_LED_PIN, 1);
 			WaitMs(80);
-			gpio_write(BLUE_LED_PIN, 1);
+			gpio_write(BLUE_LED_PIN, 0);
 			WaitMs(80);
 			gpio_write(BLUE_LED_PIN, 1);
 			WaitMs(80);
@@ -165,13 +165,8 @@ int main(void)
             }
         }
 
-        gpio_write(GREEN_LED_PIN, 1);
-		WaitMs(80);
-		gpio_write(GREEN_LED_PIN, 0);
-		WaitMs(80);
-		gpio_write(GREEN_LED_PIN, 1);
-		WaitMs(80);
-		gpio_write(GREEN_LED_PIN, 0);
+        gpio_toggle(GREEN_LED_PIN);
+        WaitMs(1000);
     }
     return 0;
 }

@@ -1,7 +1,7 @@
 /********************************************************************************************************
- * @file	ota.h
+ * @file	interrupt.c
  *
- * @brief	This is the header file for b80
+ * @brief	This is the source file for 8355
  *
  * @author	2.4G Group
  * @date	2019
@@ -44,98 +44,47 @@
  *
  *******************************************************************************************************/
 
-#ifndef _OTA_H_
-#define _OTA_H_
+#include "driver.h"
+#include "common.h"
+#include "mac.h"
+
+
+#define OTA_SLAVE_TRIG_PIN    GPIO_PF0
+
+extern volatile unsigned char OTA_SlaveTrig;
+unsigned char rx_test_cnt;
+_attribute_ram_code_sec_noinline_ __attribute__((optimize("-Os"))) void irq_handler(void)
+{
+
+    unsigned int irq_src = irq_get_src();
+    unsigned short src_rf = rf_irq_src_get();
+
+    if (irq_src & FLD_IRQ_GPIO_EN) {
+    	if (0 == gpio_read(OTA_SLAVE_TRIG_PIN)) {
+			WaitUs(10);
+			if (0 == gpio_read(OTA_SLAVE_TRIG_PIN)) {
+				while(0 == gpio_read(OTA_SLAVE_TRIG_PIN));
+				OTA_SlaveTrig = 1;
+			}
+		}
+    }
+
+    if (irq_src & FLD_IRQ_ZB_RT_EN) {
+        if (src_rf & FLD_RF_IRQ_RX) {
+        	rx_test_cnt++;
+            MAC_RxIrqHandler();
+        }
+        if (src_rf & FLD_RF_IRQ_RX_TIMEOUT) {
+            MAC_RxTimeOutHandler();
+        }
+        if (src_rf & FLD_RF_IRQ_FIRST_TIMEOUT) {
+            MAC_RxFirstTimeOutHandler();
+        }
+    }
+    rf_irq_clr_src(FLD_RF_IRQ_ALL);
+    irq_clr_src();
+
+}
 
 
 
-
-#define OTA_SLAVE_BIN_ADDR_0x40000   0x40000
-#define OTA_SLAVE_BIN_ADDR_0x20000   0x20000
-
-#define OTA_SLAVE_BIN_ADDR           OTA_SLAVE_BIN_ADDR_0x20000
-
-#define OTA_FRAME_TYPE_CMD        0x01
-#define OTA_FRAME_TYPE_DATA       0x02
-#define OTA_FRAME_TYPE_ACK        0x03
-
-#define OTA_CMD_ID_START_REQ      0x01
-#define OTA_CMD_ID_START_RSP      0x02
-#define OTA_CMD_ID_END_REQ        0x03
-#define OTA_CMD_ID_END_RSP        0x04
-#define OTA_CMD_ID_VERSION_REQ    0x05
-#define OTA_CMD_ID_VERSION_RSP    0x06
-
-
-
-
-#define OTA_FRAME_PAYLOAD_MAX     (48+2)
-#define OTA_RETRY_MAX             3
-#define OTA_APPEND_INFO_LEN              2 // FW_CRC 2 BYTE
-
-typedef struct {
-    unsigned int FlashAddr;
-    unsigned int TotalBinSize;
-    unsigned short MaxBlockNum;
-    unsigned short BlockNum;
-    unsigned short PeerAddr;
-    unsigned short FwVersion;
-    unsigned short FwCRC;
-    unsigned short PktCRC;
-    unsigned short TargetFwCRC;
-    unsigned char State;
-    unsigned char RetryTimes;
-    unsigned char FinishFlag;
-} OTA_CtrlTypeDef;
-
-typedef struct {
-    unsigned char Type;
-    unsigned char Payload[OTA_FRAME_PAYLOAD_MAX];
-} OTA_FrameTypeDef;
-
-enum {
-    OTA_MASTER_STATE_IDLE = 0,
-    OTA_MASTER_STATE_FW_VER_WAIT,
-    OTA_MASTER_STATE_START_RSP_WAIT,
-    OTA_MASTER_STATE_DATA_ACK_WAIT,
-    OTA_MASTER_STATE_END_RSP_WAIT,
-    OTA_MASTER_STATE_END,
-    OTA_MASTER_STATE_ERROR,
-};
-
-enum {
-    OTA_SLAVE_STATE_IDLE = 0,
-    OTA_SLAVE_STATE_FW_VERSION_READY,
-    OTA_SLAVE_STATE_START_READY,
-    OTA_SLAVE_STATE_DATA_READY,
-    OTA_SLAVE_STATE_END_READY,
-    OTA_SLAVE_STATE_END,
-    OTA_SLAVE_STATE_ERROR
-};
-
-enum {
-    OTA_MSG_TYPE_INVALID_DATA = 0,
-    OTA_MSG_TYPE_DATA,
-    OTA_MSG_TYPE_TIMEOUT,
-};
-
-
-
-typedef enum{
-
-	GEN_FSK_STX_MODE = 0,
-	GEN_FSK_SRX_MODE = 1,
-
-}Gen_Fsk_Mode_Slect;
-
-extern void OTA_MasterInit(unsigned int OTABinAddr, unsigned short FwVer);
-extern void OTA_MasterStart(void);
-
-extern void OTA_SlaveInit(unsigned int OTABinAddr, unsigned short FwVer);
-extern void OTA_SlaveStart(void);
-
-extern void OTA_RxIrq(unsigned char *Data);
-extern void OTA_RxTimeoutIrq(unsigned char *Data);
-
-
-#endif /*_OTA_H_*/

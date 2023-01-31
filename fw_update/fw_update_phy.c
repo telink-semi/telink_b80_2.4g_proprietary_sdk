@@ -54,8 +54,8 @@
 #define PHY_RX_BUF_NUM          3
 
 #define CLOCK_SYS_CLOCK_HZ      24000000
-#define UART_TX_PIN_PA4         GPIO_PA4
-#define UART_RX_PIN_PA5         GPIO_PA5
+#define UART_TX_PIN_PD0         GPIO_PD0
+#define UART_RX_PIN_PC6         GPIO_PC6
 #define UART_DATA_LEN    		(96-4)      //data max (UART_DATA_LEN+4) must 16 byte aligned
 typedef struct{
     unsigned int dma_len;        // dma len must be 4 byte
@@ -84,7 +84,7 @@ void FW_UPDATE_PHY_Init(const PHY_Cb_t RxCb)
     //config UART module
     uart_recbuff_init(  (unsigned char *)&PHY_RxBuf[PHY_RxPtr], PHY_RX_BUF_LEN);
 
-    uart_gpio_set(UART_TX_PIN_PA4, UART_RX_PIN_PA5);
+    uart_gpio_set(UART_TX_PIN_PD0, UART_RX_PIN_PC6);
 
     uart_reset();  //will reset uart digital registers from 0x90 ~ 0x9f, so uart setting must set after this reset
 

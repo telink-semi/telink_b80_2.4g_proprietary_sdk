@@ -52,15 +52,9 @@
 
 #define OTA_SLAVE_PANID         0xcafe
 #define OTA_SLAVE_CHANNEL       70
-//#define OTA_SLAVE_BIN_ADDR     0x20000
 #define OTA_FW_VERSION          0x0000
 
 
-#if     OTA_SLAVE_BIN_ADDR_0x20000
-#define OTA_SLAVE_BIN_ADDR      0x20000
-#else
-#define OTA_SLAVE_BIN_ADDR      0x40000
-#endif
 
 #define BATT_CHECK_ENABLE       1
 #define VBAT_ALRAM_THRES_MV     2000
@@ -121,8 +115,8 @@ void user_init(void)
 
     // indicate LED Pins
     gpio_set_func(BLUE_LED_PIN|GREEN_LED_PIN|WHITE_LED_PIN|RED_LED_PIN, AS_GPIO);
-    gpio_set_func(BLUE_LED_PIN|GREEN_LED_PIN|WHITE_LED_PIN|RED_LED_PIN, AS_GPIO);
-    gpio_set_output_en(BLUE_LED_PIN|GREEN_LED_PIN|WHITE_LED_PIN|RED_LED_PIN, 1); //disable output
+	gpio_set_output_en(BLUE_LED_PIN|GREEN_LED_PIN|WHITE_LED_PIN|RED_LED_PIN, 1); //enable output
+    gpio_set_input_en(BLUE_LED_PIN|GREEN_LED_PIN|WHITE_LED_PIN|RED_LED_PIN, 0); //disable input
     gpio_write(BLUE_LED_PIN|GREEN_LED_PIN|WHITE_LED_PIN|RED_LED_PIN, 0);
 }
 
@@ -185,12 +179,7 @@ int main(void)
 			}
 		}
 
-		gpio_write(GREEN_LED_PIN,1);
-		WaitMs(80);
-		gpio_write(GREEN_LED_PIN,0);
-		WaitMs(80);
-		gpio_write(GREEN_LED_PIN,1);
-		WaitMs(80);
-		gpio_write(GREEN_LED_PIN,0);
+        gpio_toggle(GREEN_LED_PIN);
+        WaitMs(1000);
 	}
 }

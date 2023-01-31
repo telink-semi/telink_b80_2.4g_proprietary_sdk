@@ -161,6 +161,27 @@ void FW_UPDATE_RxIrq(unsigned char *Data)
     }
 }
 
+static unsigned short FW_CRC16_Cal(unsigned short crc, unsigned char* pd, int len)
+{
+    // unsigned short       crc16_poly[2] = { 0, 0xa001 }; //0x8005 <==> 0xa001
+    unsigned short      crc16_poly[2] = { 0, 0x8408 }; //0x1021 <==> 0x8408
+    //unsigned short        crc16_poly[2] = { 0, 0x0811 }; //0x0811 <==> 0x8810
+    //unsigned short        crc = 0xffff;
+    int i, j;
+
+    for (j = len; j > 0; j--)
+    {
+        unsigned char ds = *pd++;
+        for (i = 0; i < 8; i++)
+        {
+            crc = (crc >> 1) ^ crc16_poly[(crc ^ ds) & 1];
+            ds = ds >> 1;
+        }
+    }
+
+    return crc;
+}
+
 #ifdef FW_UPDATE_MASTER_EN
 
 static FW_UPDATE_CtrlTypeDef MasterCtrl = {0};
@@ -204,6 +225,7 @@ void FW_UPDATE_MasterInit(unsigned int FWBinAddr, unsigned short FwVer)
     MasterCtrl.FlashAddr = FWBinAddr;
     //read the size of FW_UPDATE_bin file
     flash_read_page(MasterCtrl.FlashAddr + FW_UPDATE_BIN_SIZE_OFFSET, 4, (unsigned char *)&MasterCtrl.TotalBinSize);
+    MasterCtrl.TotalBinSize += FW_APPEND_INFO_LEN; // APPEND CRC INFO IN BIN TAIL
     MasterCtrl.MaxBlockNum = (MasterCtrl.TotalBinSize + (FW_UPDATE_FRAME_PAYLOAD_MAX - 2) - 1) / (FW_UPDATE_FRAME_PAYLOAD_MAX - 2);
     MasterCtrl.BlockNum = 0;
     MasterCtrl.FwVersion = FwVer;
@@ -394,8 +416,8 @@ void FW_UPDATE_MasterStart(void)
 			gpio_toggle(WHITE_LED_PIN);//red
 			WaitMs(60);
 		}
-		start_reboot();
-//		cpu_sleep_wakeup(DEEPSLEEP_MODE_RET_SRAM_LOW32K, PM_WAKEUP_TIMER, ClockTime() + FW_UPDATE_REBOOT_WAIT * 16);
+		//start_reboot();
+		cpu_sleep_wakeup(DEEPSLEEP_MODE_RET_SRAM_LOW16K, PM_WAKEUP_TIMER, ClockTime() + FW_UPDATE_REBOOT_WAIT * 16);
     }
     else if (FW_UPDATE_MASTER_STATE_ERROR == MasterCtrl.State) {
         gpio_set_output_en(RED_LED_PIN, 1); //enable output
@@ -406,8 +428,8 @@ void FW_UPDATE_MasterStart(void)
 			gpio_toggle(RED_LED_PIN);//red
 			WaitMs(60);
 		}
-		start_reboot();
-//		cpu_sleep_wakeup(DEEPSLEEP_MODE_RET_SRAM_LOW32K, PM_WAKEUP_TIMER, ClockTime() + FW_UPDATE_REBOOT_WAIT * 16);
+		//start_reboot();
+		cpu_sleep_wakeup(DEEPSLEEP_MODE_RET_SRAM_LOW16K, PM_WAKEUP_TIMER, ClockTime() + FW_UPDATE_REBOOT_WAIT * 16);
     }
 }
 
@@ -447,7 +469,9 @@ void FW_UPDATE_SlaveInit(unsigned int FWBinAddr, unsigned short FwVer)
     SlaveCtrl.State = FW_UPDATE_SLAVE_STATE_IDLE;
     SlaveCtrl.RetryTimes = 0;
     SlaveCtrl.FinishFlag = 0;
-
+    SlaveCtrl.FwCRC = 0;
+    SlaveCtrl.PktCRC = 0;
+    SlaveCtrl.TargetFwCRC = 0;
     //erase the FW_UPDATE write area
     FW_UPDATE_FlashErase();
 }
@@ -605,6 +629,18 @@ void FW_UPDATE_SlaveStart(void)
                         if (FW_UPDATE_rspWaitTimer) {
                             ev_unon_timer(&FW_UPDATE_rspWaitTimer);
                         }
+
+                        if (RxFrame.Len == FW_UPDATE_FRAME_PAYLOAD_MAX)
+                        {
+                            SlaveCtrl.PktCRC = FW_CRC16_Cal(SlaveCtrl.PktCRC, &RxFrame.Payload[2], RxFrame.Len - 2);
+                        }
+                        else if (RxFrame.Len < FW_UPDATE_FRAME_PAYLOAD_MAX)
+                        {
+                            SlaveCtrl.PktCRC = FW_CRC16_Cal(SlaveCtrl.PktCRC, &RxFrame.Payload[2], RxFrame.Len - 2 - FW_APPEND_INFO_LEN);
+                        }
+
+//                        printf("block_num:%d, len:%d, PktCRC:%2x\r\n", BlockNum, RxFrame.Len - 2, SlaveCtrl.PktCRC);
+
                         //write received data to flash
                         flash_write_page(SlaveCtrl.FlashAddr + SlaveCtrl.TotalBinSize, RxFrame.Len - 2, &RxFrame.Payload[2]);
                         SlaveCtrl.BlockNum = BlockNum;
@@ -699,9 +735,65 @@ void FW_UPDATE_SlaveStart(void)
         }
     }
     else if (FW_UPDATE_SLAVE_STATE_END == SlaveCtrl.State) {
-        //clear current boot flag
+
+        // 1. todo FW crc check
+        unsigned char bin_buf[64] = {0};
+        int block_idx = 0;
+        int len = 0;
+//        SlaveCtrl.TotalBinSize -= FW_APPEND_INFO_LEN;
+        flash_read_page((unsigned long)SlaveCtrl.FlashAddr + SlaveCtrl.TotalBinSize - FW_APPEND_INFO_LEN,
+                2, &SlaveCtrl.TargetFwCRC);
+        while (1)
+        {
+            if (SlaveCtrl.TotalBinSize - block_idx * (FW_UPDATE_FRAME_PAYLOAD_MAX -2) > (FW_UPDATE_FRAME_PAYLOAD_MAX - 2))
+            {
+                len = FW_UPDATE_FRAME_PAYLOAD_MAX - 2;
+                flash_read_page((unsigned long)SlaveCtrl.FlashAddr + block_idx * (FW_UPDATE_FRAME_PAYLOAD_MAX - 2),
+                        len, &bin_buf[0]);
+                SlaveCtrl.FwCRC = FW_CRC16_Cal(SlaveCtrl.FwCRC, &bin_buf[0], len);
+            }
+            else
+            {
+                len = SlaveCtrl.TotalBinSize - (block_idx * (FW_UPDATE_FRAME_PAYLOAD_MAX - 2)) - FW_APPEND_INFO_LEN;
+                flash_read_page((unsigned long)SlaveCtrl.FlashAddr + block_idx * (FW_UPDATE_FRAME_PAYLOAD_MAX - 2),
+                          len, &bin_buf[0]);
+                  SlaveCtrl.FwCRC = FW_CRC16_Cal(SlaveCtrl.FwCRC, &bin_buf[0], len);
+                  break;
+            }
+            block_idx++;
+//            printf("fw block idx:%d, len:%d, FwCRC:%2x\r\n", block_idx, len, SlaveCtrl.FwCRC);
+        }
+//        printf("fw block idx:%d, len:%d, FwCRC:%2x  \r\n", block_idx + 1, len, SlaveCtrl.FwCRC);
+//        printf("pkt_crc:%2x, fw_crc:%2x, target_fw_crc:%2x\r\n", SlaveCtrl.PktCRC, SlaveCtrl.FwCRC, SlaveCtrl.TargetFwCRC);
+        if (SlaveCtrl.FwCRC != SlaveCtrl.PktCRC || SlaveCtrl.TargetFwCRC != SlaveCtrl.FwCRC)
+        {
+//            printf("Crc Check Error\r\n");
+            SlaveCtrl.State = FW_UPDATE_SLAVE_STATE_ERROR;
+            return;
+        }
+
+        // 2. clear current boot flag
         unsigned char tmp = 0x00;
+#if (FW_UPDATE_SLAVE_BIN_ADDR == FW_UPDATE_SLAVE_BIN_ADDR_20000)
         flash_write_page(SlaveCtrl.FlashAddr ? 0x08 : 0x20008, 1, &tmp);
+#else
+        flash_write_page(0x20008, 1, &tmp);
+        flash_write_page(SlaveCtrl.FlashAddr ? 0x08 : 0x40008, 1, &tmp);
+#endif
+        if (SlaveCtrl.FlashAddr == 0x00)
+        {
+//            printf("cur_boot_addr:%4x, next_boot_addr:%4x\r\n", FW_UPDATE_SLAVE_BIN_ADDR, 0x0000);
+
+        }
+        else if (SlaveCtrl.FlashAddr == FW_UPDATE_SLAVE_BIN_ADDR_20000)
+        {
+//        	printf("cur_boot_addr:%4x, next_boot_addr:%4x\r\n", 0x0000, FW_UPDATE_SLAVE_BIN_ADDR_20000);
+        }
+        else
+        {
+//        	printf("cur_boot_addr:%4x, next_boot_addr:%4x\r\n", 0x0000, FW_UPDATE_SLAVE_BIN_ADDR_40000);
+        }
+
         //reboot
         irq_disable();
         gpio_set_output_en(GREEN_LED_PIN, 1); //enable output
@@ -730,8 +822,9 @@ void FW_UPDATE_SlaveStart(void)
 			gpio_toggle(RED_LED_PIN);//red
 			WaitMs(60);
 		}
-		//start_reboot();
-        cpu_sleep_wakeup(DEEPSLEEP_MODE, PM_WAKEUP_TIMER, ClockTime() + FW_UPDATE_REBOOT_WAIT * 16);
+		start_reboot();
+		while (1);
+//        cpu_sleep_wakeup(DEEPSLEEP_MODE, PM_WAKEUP_TIMER, ClockTime() + FW_UPDATE_REBOOT_WAIT * 16);
     }
 }
 

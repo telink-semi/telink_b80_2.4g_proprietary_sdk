@@ -52,6 +52,10 @@
 #define FW_UPDATE_MASTER_BIN_ADDR   0x20000
 #define FW_UPDATE_FW_VERSION        0x0001
 
+#define BATT_CHECK_ENABLE       1
+#define VBAT_ALRAM_THRES_MV     2000
+
+#define BLUE_LED_PIN                GPIO_PA4
 #define GREEN_LED_PIN               GPIO_PA5
 #define WHITE_LED_PIN               GPIO_PA6
 #define RED_LED_PIN                 GPIO_PA7
@@ -60,12 +64,34 @@
 unsigned long firmwareVersion;
 volatile unsigned char FW_UPDATE_MasterTrig = 0;
 
+#if(BATT_CHECK_ENABLE)
+static unsigned char  battery_power_check()
+{
+	volatile unsigned char i;
+	volatile unsigned short sample_result = 0;
+	adc_init();
+    adc_vbat_channel_init();
+	adc_power_on_sar_adc(1);
+	WaitMs(1);
+	for(i = 0; i < 4; i++)
+	{
+		sample_result = adc_sample_and_get_result();
+		if(sample_result < VBAT_ALRAM_THRES_MV)
+		{
+			return 0;
+		}
+	}
+	return 1;
+}
+#endif
+
 void user_init(void)
 {
-    gpio_set_func(GREEN_LED_PIN, AS_GPIO);
-    gpio_set_output_en(GREEN_LED_PIN, 1);           //enable output
-    gpio_set_input_en(GREEN_LED_PIN, 0);            //disable input
-    gpio_write(GREEN_LED_PIN, 0);
+    // indicate LED Pins
+    gpio_set_func(BLUE_LED_PIN|GREEN_LED_PIN|WHITE_LED_PIN|RED_LED_PIN, AS_GPIO);
+	gpio_set_output_en(BLUE_LED_PIN|GREEN_LED_PIN|WHITE_LED_PIN|RED_LED_PIN, 1); //enable output
+    gpio_set_input_en(BLUE_LED_PIN|GREEN_LED_PIN|WHITE_LED_PIN|RED_LED_PIN, 0); //disable input
+    gpio_write(BLUE_LED_PIN|GREEN_LED_PIN|WHITE_LED_PIN|RED_LED_PIN, 0);
 
     gpio_set_func(GPIO_PA0 ,AS_GPIO);
 	gpio_set_output_en(GPIO_PA0, 1); 		//enable output
@@ -101,13 +127,24 @@ int main(void)
         if (FW_UPDATE_MasterTrig)
         {
             FW_UPDATE_MasterTrig = 0;
-            gpio_toggle(GREEN_LED_PIN);
+
+#if (BATT_CHECK_ENABLE)
+            if(!battery_power_check())
+            {
+                while(1)
+                {
+                    gpio_toggle(RED_LED_PIN);
+                    WaitMs(50);
+                }
+            }
+#endif
+            gpio_toggle(BLUE_LED_PIN);
             WaitMs(100);
-            gpio_toggle(GREEN_LED_PIN);
+            gpio_toggle(BLUE_LED_PIN);
             WaitMs(100);
-            gpio_toggle(GREEN_LED_PIN);
+            gpio_toggle(BLUE_LED_PIN);
             WaitMs(100);
-            gpio_toggle(GREEN_LED_PIN);
+            gpio_toggle(BLUE_LED_PIN);
             WaitMs(100);
 
             FW_UPDATE_PHY_Init(FW_UPDATE_RxIrq);

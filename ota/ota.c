@@ -133,6 +133,27 @@ void OTA_RxTimeoutIrq(unsigned char *Data)
     OTA_MsgQueuePush(NULL, OTA_MSG_TYPE_TIMEOUT, &MsgQueue);
 }
 
+static unsigned short OTA_CRC16_Cal(unsigned short crc, unsigned char* pd, int len)
+{
+    // unsigned short       crc16_poly[2] = { 0, 0xa001 }; //0x8005 <==> 0xa001
+    unsigned short      crc16_poly[2] = { 0, 0x8408 }; //0x1021 <==> 0x8408
+    //unsigned short        crc16_poly[2] = { 0, 0x0811 }; //0x0811 <==> 0x8810
+    //unsigned short        crc = 0xffff;
+    int i, j;
+
+    for (j = len; j > 0; j--)
+    {
+        unsigned char ds = *pd++;
+        for (i = 0; i < 8; i++)
+        {
+            crc = (crc >> 1) ^ crc16_poly[(crc ^ ds) & 1];
+            ds = ds >> 1;
+        }
+    }
+
+    return crc;
+}
+
 
 #ifdef OTA_MASTER_EN
 
@@ -175,6 +196,7 @@ void OTA_MasterInit(unsigned int OTABinAddr, unsigned short FwVer)
     MasterCtrl.FlashAddr = OTABinAddr;
     //read the size of OTA_bin file
     flash_read_page((unsigned long)MasterCtrl.FlashAddr + OTA_BIN_SIZE_OFFSET, 4, ( unsigned char *)&MasterCtrl.TotalBinSize);
+    MasterCtrl.TotalBinSize += OTA_APPEND_INFO_LEN; // APPEND CRC INFO IN BIN TAIL
     MasterCtrl.MaxBlockNum = (MasterCtrl.TotalBinSize + (OTA_FRAME_PAYLOAD_MAX - 2) - 1) / (OTA_FRAME_PAYLOAD_MAX - 2);
     MasterCtrl.BlockNum = 0;
     MasterCtrl.FwVersion = FwVer;
@@ -327,6 +349,7 @@ void OTA_MasterStart(void)
         }
     }
     else if (OTA_MASTER_STATE_ERROR == MasterCtrl.State) {
+    	while (1){
     	gpio_set_func(RED_LED_PIN, AS_GPIO);
 		gpio_set_output_en(RED_LED_PIN, 1);
 		gpio_write(RED_LED_PIN, 1);
@@ -337,6 +360,7 @@ void OTA_MasterStart(void)
 		WaitMs(60);
 		gpio_write(RED_LED_PIN, 0);
 		WaitMs(120);
+    	}
     }
 }
 
@@ -376,6 +400,7 @@ void OTA_SlaveInit(unsigned int OTABinAddr, unsigned short FwVer)
     SlaveCtrl.State = OTA_SLAVE_STATE_IDLE;
     SlaveCtrl.RetryTimes = 0;
     SlaveCtrl.FinishFlag = 0;
+    SlaveCtrl.FwCRC = SlaveCtrl.PktCRC = 0;
 
     //erase the OTA write area
     OTA_FlashErase();
@@ -485,6 +510,15 @@ void OTA_SlaveStart(void)
                     //if receive the next OTA data frame, just respond with an ACK
                     if (BlockNum == SlaveCtrl.BlockNum + 1) {
                         SlaveCtrl.RetryTimes = 0;
+                        if ((Len-1) == OTA_FRAME_PAYLOAD_MAX)
+                        {
+                        SlaveCtrl.PktCRC = OTA_CRC16_Cal(SlaveCtrl.PktCRC, &RxFrame.Payload[2], Len - 3);
+                        }
+                        else if((Len-1) < OTA_FRAME_PAYLOAD_MAX)
+                        {
+                        	SlaveCtrl.PktCRC = OTA_CRC16_Cal(SlaveCtrl.PktCRC, &RxFrame.Payload[2], Len - 3 - OTA_APPEND_INFO_LEN);
+                        }
+//                        printf("block_num:%d, len:%d, PktCRC:%2x\n", BlockNum, Len - 3, SlaveCtrl.PktCRC);
                         //send the OTA data ack to master
                         unsigned int Length = OTA_BuildAckFrame(&TxFrame, BlockNum);
                         MAC_SendData((unsigned char *)&TxFrame, Length);
@@ -560,16 +594,64 @@ void OTA_SlaveStart(void)
         }
     }
     else if (OTA_SLAVE_STATE_END == SlaveCtrl.State) {
-
+#if 1
+        // 1. todo FW crc check
+//        int max_block_num = (SlaveCtrl.TotalBinSize + OTA_FRAME_PAYLOAD_MAX -2 - 1) / (OTA_FRAME_PAYLOAD_MAX - 2);
+        unsigned char bin_buf[48] = {0};
+        int block_idx = 0;
+        int len = 0;
+        flash_read_page((unsigned long)SlaveCtrl.FlashAddr + SlaveCtrl.TotalBinSize - OTA_APPEND_INFO_LEN,
+                2, &SlaveCtrl.TargetFwCRC);
+        while (1)
+        {
+            if (SlaveCtrl.TotalBinSize - block_idx * (OTA_FRAME_PAYLOAD_MAX - 2) > (OTA_FRAME_PAYLOAD_MAX - 2))
+            {
+                len = OTA_FRAME_PAYLOAD_MAX - 2;
+                flash_read_page((unsigned long)SlaveCtrl.FlashAddr + block_idx * (OTA_FRAME_PAYLOAD_MAX - 2),
+                        len, &bin_buf[0]);
+                SlaveCtrl.FwCRC = OTA_CRC16_Cal(SlaveCtrl.FwCRC, &bin_buf[0], len);
+            }
+            else
+            {
+                len = SlaveCtrl.TotalBinSize - (block_idx * (OTA_FRAME_PAYLOAD_MAX - 2))- OTA_APPEND_INFO_LEN;
+                flash_read_page((unsigned long)SlaveCtrl.FlashAddr + block_idx * (OTA_FRAME_PAYLOAD_MAX - 2),
+                        len, &bin_buf[0]);
+                SlaveCtrl.FwCRC = OTA_CRC16_Cal(SlaveCtrl.FwCRC, &bin_buf[0], len);
+                break;
+            }
+            block_idx++;
+//            printf("fw block idx:%d, len:%d, FwCRC:%2x\r\n", block_idx, len, SlaveCtrl.FwCRC);
+        }
+//        printf("fw block idx:%d, len:%d, FwCRC:%2x  \r\n", block_idx + 1, len, SlaveCtrl.FwCRC);
+//        printf("pkt_crc:%2x, fw_crc:%2x, target_fw_crc:%2x\r\n", SlaveCtrl.PktCRC, SlaveCtrl.FwCRC, SlaveCtrl.TargetFwCRC);
+        if (SlaveCtrl.FwCRC != SlaveCtrl.PktCRC || SlaveCtrl.TargetFwCRC != SlaveCtrl.FwCRC)
+        {
+//            printf("Crc Check Error\r\n");
+            SlaveCtrl.State = OTA_MASTER_STATE_ERROR;
+            return;
+        }
+#endif
         //clear current boot flag
         unsigned char tmp = 0x00;
-#if OTA_SLAVE_BIN_ADDR_0x20000
+#if (OTA_SLAVE_BIN_ADDR == OTA_SLAVE_BIN_ADDR_0x20000)
         flash_write_page(SlaveCtrl.FlashAddr ? 0x08 : 0x20008, 1, &tmp);
-#elif OTA_SLAVE_BIN_ADDR_0x40000
-		flash_write_page(SlaveCtrl.FlashAddr ? 0x08 : 0x20008, 1, &tmp);
-		flash_write_page(SlaveCtrl.FlashAddr ? 0x20008 : 0x40008, 1, &tmp);
+#else
+		flash_write_page(0x20008, 1, &tmp);
+		flash_write_page(SlaveCtrl.FlashAddr ? 0x08 : 0x40008, 1, &tmp);
 #endif
+        if (SlaveCtrl.FlashAddr == 0x00)
+        {
+//            printf("cur_boot_addr:%4x, next_boot_addr:%4x\r\n", OTA_SLAVE_BIN_ADDR, 0x0000);
 
+        }
+        else if (SlaveCtrl.FlashAddr == OTA_SLAVE_BIN_ADDR_0x20000)
+        {
+//        	printf("cur_boot_addr:%4x, next_boot_addr:%4x\r\n", 0x0000, OTA_SLAVE_BIN_ADDR_0x20000);
+        }
+        else
+        {
+//        	printf("cur_boot_addr:%4x, next_boot_addr:%4x\r\n", 0x0000, OTA_SLAVE_BIN_ADDR_0x40000);
+        }
         //reboot
         irq_disable();
         WaitMs(1000);

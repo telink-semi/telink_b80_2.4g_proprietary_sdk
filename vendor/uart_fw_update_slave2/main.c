@@ -168,7 +168,7 @@ int main(void)
                 ev_process_timer();
             }
         }
-        gpio_toggle(GREEN_LED_PIN);
+        gpio_toggle(WHITE_LED_PIN);
         WaitMs(1000);
     }
     return 0;

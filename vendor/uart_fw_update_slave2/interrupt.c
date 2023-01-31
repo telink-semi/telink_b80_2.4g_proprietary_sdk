@@ -1,12 +1,12 @@
 /********************************************************************************************************
- * @file	ota.h
+ * @file	interrupt.c
  *
- * @brief	This is the header file for b80
+ * @brief	This is the source file for b80
  *
  * @author	2.4G Group
- * @date	2019
+ * @date	2021
  *
- * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *          All rights reserved.
  *
  *          Redistribution and use in source and binary forms, with or without
@@ -44,98 +44,45 @@
  *
  *******************************************************************************************************/
 
-#ifndef _OTA_H_
-#define _OTA_H_
+#include "common.h"
+#include "driver.h"
+#include "fw_update_phy.h"
+#define  GPIO_IRQ_PIN           GPIO_PF0
 
+extern volatile unsigned char FW_UPDATE_SlaveTrig;
+volatile unsigned int tx_cnt = 0;
+volatile unsigned int rx_cnt = 0;
+__attribute__((section(".ram_code"))) __attribute__((optimize("-Os")))   void irq_handler(void)
+{
+	unsigned char uart_dma_irqsrc= dma_chn_irq_status_get();
+	unsigned int irq_src = irq_get_src();
+	//gpio irq
+    if (irq_src & FLD_IRQ_GPIO_EN)
+    {
+    	 if (0 == gpio_read(GPIO_IRQ_PIN))
+    	 {
+    		 WaitMs(10);
+    		 if (0 == gpio_read(GPIO_IRQ_PIN))
+    		 {
+    			 while(0 == gpio_read(GPIO_IRQ_PIN));
+    			 FW_UPDATE_SlaveTrig = 1;
+    		 }
+    	 }
+    }
+    //uart irq
+    if(uart_dma_irqsrc & FLD_DMA_CHN_UART_RX)
+    	{
+    		dma_chn_irq_status_clr(FLD_DMA_CHN_UART_RX);
+    		FW_UPDATE_PHY_RxIrqHandler();
+    		rx_cnt ++;
+    	}
+        if(uart_dma_irqsrc & FLD_DMA_CHN_UART_TX)
+        {
+            dma_chn_irq_status_clr(FLD_DMA_CHN_UART_TX);
+            tx_cnt ++;
+            FW_UPDATE_PHY_TxIrqHandler();
+        }
 
+        irq_clr_src();
 
-
-#define OTA_SLAVE_BIN_ADDR_0x40000   0x40000
-#define OTA_SLAVE_BIN_ADDR_0x20000   0x20000
-
-#define OTA_SLAVE_BIN_ADDR           OTA_SLAVE_BIN_ADDR_0x20000
-
-#define OTA_FRAME_TYPE_CMD        0x01
-#define OTA_FRAME_TYPE_DATA       0x02
-#define OTA_FRAME_TYPE_ACK        0x03
-
-#define OTA_CMD_ID_START_REQ      0x01
-#define OTA_CMD_ID_START_RSP      0x02
-#define OTA_CMD_ID_END_REQ        0x03
-#define OTA_CMD_ID_END_RSP        0x04
-#define OTA_CMD_ID_VERSION_REQ    0x05
-#define OTA_CMD_ID_VERSION_RSP    0x06
-
-
-
-
-#define OTA_FRAME_PAYLOAD_MAX     (48+2)
-#define OTA_RETRY_MAX             3
-#define OTA_APPEND_INFO_LEN              2 // FW_CRC 2 BYTE
-
-typedef struct {
-    unsigned int FlashAddr;
-    unsigned int TotalBinSize;
-    unsigned short MaxBlockNum;
-    unsigned short BlockNum;
-    unsigned short PeerAddr;
-    unsigned short FwVersion;
-    unsigned short FwCRC;
-    unsigned short PktCRC;
-    unsigned short TargetFwCRC;
-    unsigned char State;
-    unsigned char RetryTimes;
-    unsigned char FinishFlag;
-} OTA_CtrlTypeDef;
-
-typedef struct {
-    unsigned char Type;
-    unsigned char Payload[OTA_FRAME_PAYLOAD_MAX];
-} OTA_FrameTypeDef;
-
-enum {
-    OTA_MASTER_STATE_IDLE = 0,
-    OTA_MASTER_STATE_FW_VER_WAIT,
-    OTA_MASTER_STATE_START_RSP_WAIT,
-    OTA_MASTER_STATE_DATA_ACK_WAIT,
-    OTA_MASTER_STATE_END_RSP_WAIT,
-    OTA_MASTER_STATE_END,
-    OTA_MASTER_STATE_ERROR,
-};
-
-enum {
-    OTA_SLAVE_STATE_IDLE = 0,
-    OTA_SLAVE_STATE_FW_VERSION_READY,
-    OTA_SLAVE_STATE_START_READY,
-    OTA_SLAVE_STATE_DATA_READY,
-    OTA_SLAVE_STATE_END_READY,
-    OTA_SLAVE_STATE_END,
-    OTA_SLAVE_STATE_ERROR
-};
-
-enum {
-    OTA_MSG_TYPE_INVALID_DATA = 0,
-    OTA_MSG_TYPE_DATA,
-    OTA_MSG_TYPE_TIMEOUT,
-};
-
-
-
-typedef enum{
-
-	GEN_FSK_STX_MODE = 0,
-	GEN_FSK_SRX_MODE = 1,
-
-}Gen_Fsk_Mode_Slect;
-
-extern void OTA_MasterInit(unsigned int OTABinAddr, unsigned short FwVer);
-extern void OTA_MasterStart(void);
-
-extern void OTA_SlaveInit(unsigned int OTABinAddr, unsigned short FwVer);
-extern void OTA_SlaveStart(void);
-
-extern void OTA_RxIrq(unsigned char *Data);
-extern void OTA_RxTimeoutIrq(unsigned char *Data);
-
-
-#endif /*_OTA_H_*/
+}

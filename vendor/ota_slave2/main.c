@@ -1,12 +1,12 @@
 /********************************************************************************************************
  * @file	main.c
  *
- * @brief	This is the source file for b80
+ * @brief	This is the source file for 8355
  *
  * @author	2.4G Group
- * @date	2021
+ * @date	2019
  *
- * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *          All rights reserved.
  *
  *          Redistribution and use in source and binary forms, with or without
@@ -43,12 +43,18 @@
  *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *******************************************************************************************************/
-#include "common.h"
-#include "driver.h"
-#include "fw_update_phy.h"
-#include "fw_update.h"
 
-#define FW_UPDATE_FW_VERSION         0x0000
+#include "driver.h"
+#include "common.h"
+#include "mac.h"
+#include "ota.h"
+#include "genfsk_ll.h"
+
+#define OTA_SLAVE_PANID         0xcafe
+#define OTA_SLAVE_CHANNEL       70
+#define OTA_FW_VERSION          0x0000
+
+
 
 #define BATT_CHECK_ENABLE       1
 #define VBAT_ALRAM_THRES_MV     2000
@@ -56,15 +62,16 @@
 #define Flash_Addr				0x08
 #define Flash_Buff_Len			1
 
-#define BLUE_LED_PIN                GPIO_PA4
-#define GREEN_LED_PIN               GPIO_PA5
-#define WHITE_LED_PIN               GPIO_PA6
-#define RED_LED_PIN                 GPIO_PA7
-#define GPIO_IRQ_PIN                GPIO_PF0 //SW2
+#define BLUE_LED_PIN            GPIO_PA4
+#define GREEN_LED_PIN           GPIO_PA5
+#define WHITE_LED_PIN           GPIO_PA6
+#define RED_LED_PIN             GPIO_PA7
+#define OTA_SLAVE_TRIG_PIN      GPIO_PF0
 
 unsigned long firmwareVersion;
-volatile unsigned char FW_UPDATE_SlaveTrig = 0;
+volatile unsigned char OTA_SlaveTrig = 0;
 volatile unsigned char Flash_Read_Buff[Flash_Buff_Len]={0};
+
 
 #if(BATT_CHECK_ENABLE)
 static unsigned char  battery_power_check()
@@ -89,31 +96,35 @@ static unsigned char  battery_power_check()
 
 void user_init(void)
 {
+    // key related pins config
+    gpio_set_func(GPIO_PA0 ,AS_GPIO);
+	gpio_set_output_en(GPIO_PA0, 1); 		//enable output
+	gpio_set_input_en(GPIO_PA0 ,0);			//disable input
+	gpio_write(GPIO_PA0, 0);
+
+    gpio_set_func(OTA_SLAVE_TRIG_PIN, AS_GPIO);
+    gpio_set_output_en(OTA_SLAVE_TRIG_PIN, 0);            // disable output
+    gpio_set_input_en(OTA_SLAVE_TRIG_PIN, 1);             // enable input
+    gpio_setup_up_down_resistor(OTA_SLAVE_TRIG_PIN, PM_PIN_PULLUP_10K);
+    gpio_set_interrupt(OTA_SLAVE_TRIG_PIN, POL_FALLING);
+
+    // enable the irq
+    gpio_set_interrupt(OTA_SLAVE_TRIG_PIN, POL_FALLING);
+    irq_enable_type(FLD_IRQ_GPIO_EN);
+    irq_enable();
+
     // indicate LED Pins
     gpio_set_func(BLUE_LED_PIN|GREEN_LED_PIN|WHITE_LED_PIN|RED_LED_PIN, AS_GPIO);
 	gpio_set_output_en(BLUE_LED_PIN|GREEN_LED_PIN|WHITE_LED_PIN|RED_LED_PIN, 1); //enable output
     gpio_set_input_en(BLUE_LED_PIN|GREEN_LED_PIN|WHITE_LED_PIN|RED_LED_PIN, 0); //disable input
     gpio_write(BLUE_LED_PIN|GREEN_LED_PIN|WHITE_LED_PIN|RED_LED_PIN, 0);
-
-    gpio_set_func(GPIO_PA0 ,AS_GPIO);
-  	gpio_set_output_en(GPIO_PA0, 1); 		//enable output
-  	gpio_set_input_en(GPIO_PA0 ,0);			//disable input
-  	gpio_write(GPIO_PA0, 0);
-
-    gpio_set_func(GPIO_IRQ_PIN, AS_GPIO);
-    gpio_set_output_en(GPIO_IRQ_PIN, 0);            // disable output
-    gpio_set_input_en(GPIO_IRQ_PIN, 1);             // enable input
-    gpio_setup_up_down_resistor(GPIO_IRQ_PIN, PM_PIN_PULLUP_10K);
-    gpio_set_interrupt(GPIO_IRQ_PIN, POL_FALLING);
-
-    //enable the irq
-    gpio_set_interrupt(GPIO_IRQ_PIN, POL_FALLING);
-    irq_enable_type(FLD_IRQ_GPIO_EN);
-    irq_enable();
 }
 
 int main(void)
 {
+//	blc_pm_select_external_32k_crystal();
+	blc_pm_select_internal_32k_crystal();
+
     cpu_wakeup_init(EXTERNAL_XTAL_24M);
 
     wd_32k_stop();
@@ -124,11 +135,11 @@ int main(void)
 
     user_init();
 
-    while (1)
-    {
-        if (FW_UPDATE_SlaveTrig)
-        {
-            FW_UPDATE_SlaveTrig = 0;
+	while (1)
+	{
+		if (OTA_SlaveTrig)
+		{
+			OTA_SlaveTrig = 0;
 
 #if(BATT_CHECK_ENABLE)
             if (!battery_power_check())
@@ -140,40 +151,35 @@ int main(void)
                 }
             }
 #endif
+            MAC_Init(OTA_SLAVE_CHANNEL,
+                     OTA_RxIrq,
+                     OTA_RxTimeoutIrq,
+                     OTA_RxTimeoutIrq);
 
-            gpio_toggle(BLUE_LED_PIN);
-            WaitMs(100);
-            gpio_toggle(BLUE_LED_PIN);
-            WaitMs(100);
-            gpio_toggle(BLUE_LED_PIN);
-			WaitMs(100);
-			gpio_toggle(BLUE_LED_PIN);
-			WaitMs(100);
-
-            FW_UPDATE_PHY_Init(FW_UPDATE_RxIrq);
-
-            flash_read_page(Flash_Addr,Flash_Buff_Len, (unsigned char *)Flash_Read_Buff);
+			flash_read_page(Flash_Addr,Flash_Buff_Len, (unsigned char *)Flash_Read_Buff);
 			if (Flash_Read_Buff[0] == 0x4b)
 			{
-				FW_UPDATE_SlaveInit(FW_UPDATE_SLAVE_BIN_ADDR, FW_UPDATE_FW_VERSION);
+				OTA_SlaveInit(OTA_SLAVE_BIN_ADDR, OTA_FW_VERSION);
 			}
 			else
 			{
-				FW_UPDATE_SlaveInit(0, FW_UPDATE_FW_VERSION);
+				OTA_SlaveInit(0, OTA_FW_VERSION);
 			}
+			gpio_write(BLUE_LED_PIN,1);
+			WaitMs(80);
+			gpio_write(BLUE_LED_PIN,0);
+			WaitMs(80);
+			gpio_write(BLUE_LED_PIN,1);
+			WaitMs(80);
+			gpio_write(BLUE_LED_PIN,0);
 
-            while (1)
-            {
-                FW_UPDATE_SlaveStart();
-                ev_process_timer();
-            }
-        }
-        gpio_toggle(GREEN_LED_PIN);
+			while (1)
+			{
+				OTA_SlaveStart();
+			}
+		}
+
+        gpio_toggle(WHITE_LED_PIN);
         WaitMs(1000);
-    }
-    return 0;
+	}
 }
-
-
-
-

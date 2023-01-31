@@ -59,7 +59,12 @@
 
 #define FW_UPDATE_FRAME_PAYLOAD_MAX     (2+64)
 #define FW_UPDATE_RETRY_MAX             3
+#define FW_APPEND_INFO_LEN              2 // FW_CRC 2 BYTE
+#define FW_BOOT_ADDR                    0x7f000
 
+#define FW_UPDATE_SLAVE_BIN_ADDR_20000  0x20000
+#define FW_UPDATE_SLAVE_BIN_ADDR_40000  0x40000
+#define FW_UPDATE_SLAVE_BIN_ADDR        FW_UPDATE_SLAVE_BIN_ADDR_20000
 
 typedef struct {
     unsigned int FlashAddr;
@@ -67,6 +72,9 @@ typedef struct {
     unsigned short MaxBlockNum;
     unsigned short BlockNum;
     unsigned short FwVersion;
+    unsigned short FwCRC;
+    unsigned short PktCRC;
+    unsigned short TargetFwCRC;
     unsigned char State;
     unsigned char RetryTimes;
     unsigned char FinishFlag;
