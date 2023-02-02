@@ -48,7 +48,7 @@
 #include "common.h"
 #include "driver.h"
 
-#define FW_UPDATE_MASTER_EN                 0
+//#define FW_UPDATE_MASTER_EN                 0
 #define MSG_QUEUE_LEN                       4
 #define FW_UPDATE_BIN_SIZE_OFFSET           0x18
 
@@ -629,26 +629,34 @@ void FW_UPDATE_SlaveStart(void)
                         if (FW_UPDATE_rspWaitTimer) {
                             ev_unon_timer(&FW_UPDATE_rspWaitTimer);
                         }
-
-                        if (RxFrame.Len == FW_UPDATE_FRAME_PAYLOAD_MAX)
-                        {
-                            SlaveCtrl.PktCRC = FW_CRC16_Cal(SlaveCtrl.PktCRC, &RxFrame.Payload[2], RxFrame.Len - 2);
-                        }
-                        else if (RxFrame.Len < FW_UPDATE_FRAME_PAYLOAD_MAX)
-                        {
-                            SlaveCtrl.PktCRC = FW_CRC16_Cal(SlaveCtrl.PktCRC, &RxFrame.Payload[2], RxFrame.Len - 2 - FW_APPEND_INFO_LEN);
-                        }
-
 //                        printf("block_num:%d, len:%d, PktCRC:%2x\r\n", BlockNum, RxFrame.Len - 2, SlaveCtrl.PktCRC);
 
-                        //write received data to flash
-                        flash_write_page(SlaveCtrl.FlashAddr + SlaveCtrl.TotalBinSize, RxFrame.Len - 2, &RxFrame.Payload[2]);
+                        /*
+                         * write received data to flash,
+                         * and avoid first block data writing boot flag as head of time.
+                         */
+
+                        if (1 == BlockNum)
+                        {
+                            // unfill boot flag in ota procedure
+                            flash_write_page(SlaveCtrl.FlashAddr, 8, &RxFrame.Payload[2]);
+                            flash_write_page(SlaveCtrl.FlashAddr + 12, RxFrame.Len - 2 - 12, &RxFrame.Payload[2 + 12]);
+                        }
+                        else
+                        {
+                            flash_write_page(SlaveCtrl.FlashAddr + SlaveCtrl.TotalBinSize, RxFrame.Len - 2, &RxFrame.Payload[2]);
+                        }
+
                         SlaveCtrl.BlockNum = BlockNum;
                         SlaveCtrl.TotalBinSize += (RxFrame.Len - 2);
 
                         if (SlaveCtrl.MaxBlockNum == BlockNum) {
+                        	SlaveCtrl.PktCRC = FW_CRC16_Cal(SlaveCtrl.PktCRC, &RxFrame.Payload[2], RxFrame.Len - 2 - FW_APPEND_INFO_LEN);
                             SlaveCtrl.State = FW_UPDATE_SLAVE_STATE_END_READY;
+                        } else {
+                        	SlaveCtrl.PktCRC = FW_CRC16_Cal(SlaveCtrl.PktCRC, &RxFrame.Payload[2], RxFrame.Len - 2);
                         }
+
                         //send the FW_UPDATE data ack to master
                         Len = FW_UPDATE_BuildAckFrame(&TxFrame, BlockNum);
                         FW_UPDATE_PHY_SendData((unsigned char *)&TxFrame, Len);
@@ -750,6 +758,14 @@ void FW_UPDATE_SlaveStart(void)
                 len = FW_UPDATE_FRAME_PAYLOAD_MAX - 2;
                 flash_read_page((unsigned long)SlaveCtrl.FlashAddr + block_idx * (FW_UPDATE_FRAME_PAYLOAD_MAX - 2),
                         len, &bin_buf[0]);
+                if (0 == block_idx)
+                {
+                    // fill the boot flag mannually
+                    bin_buf[8] = 0x4b;
+                    bin_buf[9] = 0x4e;
+                    bin_buf[10] = 0x4c;
+                    bin_buf[11] = 0x54;
+                }
                 SlaveCtrl.FwCRC = FW_CRC16_Cal(SlaveCtrl.FwCRC, &bin_buf[0], len);
             }
             else
@@ -772,7 +788,11 @@ void FW_UPDATE_SlaveStart(void)
             return;
         }
 
-        // 2. clear current boot flag
+        // 2. set next boot flag
+        unsigned int utmp = 0x544C4E4B;
+        flash_write_page(SlaveCtrl.FlashAddr + 8, 4, (unsigned char *)&utmp);
+
+        // 3. clear current boot flag
         unsigned char tmp = 0x00;
 #if (FW_UPDATE_SLAVE_BIN_ADDR == FW_UPDATE_SLAVE_BIN_ADDR_20000)
         flash_write_page(SlaveCtrl.FlashAddr ? 0x08 : 0x20008, 1, &tmp);

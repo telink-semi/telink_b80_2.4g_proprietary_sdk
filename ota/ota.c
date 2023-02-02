@@ -335,7 +335,6 @@ void OTA_MasterStart(void)
         }
     }
     else if (OTA_MASTER_STATE_END == MasterCtrl.State) {
-        while (1) {
             gpio_set_func(WHITE_LED_PIN, AS_GPIO);
             gpio_set_output_en(WHITE_LED_PIN, 1);
             gpio_write(WHITE_LED_PIN, 1);
@@ -346,10 +345,9 @@ void OTA_MasterStart(void)
             WaitMs(60);
             gpio_write(WHITE_LED_PIN, 0);
             WaitMs(120);
-        }
+            start_reboot();
     }
     else if (OTA_MASTER_STATE_ERROR == MasterCtrl.State) {
-    	while (1){
     	gpio_set_func(RED_LED_PIN, AS_GPIO);
 		gpio_set_output_en(RED_LED_PIN, 1);
 		gpio_write(RED_LED_PIN, 1);
@@ -360,7 +358,7 @@ void OTA_MasterStart(void)
 		WaitMs(60);
 		gpio_write(RED_LED_PIN, 0);
 		WaitMs(120);
-    	}
+		start_reboot();
     }
 }
 
@@ -510,26 +508,37 @@ void OTA_SlaveStart(void)
                     //if receive the next OTA data frame, just respond with an ACK
                     if (BlockNum == SlaveCtrl.BlockNum + 1) {
                         SlaveCtrl.RetryTimes = 0;
-                        if ((Len-1) == OTA_FRAME_PAYLOAD_MAX)
+//                        printf("block_num:%d, len:%d, PktCRC:%2x\r\n", BlockNum, Len - 3, SlaveCtrl.PktCRC);
+                        /*
+                         * write received data to flash,
+                         * and avoid first block data writing boot flag as head of time.
+                         */
+                        if(1 == BlockNum)
                         {
-                        SlaveCtrl.PktCRC = OTA_CRC16_Cal(SlaveCtrl.PktCRC, &RxFrame.Payload[2], Len - 3);
+                            // unfill boot flag in ota procedure
+                            flash_write_page(SlaveCtrl.FlashAddr, 8, &RxFrame.Payload[2]);
+                            flash_write_page(SlaveCtrl.FlashAddr + 12, Len - 3 - 12, &RxFrame.Payload[2 + 12]);
                         }
-                        else if((Len-1) < OTA_FRAME_PAYLOAD_MAX)
+                        else
                         {
-                        	SlaveCtrl.PktCRC = OTA_CRC16_Cal(SlaveCtrl.PktCRC, &RxFrame.Payload[2], Len - 3 - OTA_APPEND_INFO_LEN);
+                            //write received data to flash
+                            flash_write_page(SlaveCtrl.FlashAddr + SlaveCtrl.TotalBinSize, Len - 3, &RxFrame.Payload[2]);
                         }
-//                        printf("block_num:%d, len:%d, PktCRC:%2x\n", BlockNum, Len - 3, SlaveCtrl.PktCRC);
-                        //send the OTA data ack to master
-                        unsigned int Length = OTA_BuildAckFrame(&TxFrame, BlockNum);
-                        MAC_SendData((unsigned char *)&TxFrame, Length);
-                        //write received data to flash
-                        flash_write_page(SlaveCtrl.FlashAddr + SlaveCtrl.TotalBinSize, Len - 3, &RxFrame.Payload[2]);
+
                         SlaveCtrl.BlockNum = BlockNum;
                         SlaveCtrl.TotalBinSize += (Len - 3);
 
                         if (SlaveCtrl.MaxBlockNum == BlockNum) {
+                        	SlaveCtrl.PktCRC = OTA_CRC16_Cal(SlaveCtrl.PktCRC, &RxFrame.Payload[2], Len - 3 - OTA_APPEND_INFO_LEN);
                             SlaveCtrl.State = OTA_SLAVE_STATE_END_READY;
                         }
+                        else
+                        {
+                        	SlaveCtrl.PktCRC = OTA_CRC16_Cal(SlaveCtrl.PktCRC, &RxFrame.Payload[2], Len - 3);
+                        }
+                        //send the OTA data ack to master
+                        unsigned int Length = OTA_BuildAckFrame(&TxFrame, BlockNum);
+                        MAC_SendData((unsigned char *)&TxFrame, Length);
 
                         return;
                     }
@@ -609,6 +618,14 @@ void OTA_SlaveStart(void)
                 len = OTA_FRAME_PAYLOAD_MAX - 2;
                 flash_read_page((unsigned long)SlaveCtrl.FlashAddr + block_idx * (OTA_FRAME_PAYLOAD_MAX - 2),
                         len, &bin_buf[0]);
+                if (0 == block_idx)
+                {
+                    // fill the boot flag mannually
+                    bin_buf[8] = 0x4b;
+                    bin_buf[9] = 0x4e;
+                    bin_buf[10] = 0x4c;
+                    bin_buf[11] = 0x54;
+                }
                 SlaveCtrl.FwCRC = OTA_CRC16_Cal(SlaveCtrl.FwCRC, &bin_buf[0], len);
             }
             else
@@ -631,6 +648,11 @@ void OTA_SlaveStart(void)
             return;
         }
 #endif
+
+        // set next boot flag
+        unsigned int utmp = 0x544C4E4B;
+        flash_write_page(SlaveCtrl.FlashAddr + 8, 4, (unsigned char *)&utmp);
+
         //clear current boot flag
         unsigned char tmp = 0x00;
 #if (OTA_SLAVE_BIN_ADDR == OTA_SLAVE_BIN_ADDR_0x20000)
@@ -663,7 +685,7 @@ void OTA_SlaveStart(void)
         OTA_FlashErase();
         irq_disable();
         //cpu_sleep_wakeup(DEEPSLEEP_MODE, PM_WAKEUP_TIMER, ClockTime() + OTA_REBOOT_WAIT * 16);
-        while (1) {
+
         	gpio_set_func(RED_LED_PIN, AS_GPIO);
 			gpio_set_output_en(RED_LED_PIN, 1);
 			gpio_write(RED_LED_PIN, 1);
@@ -674,7 +696,7 @@ void OTA_SlaveStart(void)
 			WaitMs(60);
 			gpio_write(RED_LED_PIN, 0);
 			WaitMs(120);
-        }
+			start_reboot();
     }
 }
 
