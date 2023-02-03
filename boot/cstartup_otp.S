@@ -50,7 +50,7 @@
 #define  ZERO_IC_TAG_EN		  			1
 #define  IC_TAG_CACHE_ADDR_EQU_EN    	0
 #define  COPY_DATA_EN					1
-#define  MULTI_ADDRESS_START			1
+
 #endif
 
 #ifndef __LOAD_RAM_SIZE__
@@ -103,7 +103,6 @@ __start:					@ MUST,  referenced by boot.link
 	.extern  _ramcode_size_align_256_
 	.extern  _ictag_start_
 	.extern  _ictag_end_
-	.extern  tl_multi_addr
 	.org 0x0
 	tj	__reset
 @	.word	(firmwareVersion)
@@ -342,19 +341,11 @@ RANA_REG_END:
 	tshftr		r2,r2,#31
 	tcmp        r2,#0
 	/*if ana_reg_0x7e==0x00 retention data initiate after waking up from deep*/
-#if MULTI_ADDRESS_START
-	tjeq		MULTI_ADDRESS_END
-MULTI_ADDRESS_BEGIN:
-	tloadr      r0, MULTI_ADDRESS_DATA
-	tloadr		r1, MULTI_ADDRESS_DATA+4
-	tloadr      r2, [r1,#0]
-	tstorerh    r2, [r0,#0]
+	tjeq		COPY_RET_DATA
 #if COPY_DATA_EN
 	tj			COPY_DATA                   @deep wakeup with retention
 #else
 	tj          COPY_DATA_END
-#endif
-MULTI_ADDRESS_END:
 #endif
 
 
@@ -456,10 +447,6 @@ FLL_D:
 	.word	(0x844000)		    		@12  	stack end
 
 	.word   _ramcode_size_div_256_      @12
-	
-	MULTI_ADDRESS_DATA:
-	.word	(0x0080063e)				@0
-	.word   tl_multi_addr				@4
 
 	.align 4
 __irq:

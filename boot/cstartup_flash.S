@@ -52,7 +52,7 @@
 #define  ZERO_IC_TAG_EN		  			1
 #define  IC_TAG_CACHE_ADDR_EQU_EN    	0
 #define  COPY_DATA_EN					1
-#define  MULTI_ADDRESS_START			1
+
 #endif
 
 #ifndef __LOAD_RAM_SIZE__
@@ -236,7 +236,6 @@ __reset:
 	tstorerb	r0, [r1, #1]	@0x800583  PB output
 #endif
 
-#if FLASH_CODE_EN
 	@when running the flash program, let the otp enter the deep standby mode to reduce the power consumption of the chip.
 	tloadr		r3, OTP_CTRL	  @0x800010	otp ctrl
 	tloadrb		r1, [r3, #0]
@@ -248,7 +247,6 @@ __reset:
 	tmovs		r0, #207		  @0b 11001111 mc icct1
 	tand		r1, r0
  	tstorerb	r1, [r3, #1]	  @pdstb = 0  pldo = 0
-#endif
 
 @The design of the eaglet chip is to power off the flash when the chip goes to sleep,
 @and then power on the flash again after waking up, so there is no need to perform the flash wake-up action.
@@ -384,12 +382,11 @@ RANA_REG_END:
 	tshftr		r2,r2,#31
 	tcmp        r2,#0
 	/*if ana_reg_0x7e==0x00 retention data initiate after waking up from deep*/
-#if MULTI_ADDRESS_START
 	tjeq		MULTI_ADDRESS_END
 MULTI_ADDRESS_BEGIN:
 	tloadr      r0, MULTI_ADDRESS_DATA
 	tloadr		r1, MULTI_ADDRESS_DATA+4
-	tloadr      r2, [r1,#0]
+	tloadrh     r2, [r1,#0]
 	tstorerh    r2, [r0,#0]
 #if COPY_DATA_EN
 	tj			COPY_DATA                   @deep wakeup with retention
@@ -397,7 +394,6 @@ MULTI_ADDRESS_BEGIN:
 	tj          COPY_DATA_END
 #endif
 MULTI_ADDRESS_END:
-#endif
 
 
 @********************************************************************************************************
