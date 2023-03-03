@@ -127,11 +127,6 @@ int main(void)
     tpsll_radio_power_set(TPSLL_RADIO_POWER_6DBM);
     tpsll_rx_settle_set(90);
 
-    // timer init
-	stimer_set_irq_mask();
-	stimer_set_capture_tick(clock_time() + CLOCK_16M_SYS_TIMER_CLK_1S);
-	stimer_enable();
-
     //irq configuration
     rf_irq_disable(FLD_RF_IRQ_ALL);
     rf_irq_enable(FLD_RF_IRQ_RX | FLD_RF_IRQ_FIRST_TIMEOUT); //enable rf rx and rx first timeout irq
