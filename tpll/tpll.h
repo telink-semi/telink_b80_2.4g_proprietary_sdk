@@ -58,14 +58,14 @@
 #define TLSR_ERROR_BUSY                         (-2)
 
 
-/**@brief Enhanced ShockBurst address width. */
+/**@brief Telink primary link layer address width. */
 typedef enum {
     ADDRESS_WIDTH_3BYTES = 3,      /**< Set address width to 3 bytes */
     ADDRESS_WIDTH_4BYTES,          /**< Set address width to 4 bytes */
     ADDRESS_WIDTH_5BYTES           /**< Set address width to 5 bytes */
 } TPLL_AddressWidthTypeDef;
 
-/**@brief Enhanced ShockBurst pipe IDs. */
+/**@brief Telink primary link layer pipe IDs. */
 typedef enum {
     TPLL_PIPE0 = 0,          /**< Select pipe0 */
     TPLL_PIPE1,              /**< Select pipe1 */
@@ -77,7 +77,7 @@ typedef enum {
     TPLL_PIPE_ALL = 0xFF     /**< Close or open all pipes*/
 } TPLL_PipeIDTypeDef;
 
-/**@brief Enhanced ShockBurst state machine status. */
+/**@brief Telink primary link layer state machine status. */
 typedef enum {
     TPLL_STATE_MACHINE_STATUS_IDLE = 0,          /**< Idle */
     TPLL_STATE_MACHINE_STATUS_TX_SETTLE,         /**< TX Settle*/
@@ -87,13 +87,13 @@ typedef enum {
     TPLL_STATE_MACHINE_STATUS_TX_WAIT,           /**< RX Wait */
 } TPLL_StatemachineStatusTypeDef;
 
-/**@brief Enhanced ShockBurst mode. */
+/**@brief Telink primary link layer mode. */
 typedef enum {
     TPLL_MODE_PTX = 0,      /**< PTX Mode */
     TPLL_MODE_PRX,          /**< PRX Mode */
 } TPLL_ModeTypeDef;
 
-/**@brief Enhanced ShockBurst bitrate mode. */
+/**@brief Telink primary link layer bitrate mode. */
 typedef enum {
     TPLL_BITRATE_1MBPS = 0,      /**< 1Mbit radio mode. */
     TPLL_BITRATE_2MBPS,          /**< 2Mbit radio mode. */
@@ -101,7 +101,7 @@ typedef enum {
     TPLL_BITRATE_250KBPS,        /**< 250Kbit radio mode. */
 } TPLL_BitrateTypeDef;
 
-/**@brief Enhanced ShockBurst modulation index. */
+/**@brief Telink primary link layer modulation index. */
 typedef enum {
 	TPLL_RF_MI_0000 = 0,             /**< MI = 0 */
 	TPLL_RF_MI_0076 = 76,            /**< MI = 0.076 This gear is only available in private mode*/
@@ -116,7 +116,7 @@ typedef enum {
 	TPLL_RF_MI_1400 = 1400,		    /**< MI = 1.4 */
 }TPLL_MIVauleTypeDef;
 
-/**@brief Enhanced ShockBurst radio transmission power modes. */
+/**@brief Telink primary link layer radio transmission power modes. */
 typedef enum {
     TPLL_RF_POWER_10DBM = 51,      /**< 10 dBm radio transmit power. */
     TPLL_RF_POWER_9DBM  = 43,      /**< 9 dBm radio transmit power. */
@@ -150,7 +150,7 @@ typedef enum {
 
 
 /**
- * @brief       Initiate the the Enhanced ShockBurst module. 
+ * @brief       Initiate the the Telink primary link layer module.
  * @note        This function must be called at the beginning of the TPLL configuration.
  * @param       bitrate  Radio bitrate.
  * @return      none.

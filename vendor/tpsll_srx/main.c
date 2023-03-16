@@ -51,7 +51,6 @@
 volatile unsigned char tpsll_rxbuf[RX_BUF_SIZE]  __attribute__((aligned(4)));
 
 #define GREEN_LED_PIN       GPIO_PA5
-#define BLUE_LED_PIN        GPIO_PA4
 #define DEBUG_PIN           GPIO_PD6
 
 //RX Buffer related
@@ -106,9 +105,9 @@ int main(void)
     clock_init(SYS_CLK_24M_Crystal);
 
     //LED pin config
-    gpio_set_func(GREEN_LED_PIN|BLUE_LED_PIN, AS_GPIO);
-    gpio_set_output_en(GREEN_LED_PIN|BLUE_LED_PIN, 1); //enable output
-    gpio_write(GREEN_LED_PIN|BLUE_LED_PIN, 0); //LED Off
+    gpio_set_func(GREEN_LED_PIN, AS_GPIO);
+    gpio_set_output_en(GREEN_LED_PIN, 1); //enable output
+    gpio_write(GREEN_LED_PIN, 0); //LED Off
 
     gpio_set_func(DEBUG_PIN, AS_GPIO);
     gpio_set_output_en(DEBUG_PIN, 1); //enable output
@@ -118,7 +117,7 @@ int main(void)
     //init Link Layer configuratioin
     tpsll_init(TPSLL_DATARATE_2MBPS);
     tpsll_channel_set(chn);
-    tpsll_preamble_len_set(3);
+    tpsll_preamble_len_set(2);
     tpsll_sync_word_len_set(SYNC_WORD_LEN_4BYTE);
     tpsll_sync_word_set(TPSLL_PIPE0,sync_word);
     tpsll_pipe_open(TPSLL_PIPE0);

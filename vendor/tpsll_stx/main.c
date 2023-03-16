@@ -49,14 +49,13 @@
 
 unsigned char payload_len = 32;
 static unsigned char payload[32] __attribute__((aligned(4))) ={
-		0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+		TPSLL_SYNC_DATA,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
 		0x11,0x11,0x11,0x11,0x11,0x11,0x11,0x11,
 		0x22,0x22,0x22,0x22,0x22,0x22,0x22,0x22,
 		0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33
 };
 
 #define GREEN_LED_PIN       GPIO_PA5
-#define BLUE_LED_PIN        GPIO_PA4
 #define DEBUG_PIN           GPIO_PD6
 
 //RX Buffer related
@@ -90,9 +89,9 @@ int main(void)
 	user_read_flash_value_calib();
 
     //LED pin config
-    gpio_set_func(GREEN_LED_PIN|BLUE_LED_PIN, AS_GPIO);
-    gpio_set_output_en(GREEN_LED_PIN|BLUE_LED_PIN, 1); //enable output
-    gpio_write(GREEN_LED_PIN|BLUE_LED_PIN, 0); //LED Off
+    gpio_set_func(GREEN_LED_PIN, AS_GPIO);
+    gpio_set_output_en(GREEN_LED_PIN, 1); //enable output
+    gpio_write(GREEN_LED_PIN, 0); //LED Off
 
     gpio_set_func(DEBUG_PIN, AS_GPIO);
     gpio_set_output_en(DEBUG_PIN, 1); //enable output
@@ -102,6 +101,7 @@ int main(void)
     //init Link Layer configuratioin
     tpsll_init(TPSLL_DATARATE_2MBPS);
     tpsll_channel_set(chn);
+    tpsll_preamble_len_set(2);
     tpsll_sync_word_len_set(SYNC_WORD_LEN_4BYTE);
     tpsll_sync_word_set(TPSLL_PIPE0,sync_word);
     tpsll_pipe_open(TPSLL_PIPE0);
@@ -116,7 +116,7 @@ int main(void)
     irq_enable(); //enable general irq
 
     //start the STX
-    tpsll_tx_write_data(payload,payload_len);
+    tpsll_tx_write_payload(payload,payload_len);
     tpsll_stx_start(clock_time()+50*16);
 
     while (1) {
@@ -124,7 +124,7 @@ int main(void)
         tx_done_flag = 0;
         payload[4]++;
         gpio_write(DEBUG_PIN,1);
-        tpsll_tx_write_data(payload,payload_len);
+        tpsll_tx_write_payload(payload,payload_len);
         tpsll_stx_start(clock_time()+100*16);
         gpio_write(DEBUG_PIN,0);
         while (tx_done_flag == 0);

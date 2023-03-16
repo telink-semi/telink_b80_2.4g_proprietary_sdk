@@ -1,22 +1,26 @@
+# Release Note
+
 ## V3.2.2
 
 ### Version
 * SDK version : telink_b80_2.4g_proprietary_sdk V3.2.2
 
 ### Refactoring
-* Refactoring the lib library file
+* Put all non-public driver files in the drivers/lib folder.
 
 ### Features
 
-* N/A
+* Add the crc function of the firmware update routine and put the relevant script files into the new script folder.
+* Add stx/srx/stx2rx/srx2tx routines of tpsll（Telink proprietary stack link layer）.
 
 ### Bug Fixes
 
-* N/A
+* Solve the problem that  gotten  payload length is packet length but not real payload length in General fsk fix packet format.
+* Sovle the problem of turning into bricks after power failure when firmware updating.
 
 ### BREAKING CHANGES
 
-* N/A
+* Change the name of esb to tpll(Telink primary link layer).
 
 ## V3.2.2
 
@@ -24,19 +28,19 @@
 * SDK 版本: telink_b80_2.4g_proprietary_sdk V3.2.2
 
 ### Refactoring
-* 重构lib库文件
+* 将不公开驱动文件全部放入drivers/lib文件夹下。
 
 ### Features
-
-* N/A
+* 添加固件更新例程的crc校验功能并将相关脚本文件放入新建的script文件夹中。
+* 添加tpsll（Telink proprietary stack link layer）的stx/srx/stx2rx/srx2tx例程。
 
 ### Bug Fixes
 
-* N/A
+* 解决General fsk定长包获取的rx_payload_len为packet length而不是实际payload length的问题。
+* 解决固件更新过程中断电变砖问题。
 
 ### BREAKING CHANGES
-
-* N/A
+* 将esb更名为tpll(Telink primary link layer)。
 
 ## V3.2.1
 
@@ -68,10 +72,10 @@
 
 * N/A
 
-## V3.2.0
+# V3.2.0
 
 ### Version
-* SDK version : telink_b80_2.4g_proprietary_sdk V3.2.0
+* SDK version : telink_b80_2.4g_proprietary_sdk V3.2.0.
 
 ### Features
 * Add rf_pa diver.
@@ -81,10 +85,10 @@
 
 * N/A
 
-## V3.2.0
+# V3.2.0
 
 ### Version
-* SDK 版本: telink_b80_2.4g_proprietary_sdk V3.2.0
+* SDK 版本: telink_b80_2.4g_proprietary_sdk V3.2.0。
 
 ### Features
 * 增加rf_pa驱动。

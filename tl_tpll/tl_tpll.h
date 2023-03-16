@@ -111,14 +111,14 @@ STATIC_ASSERT((TRF_NUM_VA_ARGS(__VA_ARGS__) > 0 && TRF_NUM_VA_ARGS(__VA_ARGS__) 
     .payload_len        = 32                                    \
 }
 
-/**@brief Enhanced ShockBurst address width. */
+/**@brief Telink primary link layer address width. */
 typedef enum {
     TRF_TPLL_ADDRESS_WIDTH_3BYTES = 3,      /**< Set address width to 3 bytes */
     TRF_TPLL_ADDRESS_WIDTH_4BYTES,          /**< Set address width to 4 bytes */
     TRF_TPLL_ADDRESS_WIDTH_5BYTES           /**< Set address width to 5 bytes */
 } trf_tpll_address_width_t;
 
-/**@brief Enhanced ShockBurst pipe IDs. */
+/**@brief Telink primary link layer pipe IDs. */
 typedef enum {
     TRF_TPLL_PIPE0 = 0,          /**< Select pipe0 */
     TRF_TPLL_PIPE1,              /**< Select pipe1 */
@@ -130,7 +130,7 @@ typedef enum {
     TRF_TPLL_PIPE_ALL = 0xFF     /**< Close or open all pipes*/
 } trf_tpll_pipeid_t;
 
-/**@brief Enhanced ShockBurst state machine status. */
+/**@brief Telink primary link layer state machine status. */
 typedef enum {
     TRF_TPLL_STATE_MACHINE_STATUS_IDLE = 0,          /**< Idle */
     TRF_TPLL_STATE_MACHINE_STATUS_TX_SETTLE,         /**< TX Settle*/
@@ -152,7 +152,7 @@ typedef enum {
     TRF_TPLL_BITRATE_250KBPS,        /**< 250Kbit radio mode. */
 } trf_tpll_bitrate_t;
 
-/**@brief Enhanced ShockBurst modulation index. */
+/**@brief Telink primary link layer modulation index. */
 typedef enum {
     TRF_TPLL_MI_000 = 0,
     TRF_TPLL_MI_032 = 32,         /**< MI = 0.32 */
@@ -171,7 +171,7 @@ typedef enum {
     TRF_TPLL_CRC_8BIT,
 } trf_tpll_crc_t;
 
-/**@brief Enhanced ShockBurst radio transmission power modes. */
+/**@brief Telink primary link layer radio transmission power modes. */
 typedef enum {
     TRF_TPLL_POWER_10DBM = 51,      /**< 10 dBm radio transmit power. */
     TRF_TPLL_POWER_9DBM  = 43,      /**< 9 dBm radio transmit power. */
@@ -232,7 +232,7 @@ typedef struct {
 } trf_tpll_payload_t;
 
 /**
- * @brief       Initiate the the Enhanced ShockBurst module.
+ * @brief       Initiate the the Telink primary link layer module.
  * @note        This function must be called at the beginning of the TPLL configuration.
  * @param       bitrate  Radio bitrate.
  * @return      error code for init result.

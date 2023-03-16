@@ -29,10 +29,15 @@ _attribute_ram_code_sec_noinline_ __attribute__((optimize("-Os"))) void irq_hand
 void user_init(void)
 {
     unsigned char sync_word[4] = {0x53, 0x78, 0x56, 0x52};
-    gpio_set_func(GREEN_LED_PIN | DEBUG_PIN, AS_GPIO);
-    gpio_set_input_en(GREEN_LED_PIN | DEBUG_PIN, 0); //disable output
-    gpio_set_output_en(GREEN_LED_PIN | DEBUG_PIN, 1); //enable output
-    gpio_write(GREEN_LED_PIN | DEBUG_PIN, 0);
+    gpio_set_func(GREEN_LED_PIN, AS_GPIO);
+    gpio_set_input_en(GREEN_LED_PIN, 0); //disable output
+    gpio_set_output_en(GREEN_LED_PIN, 1); //enable output
+    gpio_write(GREEN_LED_PIN, 0);
+
+    gpio_set_func(DEBUG_PIN, AS_GPIO);
+    gpio_set_input_en(DEBUG_PIN, 0); //disable output
+    gpio_set_output_en(DEBUG_PIN, 1); //enable output
+    gpio_write(DEBUG_PIN, 0);
 
     // it needs to notice that this api is different from vulture / kite
     gen_fsk_datarate_set(GEN_FSK_DATARATE_1MBPS); //Note that this API must be invoked first before all other APIs

@@ -52,7 +52,7 @@ volatile static unsigned char tpsll_rxbuf[RX_BUF_SIZE]  __attribute__((aligned(4
 
 unsigned char payload_len = 32;                                  //payload_len best to be 4n-1;
 volatile static unsigned char payload[32] = {
-		0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+		TPSLL_SYNC_DATA,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
 		0x11,0x11,0x11,0x11,0x11,0x11,0x11,0x11,
 		0x22,0x22,0x22,0x22,0x22,0x22,0x22,0x22,
 		0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33
@@ -60,7 +60,6 @@ volatile static unsigned char payload[32] = {
 
 
 #define GREEN_LED_PIN       GPIO_PA5
-#define BLUE_LED_PIN        GPIO_PA4
 #define TX_PIN              GPIO_PD6
 #define RX_PIN              GPIO_PD3
 
@@ -116,9 +115,9 @@ int main(void)
 	user_read_flash_value_calib();
 
     //LED pin config
-    gpio_set_func(GREEN_LED_PIN|BLUE_LED_PIN, AS_GPIO);
-    gpio_set_output_en(GREEN_LED_PIN|BLUE_LED_PIN, 1); //enable output
-    gpio_write(GREEN_LED_PIN|BLUE_LED_PIN, 0); //LED Off
+    gpio_set_func(GREEN_LED_PIN, AS_GPIO);
+    gpio_set_output_en(GREEN_LED_PIN, 1); //enable output
+    gpio_write(GREEN_LED_PIN, 0); //LED Off
 
     gpio_set_func(TX_PIN | RX_PIN, AS_GPIO);
     gpio_set_output_en(TX_PIN | RX_PIN, 1); //enable output
@@ -127,7 +126,7 @@ int main(void)
     unsigned char sync_word[4] = {0x11, 0x22, 0x33, 0x44};
     //init Link Layer configuratioin
     tpsll_init(TPSLL_DATARATE_2MBPS);
-    tpsll_preamble_len_set(4);
+    tpsll_preamble_len_set(2);
     tpsll_sync_word_len_set(SYNC_WORD_LEN_4BYTE);
     tpsll_sync_word_set(TPSLL_PIPE0,sync_word);
     tpsll_pipe_open(TPSLL_PIPE0);
@@ -145,7 +144,7 @@ int main(void)
     irq_enable(); //enable general irq
 
     //start the SRX
-    tpsll_tx_write_data((unsigned char *)payload,payload_len);
+    tpsll_tx_write_payload((unsigned char *)payload,payload_len);
     tpsll_stx2rx_start(clock_time()+50*16,250);
 
     while (1) {
@@ -153,16 +152,16 @@ int main(void)
         if (rx_timeout_flag) {
             rx_timeout_flag = 0;
             WaitMs(100);
-            tpsll_tx_write_data((unsigned char *)payload,payload_len);
+            tpsll_tx_write_payload((unsigned char *)payload,payload_len);
             tpsll_stx2rx_start(clock_time()+50*16,250);
         }
 
         if (rx_flag) {
             rx_flag = 0;
             gpio_toggle(GREEN_LED_PIN);
-            WaitMs(100);
+//            WaitMs(100);
             payload[4]++;
-            tpsll_tx_write_data((unsigned char *)payload,payload_len);
+            tpsll_tx_write_payload((unsigned char *)payload,payload_len);
             tpsll_stx2rx_start(clock_time()+50*16,250);
         }
 

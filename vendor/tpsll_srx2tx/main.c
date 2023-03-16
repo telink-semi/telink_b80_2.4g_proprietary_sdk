@@ -59,7 +59,6 @@ volatile static unsigned char payload[32] __attribute__((aligned(4))) = {
 volatile static unsigned char tpsll_rxbuf[RX_BUF_SIZE]  __attribute__((aligned(4)));
 
 #define GREEN_LED_PIN       GPIO_PA5
-#define BLUE_LED_PIN        GPIO_PA4
 #define TX_PIN              GPIO_PD6
 #define RX_PIN              GPIO_PD3
 
@@ -118,9 +117,9 @@ int main(void)
 	user_read_flash_value_calib();
 
     //LED pin config
-    gpio_set_func(GREEN_LED_PIN|BLUE_LED_PIN, AS_GPIO);
-    gpio_set_output_en(GREEN_LED_PIN|BLUE_LED_PIN, 1); //enable output
-    gpio_write(GREEN_LED_PIN|BLUE_LED_PIN, 0); //LED Off
+    gpio_set_func(GREEN_LED_PIN, AS_GPIO);
+    gpio_set_output_en(GREEN_LED_PIN, 1); //enable output
+    gpio_write(GREEN_LED_PIN, 0); //LED Off
 
     gpio_set_func(TX_PIN | RX_PIN, AS_GPIO);
     gpio_set_output_en(TX_PIN | RX_PIN, 1); //enable output
@@ -129,7 +128,7 @@ int main(void)
     unsigned char sync_word[4] = {0x11, 0x22, 0x33, 0x44};
     //init Link Layer configuratioin
     tpsll_init(TPSLL_DATARATE_2MBPS);
-    tpsll_preamble_len_set(4);
+    tpsll_preamble_len_set(2);
     tpsll_sync_word_len_set(SYNC_WORD_LEN_4BYTE);
     tpsll_sync_word_set(TPSLL_PIPE0,sync_word);
     tpsll_pipe_open(TPSLL_PIPE0);
@@ -145,7 +144,7 @@ int main(void)
     irq_enable(); //enable general irq
 
     //start the SRX
-    tpsll_tx_write_data((unsigned char *)payload,payload_len);
+    tpsll_tx_write_payload((unsigned char *)payload,payload_len);
     tpsll_srx2tx_start(clock_time()+50*16, 0);
     while (1) {
 
@@ -160,7 +159,7 @@ int main(void)
 		   tx_done_flag = 0;
 		   //start the SRX2TX
 		   payload[4]++;
-		   tpsll_tx_write_data((unsigned char *)payload,payload_len);
+		   tpsll_tx_write_payload((unsigned char *)payload,payload_len);
 		   tpsll_srx2tx_start(clock_time()+50*16, 0);
         }
     }

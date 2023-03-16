@@ -2,29 +2,32 @@
 #ifndef ASYNC_INIT_H_
 #define ASYNC_INIT_H_
 
+#define TPSLL_MAX_PAYLOAD_LEN     252
+
 enum
 {
-    LL_CMD_START = 0,
-    LL_SYNC_REQ = 0x01,
-    LL_SYNC_RSP = 0x02,
-    LL_ACCEPTED = 0X03,
-    LL_NOT_ACCEPTED = 0X04,
-    LL_CONN_REQ = 0X05,
-    LL_CONN_RSP = 0X06,
-    LL_CHNL_CLASSIFICATION_REQ = 0X11,
-    LL_CHG_CHNL_MAP_REQ = 0X12,
-    LL_CHNL_CLASSIFICATION_IND = 0X13,
-    LL_SYNC_DATA = 0x14,
-    LL_CMD_END
+    TPSLL_CMD_START = 0,
+    TPSLL_SYNC_REQ = 0x01,
+    TPSLL_SYNC_RSP = 0x02,
+    TPSLL_ACCEPTED = 0X03,
+    TPSLL_NOT_ACCEPTED = 0X04,
+    TPSLL_CONN_REQ = 0X05,
+    TPSLL_CONN_RSP = 0X06,
+    TPSLL_CHNL_CLASSIFICATION_REQ = 0X11,
+    TPSLL_CHG_CHNL_MAP_REQ = 0X12,
+    TPSLL_CHNL_CLASSIFICATION_IND = 0X13,
+    TPSLL_SYNC_DATA = 0x14,
+    TPSLL_CMD_END
 };
 
 enum
 {
-    LL_FLOW_NESN = 0x01,
-    LL_FLOW_SN = 0x02,
-    LL_FLOW_SENT = 0x04,
-    LL_FLOW_RCVD = 0x08,
+	TPSLL_FLOW_NESN = 0x01,
+	TPSLL_FLOW_SN = 0x02,
+	TPSLL_FLOW_SENT = 0x04,
+	TPSLL_FLOW_RCVD = 0x08,
 };
+
 
 /** An enum describing the radio's data rate.
  *
@@ -38,9 +41,7 @@ typedef enum {
  *
  */
 typedef enum {
-    SYNC_WORD_LEN_3BYTE = 3,      /**< Set  length to 3 bytes */
-    SYNC_WORD_LEN_4BYTE,          /**< Set  length to 4 bytes */
-    SYNC_WORD_LEN_5BYTE           /**< Set  length to 5 bytes */
+    SYNC_WORD_LEN_4BYTE = 4         /**< Set  length to 4 bytes */
 } tpsll_sync_word_len_t;
 
 /** An enum describing the pipe IDs.
@@ -60,10 +61,7 @@ typedef enum {
  *
  */
 typedef enum {
-    CRC_DISABLE = 0,          /**< disable crc */
-    CRC_1BYTE,                /**< 1byte crc */
-	CRC_2BYTE,                 /**< 2byte crc */
-	CRC_3BYTE,                /**< 3byte crc */
+	TPSLL_CRC_3BYTE = 3             /**< 3byte crc */
 } tpsll_crc_len_t;
 
 /** An enum describing the radio's power level.
@@ -99,7 +97,7 @@ typedef enum {
     TPSLL_RADIO_POWER_M_50dBm  = 128,// -50dbm
 } tpsll_radio_power_t;
 
-/**@brief Enhanced ShockBurst modulation index. */
+/**@brief Telink proprietary stack link layer modulation index. */
 typedef enum {
 	TPSLL_RF_MI_0000 = 0,		 	/**< MI = 0 */
 	TPSLL_RF_MI_0076 = 76,		    /**< MI = 0.076 This gear is only available in private mode*/
@@ -113,6 +111,37 @@ typedef enum {
 	TPSLL_RF_MI_1300 = 1300,		/**< MI = 1.3 */
 	TPSLL_RF_MI_1400 = 1400,		/**< MI = 1.4 */
 }TPSLL_MIVauleTypeDef;
+
+/**
+ * @brief Telink proprietary stack link layer rx packet format.
+ * @note  packet format should not be changed,header = type + len,payload = cmd + data.
+ */
+typedef struct tpsll_rx_packet
+{
+    int dma_size;  //dma_size = len + 2
+    unsigned char  type;
+    unsigned char  len; //length of data + cmd (MAX 252byte)
+    unsigned char  cmd;
+    unsigned char  data[98];
+} __attribute__((packed)) __attribute__ ((aligned (4))) tpsll_rx_packet_t;
+extern tpsll_rx_packet_t tpsll_rx_pkt;
+
+/**
+ * @brief Telink proprietary stack link layer tx packet format.
+ * @note  packet format should not be changed,header = type + len,payload = cmd + data.
+ */
+typedef struct tpsll_tx_packet
+{
+    int dma_size;  //dma_size = len + 2
+    unsigned char  type;
+    unsigned char  len; //length of data + cmd (MAX 252byte)
+    unsigned char  cmd;
+    unsigned char  data[98];
+} __attribute__((packed)) __attribute__ ((aligned (4))) tpsll_tx_packet_t;
+extern tpsll_tx_packet_t tpsll_tx_pkt;
+
+tpsll_tx_packet_t tpsll_tx_pkt;
+tpsll_rx_packet_t tpsll_rx_pkt;
 
 /**
  * @brief      This function servers to init rf and set radio's on-air datarate.
@@ -132,7 +161,7 @@ _attribute_ram_code_sec_noinline_ void tpsll_channel_set(signed short channel_nu
 
 /**
  * @brief      This function servers to set the length in octet of the preamble
- *             field of the on-air data packet.Note that the valid range is 1-16.
+ *             field of the on-air data packet.Note that the valid range is 1-2.
  * @param[in]  preamble_len  specify the length of preamble field in octet.
  * @param[out] none
  * @return     none.
@@ -336,12 +365,12 @@ _attribute_ram_code_sec_ void tpsll_srx_start(unsigned int start_point, unsigned
 _attribute_ram_code_sec_ void tpsll_srx2tx_start(unsigned int start_point, unsigned int timeout_us);
 
 /**
- * @brief      This function servers to write tx payload.
+ * @brief      This function servers to write tx payload.Note that the valid range is 1-252.
  * @param[in]  tx payload and tx payload len.
  * @param[out] none
  * @return     none.
  */
-_attribute_ram_code_sec_ int tpsll_tx_write_data(unsigned char *payload,unsigned char payload_len);
+_attribute_ram_code_sec_ int tpsll_tx_write_payload(unsigned char *payload,unsigned char payload_len);
 
 /**
  * @brief      This function servers to open one or all pipes.
