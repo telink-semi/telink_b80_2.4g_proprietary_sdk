@@ -38,11 +38,11 @@ stages:
     - docs/
     - drivers/
     - epd/
-    - esb_ll/
+    - tpll/
     - fw_update/
     - genfsk_ll/
     - ota/
-    - tl_esb_ll/
+    - tl_tpll/
     - vendor/
     - .cproject/
     - .project/
