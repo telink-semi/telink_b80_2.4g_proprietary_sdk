@@ -45,13 +45,13 @@
  *******************************************************************************************************/
 #ifndef _TPLL_H_
 #define _TPLL_H_
-#define NORDIC_RX_SETTLE_TIME_US                120
-#define NORDIC_TX_SETTLE_TIME_US                110
+#define RX_SETTLE_TIME_US                120
+#define TX_SETTLE_TIME_US                110
 #define PTX_RETRY_DELAY_TIME_US                 10
 
-//Nordic
-#define RF_NORDIC_PACKET_LENGTH_OK(p)           (p[0] == (p[12]&0x3f)+15)
-#define RF_NORDIC_PACKET_CRC_OK(p)              ((p[p[0]+3] & 0x51) == 0x40)
+
+#define RF_PACKET_LENGTH_OK(p)           (p[0] == (p[12]&0x3f)+15)
+#define RF_PACKET_CRC_OK(p)              ((p[p[0]+3] & 0x51) == 0x40)
 
 #define TLSR_SUCCESS                            (0)
 #define TLSR_ERROR_INVALID_PARAM                (-1)

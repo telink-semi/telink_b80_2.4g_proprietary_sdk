@@ -448,7 +448,7 @@ int trf_tpll_set_tx_wait(unsigned short wait_us);
 
 /**
  * @brief       Set the wait time between the end of an Ack-required packet's transmission
- *              and the start of Ack receiving to accommodate with Nordic chips.
+ *              and the start of Ack receiving to accommodate with another chip.
  * @param       wait_us Wait time between the end of an Ack-required packet's transmission
  *              and the start of Ack receiving.
  * @return      none.
