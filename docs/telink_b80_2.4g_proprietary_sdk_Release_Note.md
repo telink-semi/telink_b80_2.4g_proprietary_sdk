@@ -1,5 +1,46 @@
 # Release Note
 
+## VX.X.X
+
+### Version
+* SDK version : telink_b80_2.4g_proprietary_sdk VX.X.X
+
+### Refactoring
+
+* N/A
+
+### Features
+* N/A
+
+### Bug Fixes
+
+* Fix the problem that the local CRC will not be updated and the next four packets will all be repeat packets when received a wrong crc packet.
+
+### BREAKING CHANGES
+
+* N/A
+
+## VX.X.X
+
+### Version
+* SDK 版本: telink_b80_2.4g_proprietary_sdk VX.X.X
+
+### Refactoring
+
+* N/A
+
+### Features
+* N/A
+
+### Bug Fixes
+
+* 在tl_tpll中修复了当收到crc错误包时，local pid与crc不变，接下去四包连续为重复包的问题。
+
+### BREAKING CHANGES
+
+* N/A
+
+
 ## V3.2.3
 
 ### Version
