@@ -64,8 +64,8 @@ void user_init(signed short chnn)
     gpio_write(GREEN_LED_PIN, 1);
 
     //rf configuration
-    TPLL_Init(TPLL_BITRATE_250KBPS);
-    TPLL_SetOutputPower(TPLL_RF_POWER_0DBM);
+    TPLL_Init(TPLL_BITRATE_2MBPS);
+    TPLL_SetOutputPower(TPLL_RF_POWER_N0p22dBm);
     TPLL_SetAddressWidth(ADDRESS_WIDTH_5BYTES);
     TPLL_ClosePipe(TPLL_PIPE_ALL);
 

@@ -123,7 +123,7 @@ int main(void)
     gen_fsk_pipe_open(GEN_FSK_PIPE0); //enable pipe0's reception
     gen_fsk_tx_pipe_set(GEN_FSK_PIPE0); //set pipe0 as the TX pipe
     gen_fsk_packet_format_set(GEN_FSK_PACKET_FORMAT_FIXED_PAYLOAD, 8);
-    gen_fsk_radio_power_set(GEN_FSK_RADIO_POWER_0DBM);
+    gen_fsk_radio_power_set(GEN_FSK_RADIO_POWER_N0p22dBm);
     gen_fsk_rx_buffer_set(rx_buf + rx_ptr*RX_BUF_LEN, RX_BUF_LEN);
     gen_fsk_channel_set(7); //set rf freq as 2403.5MHz
     gen_fsk_radio_state_set(GEN_FSK_STATE_AUTO);

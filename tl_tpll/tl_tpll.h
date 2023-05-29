@@ -103,7 +103,7 @@ STATIC_ASSERT((TRF_NUM_VA_ARGS(__VA_ARGS__) > 0 && TRF_NUM_VA_ARGS(__VA_ARGS__) 
     .mode               = TRF_TPLL_MODE_PTX,                     \
     .bitrate            = TRF_TPLL_BITRATE_2MBPS,                \
     .crc                = TRF_TPLL_CRC_16BIT,                    \
-    .tx_power           = TRF_TPLL_POWER_0DBM,                   \
+    .tx_power           = TRF_TPLL_POWER_N0p22dBm,                   \
     .event_handler      = 0,                                    \
     .retry_delay        = 150,                                  \
     .retry_times        = 5,                                    \
@@ -154,16 +154,17 @@ typedef enum {
 
 /**@brief Telink primary link layer modulation index. */
 typedef enum {
-    TRF_TPLL_MI_000 = 0,
-    TRF_TPLL_MI_032 = 32,         /**< MI = 0.32 */
-    TRF_TPLL_MI_050 = 50,         /**< MI = 0.5 */
-    TRF_TPLL_MI_060 = 60,         /**< MI = 0.6 */
-    TRF_TPLL_MI_070 = 70,         /**< MI = 0.7 */
-    TRF_TPLL_MI_080 = 80,         /**< MI = 0.8 */
-    TRF_TPLL_MI_090 = 90,         /**< MI = 0.9 */
-    TRF_TPLL_MI_120 = 120,        /**< MI = 1.2 */
-    TRF_TPLL_MI_130 = 130,        /**< MI = 1.3 */
-    TRF_TPLL_MI_140 = 140,        /**< MI = 1.3 */
+	TRF_TPLL_MI_P0p00 = 0,        /**< MI = 0 */
+	TRF_TPLL_MI_P0p076 = 76,	    /**< MI = 0.076 This gear is only available in private mode*/
+	TRF_TPLL_MI_P0p32 = 320,		/**< MI = 0.32 */
+	TRF_TPLL_MI_P0p50 = 500,		/**< MI = 0.5 */
+	TRF_TPLL_MI_P0p60 = 600,		/**< MI = 0.6 */
+	TRF_TPLL_MI_P0p70 = 700,		/**< MI = 0.7 */
+	TRF_TPLL_MI_P0p80 = 800,		/**< MI = 0.8 */
+	TRF_TPLL_MI_P0p90 = 900,		/**< MI = 0.9 */
+	TRF_TPLL_MI_P1p20 = 1200,		/**< MI = 1.2 */
+	TRF_TPLL_MI_P1p30 = 1300,		/**< MI = 1.3 */
+	TRF_TPLL_MI_P1p40 = 1400,		/**< MI = 1.4 */
 } trf_tpll_mi_t;
 
 typedef enum {
@@ -173,33 +174,81 @@ typedef enum {
 
 /**@brief Telink primary link layer radio transmission power modes. */
 typedef enum {
-    TRF_TPLL_POWER_10DBM = 51,      /**< 10 dBm radio transmit power. */
-    TRF_TPLL_POWER_9DBM  = 43,      /**< 9 dBm radio transmit power. */
-    TRF_TPLL_POWER_8DBM  = 37,      /**< 8 dBm radio transmit power. */
-    TRF_TPLL_POWER_7DBM  = 33,      /**< 7 dBm radio transmit power. */
-    TRF_TPLL_POWER_6DBM  = 29,      /**< 6 dBm radio transmit power. */
-    TRF_TPLL_POWER_5DBM  = 25,      /**< 5 dBm radio transmit power. */
-    TRF_TPLL_POWER_4DBM  = 25,      /**< 4 dBm radio transmit power. */
-    TRF_TPLL_POWER_3DBM  = 185,     /**< 3 dBm radio transmit power. */
-    TRF_TPLL_POWER_2DBM  = 176,     /**< 2 dBm radio transmit power. */
-    TRF_TPLL_POWER_1DBM  = 169,     /**< 1 dBm radio transmit power. */
-    TRF_TPLL_POWER_0DBM  = 164,     /**< 0 dBm radio transmit power. */
-    TRF_TPLL_POWER_M_1DBM  = 160,   /**< -1 dBm radio transmit power. */
-    TRF_TPLL_POWER_M_2DBM  = 156,   /**< -2 dBm radio transmit power. */
-    TRF_TPLL_POWER_M_3DBM  = 154,   /**< -3 dBm radio transmit power. */
-    TRF_TPLL_POWER_M_4DBM  = 150,   /**< -4 dBm radio transmit power. */
-    TRF_TPLL_POWER_M_5DBM  = 148,   /**< -5 dBm radio transmit power. */
-    TRF_TPLL_POWER_M_6DBM  = 146,   /**< -6 dBm radio transmit power. */
-    TRF_TPLL_POWER_M_7DBM  = 144,   /**< -7 dBm radio transmit power. */
-    TRF_TPLL_POWER_M_8DBM  = 142,   /**< -8 dBm radio transmit power. */
-    TRF_TPLL_POWER_M_9DBM  = 140,   /**< -9 dBm radio transmit power. */
-    TRF_TPLL_POWER_M_11DBM  = 138,  /**< -11 dBm radio transmit power. */
-    TRF_TPLL_POWER_M_13DBM  = 136,  /**< -13 dBm radio transmit power. */
-    TRF_TPLL_POWER_M_15DBM  = 134,  /**< -15 dBm radio transmit power. */
-    TRF_TPLL_POWER_M_18DBM  = 132,  /**< -18 dBm radio transmit power. */
-    TRF_TPLL_POWER_M_24DBM  = 130,  /**< -24 dBm radio transmit power. */
-    TRF_TPLL_POWER_M_30DBM  = 0xff, /**< -30 dBm radio transmit power. */
-    TRF_TPLL_POWER_M_50dBm  = 128,  /**< -50 dBm radio transmit power. */
+	 /*VBAT*/
+	 TRF_TPLL_POWER_P11p46dBm = 63,  /**< 11.5 dbm */
+	 TRF_TPLL_POWER_P11p28dBm = 61,  /**< 11.3 dbm */
+	 TRF_TPLL_POWER_P11p00dBm = 58,  /**< 11.0 dbm */
+	 TRF_TPLL_POWER_P10p78dBm = 56,  /**< 10.8 dbm */
+	 TRF_TPLL_POWER_P10p44dBm = 53,  /**< 10.4 dbm */
+	 TRF_TPLL_POWER_P10p19dBm = 51,  /**< 10.2 dbm */
+	 TRF_TPLL_POWER_P9p92dBm  = 49,  /**<  9.9 dbm */
+	 TRF_TPLL_POWER_P9p60dBm  = 47,  /**<  9.6 dbm */
+	 TRF_TPLL_POWER_P9p31dBm  = 45,  /**<  9.3 dbm */
+	 TRF_TPLL_POWER_P8p99dBm  = 43,  /**<  9.0 dbm */
+	 TRF_TPLL_POWER_P8p63dBm  = 41,  /**<  8.6 dbm */
+	 TRF_TPLL_POWER_P8p28dBm  = 39,  /**<  8.3 dbm */
+	 TRF_TPLL_POWER_P7p87dBm  = 37,  /**<  7.8 dbm */
+	 TRF_TPLL_POWER_P7p43dBm  = 35,  /**<  7.4 dbm */
+	 TRF_TPLL_POWER_P6p97dBm  = 33,  /**<  7.0 dbm */
+	 TRF_TPLL_POWER_P6p45dBm  = 31,  /**<  6.4 dbm */
+	 TRF_TPLL_POWER_P5p92dBm  = 29,  /**<  5.9 dbm */
+	 TRF_TPLL_POWER_P5p36dBm  = 27,  /**<  5.5 dbm */
+	 TRF_TPLL_POWER_P4p73dBm  = 25,  /**<  4.7 dbm */
+	 TRF_TPLL_POWER_P4p08dBm  = 23,  /**<  4.1 dbm */
+	 /*VANT*/
+	 TRF_TPLL_POWER_P3p95dBm  = BIT(7) | 63,    /**<  4.0 dbm */
+	 TRF_TPLL_POWER_P3p72dBm  = BIT(7) | 61,    /**<  3.7 dbm */
+	 TRF_TPLL_POWER_P3p48dBm  = BIT(7) | 59,    /**<  3.5 dbm */
+	 TRF_TPLL_POWER_P3p24dBm  = BIT(7) | 57,    /**<  3.2 dbm */
+	 TRF_TPLL_POWER_P2p87dBm  = BIT(7) | 54,    /**<  2.9 dbm */
+	 TRF_TPLL_POWER_P2p60dBm  = BIT(7) | 52,    /**<  2.6 dbm */
+	 TRF_TPLL_POWER_P2p30dBm  = BIT(7) | 50,    /**<  2.3 dbm */
+	 TRF_TPLL_POWER_P1p99dBm  = BIT(7) | 48,    /**<  2.0 dbm */
+	 TRF_TPLL_POWER_P1p67dBm  = BIT(7) | 46,    /**<  1.7 dbm */
+	 TRF_TPLL_POWER_P1p33dBm  = BIT(7) | 44,    /**<  1.3 dbm */
+	 TRF_TPLL_POWER_P0p78dBm  = BIT(7) | 41,    /**<  0.8 dbm */
+	 TRF_TPLL_POWER_P0p59dBm  = BIT(7) | 40,    /**<  0.6 dbm */
+	 TRF_TPLL_POWER_N0p22dBm  = BIT(7) | 36,    /**< -0.2 dbm */
+	 TRF_TPLL_POWER_N0p44dBm  = BIT(7) | 35,    /**< -0.4 dbm */
+	 TRF_TPLL_POWER_N0p67dBm  = BIT(7) | 34,    /**< -0.7 dbm */
+	 TRF_TPLL_POWER_N1p15dBm  = BIT(7) | 32,    /**< -1.2 dbm */
+	 TRF_TPLL_POWER_N1p71dBm  = BIT(7) | 30,    /**< -1.7 dbm */
+	 TRF_TPLL_POWER_N2p26dBm  = BIT(7) | 28,    /**< -2.3 dbm */
+	 TRF_TPLL_POWER_N2p84dBm  = BIT(7) | 26,    /**< -2.8 dbm */
+	 TRF_TPLL_POWER_N3p51dBm  = BIT(7) | 24,    /**< -3.5 dbm */
+	 TRF_TPLL_POWER_N4p18dBm  = BIT(7) | 22,    /**< -4.2 dbm */
+	 TRF_TPLL_POWER_N4p97dBm  = BIT(7) | 20,    /**< -5.0 dbm */
+	 TRF_TPLL_POWER_N5p85dBm  = BIT(7) | 18,    /**< -5.9 dbm */
+	 TRF_TPLL_POWER_N6p83dBm  = BIT(7) | 16,    /**< -6.8 dbm */
+	 TRF_TPLL_POWER_N7p97dBm  = BIT(7) | 14,    /**< -8.0 dbm */
+	 TRF_TPLL_POWER_N9p27dBm  = BIT(7) | 12,    /**< -9.3 dbm */
+	 TRF_TPLL_POWER_N10p84dBm = BIT(7) | 10,    /**<-10.8 dbm */
+	 TRF_TPLL_POWER_N12p76dBm = BIT(7) | 8,     /**<-12.8 dbm */
+	 TRF_TPLL_POWER_N15p01dBm = BIT(7) | 6,     /**<-15.0 dbm */
+	 TRF_TPLL_POWER_N18p40dBm = BIT(7) | 4,     /**<-18.4 dbm */
+	 TRF_TPLL_POWER_N24p28dBm = BIT(7) | 2,     /**<-24.3 dbm */
+
+	 TRF_TPLL_POWER_N30dBm    = 0xff,           /**<-30.0 dbm */
+	 TRF_TPLL_POWER_N50dBm    = BIT(7) | 0,     /**<-50.0 dbm */
+
+/*-----------------------------For Internal Test only-----------------------------*/
+  /*
+	* Customer attention:
+	*
+	* 	The following settings are for internal testing only, and customers
+	* 	are prohibited from using those settings.
+	*
+	* 	The following energy values are measured under 3.3V power supply
+	* 	voltage.The energy will decrease as the power supply voltage drops.
+	* 	Customers are prohibited from using the following energy settings
+	* 	in product development.
+	*/
+	 TRF_TPLL_VBAT_POWER_P2p45dBm  = 0x15, 		//   2.45 dbm
+	 TRF_TPLL_VBAT_POWER_P0p95dBm  = 0x11, 		//   0.95 dbm
+	 TRF_TPLL_VBAT_POWER_P0p0dBm   = 0x10, 		//   0.00 dbm
+	 TRF_TPLL_VBAT_POWER_N1p35dBm  = 0x0d, 		//   -1.35 dbm
+	 TRF_TPLL_VBAT_POWER_N2p75dBm  = 0x0b, 		//   -2.75 dbm
+	 TRF_TPLL_VBAT_POWER_P4p75dBm  = 0x09, 		//   -4.75 dbm
 } trf_tpll_tx_power_t;
 
 typedef enum {

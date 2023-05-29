@@ -54,7 +54,7 @@ void user_init(void)
 
     gen_fsk_packet_format_set(GEN_FSK_PACKET_FORMAT_FIXED_PAYLOAD, sizeof(tx_payload));
 
-    gen_fsk_radio_power_set(GEN_FSK_RADIO_POWER_0DBM);
+    gen_fsk_radio_power_set(GEN_FSK_RADIO_POWER_N0p22dBm);
 
     gen_fsk_channel_set(7);
 

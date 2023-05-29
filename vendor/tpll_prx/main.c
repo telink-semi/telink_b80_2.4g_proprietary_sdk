@@ -72,9 +72,9 @@ static void user_init(signed short chnn)
      * rf configuration
      * notes:b80 rx does not support multiple pipes
      */
-    TPLL_Init(TPLL_BITRATE_250KBPS);
+    TPLL_Init(TPLL_BITRATE_2MBPS);
 
-    TPLL_SetOutputPower(TPLL_RF_POWER_0DBM);
+    TPLL_SetOutputPower(TPLL_RF_POWER_N0p22dBm);
 
     TPLL_SetAddressWidth(ADDRESS_WIDTH_5BYTES);
 

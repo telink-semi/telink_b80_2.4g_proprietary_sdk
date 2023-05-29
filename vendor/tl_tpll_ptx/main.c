@@ -96,7 +96,7 @@ unsigned char tpll_config_init(void)
     trf_tpll_config.mode             = TRF_TPLL_MODE_PTX;
     trf_tpll_config.bitrate          = TRF_TPLL_BITRATE_2MBPS;
     trf_tpll_config.crc              = TRF_TPLL_CRC_16BIT;
-    trf_tpll_config.tx_power         = TRF_TPLL_POWER_0DBM;
+    trf_tpll_config.tx_power         = TRF_TPLL_POWER_N0p22dBm;
     trf_tpll_config.event_handler    = trf_tpll_event_handler;
     trf_tpll_config.retry_delay      = 150;
     trf_tpll_config.retry_times      = 0;

@@ -81,7 +81,7 @@ void user_init(unsigned char chnn)
 
     gen_fsk_packet_format_set(GEN_FSK_PACKET_FORMAT_VARIABLE_PAYLOAD, 0);
 
-    gen_fsk_radio_power_set(GEN_FSK_RADIO_POWER_0DBM);
+    gen_fsk_radio_power_set(GEN_FSK_RADIO_POWER_N0p22dBm);
 
     gen_fsk_channel_set(chnn);
 

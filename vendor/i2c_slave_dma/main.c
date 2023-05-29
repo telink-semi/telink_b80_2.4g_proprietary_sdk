@@ -37,7 +37,7 @@ _attribute_ram_code_sec_noinline_ void irq_handler(void)
 	unsigned char  irq_status = i2c_get_interrupt_status(FLD_HOST_CMD_IRQ|FLD_HOST_READ_IRQ);
     if (irq_status & FLD_HOST_CMD_IRQ)                      //both host write & read trigger this status
     {
-		i2c_clear_interrupt_status(FLD_HOST_CMD_IRQ|FLD_HOST_READ_IRQ);//clear all irq status
+    	i2c_clear_interrupt_status(FLD_HOST_CMD_IRQ|FLD_HOST_READ_IRQ);//clear all irq status
         if(irq_status & FLD_HOST_READ_IRQ)                  // host read
         {
             i2c_read_cnt++;

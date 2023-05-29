@@ -106,7 +106,7 @@ int main(void)
     tpsll_sync_word_set(TPSLL_PIPE0,sync_word);
     tpsll_pipe_open(TPSLL_PIPE0);
     tpsll_tx_pipe_set(TPSLL_PIPE0);
-    tpsll_radio_power_set(TPSLL_RADIO_POWER_6DBM);
+    tpsll_radio_power_set(TPSLL_RADIO_POWER_P5p92dBm);
     tpsll_tx_settle_set(113);
 
     //irq configuration
