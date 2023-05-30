@@ -68,33 +68,81 @@ typedef enum {
  *
  */
 typedef enum {
-    TPSLL_RADIO_POWER_10DBM = 51, // 10dbm
-    TPSLL_RADIO_POWER_9DBM  = 43, // 9dbm
-    TPSLL_RADIO_POWER_8DBM  = 37, // 8dbm
-    TPSLL_RADIO_POWER_7DBM  = 33, // 7dbm
-    TPSLL_RADIO_POWER_6DBM  = 29, // 6dbm
-    TPSLL_RADIO_POWER_5DBM  = 25, // 5dbm
-    TPSLL_RADIO_POWER_4DBM  = 25, // 4dbm
-    TPSLL_RADIO_POWER_3DBM  = 185,// 3dbm
-    TPSLL_RADIO_POWER_2DBM  = 176,// 2dbm
-    TPSLL_RADIO_POWER_1DBM  = 169,// 1dbm
-    TPSLL_RADIO_POWER_0DBM  = 164,// 0dbm
-    TPSLL_RADIO_POWER_M_1DBM  = 160,// -1dbm
-    TPSLL_RADIO_POWER_M_2DBM  = 156,// -2dbm
-    TPSLL_RADIO_POWER_M_3DBM  = 154,// -3dbm
-    TPSLL_RADIO_POWER_M_4DBM  = 150,// -4dbm
-    TPSLL_RADIO_POWER_M_5DBM  = 148,// -5dbm
-    TPSLL_RADIO_POWER_M_6DBM  = 146,// -6dbm
-    TPSLL_RADIO_POWER_M_7DBM  = 144,// -7dbm
-    TPSLL_RADIO_POWER_M_8DBM  = 142,// -8dbm
-    TPSLL_RADIO_POWER_M_9DBM  = 140,// -9dbm
-    TPSLL_RADIO_POWER_M_11DBM  = 138,// -11dbm
-    TPSLL_RADIO_POWER_M_13DBM  = 136,// -13dbm
-    TPSLL_RADIO_POWER_M_15DBM  = 134,// -15dbm
-    TPSLL_RADIO_POWER_M_18DBM  = 132,// -18dbm
-    TPSLL_RADIO_POWER_M_24DBM  = 130,// -24dbm
-    TPSLL_RADIO_POWER_M_30DBM  = 0xff,// -30dbm
-    TPSLL_RADIO_POWER_M_50dBm  = 128,// -50dbm
+	 /*VBAT*/
+	TPSLL_RADIO_POWER_P11p46dBm = 63,  /**< 11.5 dbm */
+	TPSLL_RADIO_POWER_P11p28dBm = 61,  /**< 11.3 dbm */
+	TPSLL_RADIO_POWER_P11p00dBm = 58,  /**< 11.0 dbm */
+	TPSLL_RADIO_POWER_P10p78dBm = 56,  /**< 10.8 dbm */
+	TPSLL_RADIO_POWER_P10p44dBm = 53,  /**< 10.4 dbm */
+	TPSLL_RADIO_POWER_P10p19dBm = 51,  /**< 10.2 dbm */
+	TPSLL_RADIO_POWER_P9p92dBm  = 49,  /**<  9.9 dbm */
+	TPSLL_RADIO_POWER_P9p60dBm  = 47,  /**<  9.6 dbm */
+	TPSLL_RADIO_POWER_P9p31dBm  = 45,  /**<  9.3 dbm */
+	TPSLL_RADIO_POWER_P8p99dBm  = 43,  /**<  9.0 dbm */
+	TPSLL_RADIO_POWER_P8p63dBm  = 41,  /**<  8.6 dbm */
+	TPSLL_RADIO_POWER_P8p28dBm  = 39,  /**<  8.3 dbm */
+	TPSLL_RADIO_POWER_P7p87dBm  = 37,  /**<  7.8 dbm */
+	TPSLL_RADIO_POWER_P7p43dBm  = 35,  /**<  7.4 dbm */
+	TPSLL_RADIO_POWER_P6p97dBm  = 33,  /**<  7.0 dbm */
+	TPSLL_RADIO_POWER_P6p45dBm  = 31,  /**<  6.4 dbm */
+	TPSLL_RADIO_POWER_P5p92dBm  = 29,  /**<  5.9 dbm */
+	TPSLL_RADIO_POWER_P5p36dBm  = 27,  /**<  5.5 dbm */
+	TPSLL_RADIO_POWER_P4p73dBm  = 25,  /**<  4.7 dbm */
+	TPSLL_RADIO_POWER_P4p08dBm  = 23,  /**<  4.1 dbm */
+	 /*VANT*/
+	TPSLL_RADIO_POWER_P3p95dBm  = BIT(7) | 63,    /**<  4.0 dbm */
+	TPSLL_RADIO_POWER_P3p72dBm  = BIT(7) | 61,    /**<  3.7 dbm */
+	TPSLL_RADIO_POWER_P3p48dBm  = BIT(7) | 59,    /**<  3.5 dbm */
+	TPSLL_RADIO_POWER_P3p24dBm  = BIT(7) | 57,    /**<  3.2 dbm */
+	TPSLL_RADIO_POWER_P2p87dBm  = BIT(7) | 54,    /**<  2.9 dbm */
+	TPSLL_RADIO_POWER_P2p60dBm  = BIT(7) | 52,    /**<  2.6 dbm */
+	TPSLL_RADIO_POWER_P2p30dBm  = BIT(7) | 50,    /**<  2.3 dbm */
+	TPSLL_RADIO_POWER_P1p99dBm  = BIT(7) | 48,    /**<  2.0 dbm */
+	TPSLL_RADIO_POWER_P1p67dBm  = BIT(7) | 46,    /**<  1.7 dbm */
+	TPSLL_RADIO_POWER_P1p33dBm  = BIT(7) | 44,    /**<  1.3 dbm */
+	TPSLL_RADIO_POWER_P0p78dBm  = BIT(7) | 41,    /**<  0.8 dbm */
+	TPSLL_RADIO_POWER_P0p59dBm  = BIT(7) | 40,    /**<  0.6 dbm */
+	TPSLL_RADIO_POWER_N0p22dBm  = BIT(7) | 36,    /**< -0.2 dbm */
+	TPSLL_RADIO_POWER_N0p44dBm  = BIT(7) | 35,    /**< -0.4 dbm */
+	TPSLL_RADIO_POWER_N0p67dBm  = BIT(7) | 34,    /**< -0.7 dbm */
+	TPSLL_RADIO_POWER_N1p15dBm  = BIT(7) | 32,    /**< -1.2 dbm */
+	TPSLL_RADIO_POWER_N1p71dBm  = BIT(7) | 30,    /**< -1.7 dbm */
+	TPSLL_RADIO_POWER_N2p26dBm  = BIT(7) | 28,    /**< -2.3 dbm */
+	TPSLL_RADIO_POWER_N2p84dBm  = BIT(7) | 26,    /**< -2.8 dbm */
+	TPSLL_RADIO_POWER_N3p51dBm  = BIT(7) | 24,    /**< -3.5 dbm */
+	TPSLL_RADIO_POWER_N4p18dBm  = BIT(7) | 22,    /**< -4.2 dbm */
+	TPSLL_RADIO_POWER_N4p97dBm  = BIT(7) | 20,    /**< -5.0 dbm */
+	TPSLL_RADIO_POWER_N5p85dBm  = BIT(7) | 18,    /**< -5.9 dbm */
+	TPSLL_RADIO_POWER_N6p83dBm  = BIT(7) | 16,    /**< -6.8 dbm */
+	TPSLL_RADIO_POWER_N7p97dBm  = BIT(7) | 14,    /**< -8.0 dbm */
+	TPSLL_RADIO_POWER_N9p27dBm  = BIT(7) | 12,    /**< -9.3 dbm */
+	TPSLL_RADIO_POWER_N10p84dBm = BIT(7) | 10,    /**<-10.8 dbm */
+	TPSLL_RADIO_POWER_N12p76dBm = BIT(7) | 8,     /**<-12.8 dbm */
+	TPSLL_RADIO_POWER_N15p01dBm = BIT(7) | 6,     /**<-15.0 dbm */
+	TPSLL_RADIO_POWER_N18p40dBm = BIT(7) | 4,     /**<-18.4 dbm */
+	TPSLL_RADIO_POWER_N24p28dBm = BIT(7) | 2,     /**<-24.3 dbm */
+
+	TPSLL_RADIO_POWER_N30dBm    = 0xff,           /**<-30.0 dbm */
+	TPSLL_RADIO_POWER_N50dBm    = BIT(7) | 0,     /**<-50.0 dbm */
+
+/*-----------------------------For Internal Test only-----------------------------*/
+  /*
+	* Customer attention:
+	*
+	* 	The following settings are for internal testing only, and customers
+	* 	are prohibited from using those settings.
+	*
+	* 	The following energy values are measured under 3.3V power supply
+	* 	voltage.The energy will decrease as the power supply voltage drops.
+	* 	Customers are prohibited from using the following energy settings
+	* 	in product development.
+	*/
+	TPSLL_VBAT_POWER_P2p45dBm  = 0x15, 		//   2.45 dbm
+	TPSLL_VBAT_POWER_P0p95dBm  = 0x11, 		//   0.95 dbm
+	TPSLL_VBAT_POWER_P0p0dBm   = 0x10, 		//   0.00 dbm
+	TPSLL_VBAT_POWER_N1p35dBm  = 0x0d, 		//   -1.35 dbm
+	TPSLL_VBAT_POWER_N2p75dBm  = 0x0b, 		//   -2.75 dbm
+	TPSLL_VBAT_POWER_P4p75dBm  = 0x09, 		//   -4.75 dbm
 } tpsll_radio_power_t;
 
 /**@brief Telink proprietary stack link layer modulation index. */

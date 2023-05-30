@@ -1,40 +1,46 @@
 # Release Note
 
-## VX.X.X
+## V3.2.4
 
 ### Version
-* SDK version : telink_b80_2.4g_proprietary_sdk VX.X.X
+* SDK version : telink_b80_2.4g_proprietary_sdk V3.2.4
 
 ### Refactoring
 
 * N/A
 
 ### Features
-* N/A
+
+* Add interfaces to get rx_packet and pid of tpll.
 
 ### Bug Fixes
 
 * Fix the problem that the local CRC will not be updated and the next four packets will all be repeat packets when received a wrong crc packet.
+* Update the RF related enumeration class to solve the problem of incorrect power enumeration values.
+* Update the interrupt status flag bit of i2c_slave_dma to solve the problem of not receiving data correctly.
 
 ### BREAKING CHANGES
 
 * N/A
 
-## VX.X.X
+## V3.2.4
 
 ### Version
-* SDK 版本: telink_b80_2.4g_proprietary_sdk VX.X.X
+* SDK 版本: telink_b80_2.4g_proprietary_sdk V3.2.4
 
 ### Refactoring
 
 * N/A
 
 ### Features
-* N/A
+
+* 添加获取tpll rx_packet地址以及pid的接口。
 
 ### Bug Fixes
 
 * 在tl_tpll中修复了当收到crc错误包时，local pid与crc不变，接下去四包连续为重复包的问题。
+* 更新rf相关枚举类来解决power枚举值错误问题。
+* 更新i2c_slave_dma的中断状态标志位来解决无法正确接收数据问题。
 
 ### BREAKING CHANGES
 

@@ -492,6 +492,21 @@ extern void TPLL_ModeStop(void);
 extern unsigned char TPLL_IsRxPacketValid(void);
 
 /**
+ * @brief       Get the packet received.
+ * @param       none.
+ * @return      rx_packet.
+ */
+unsigned char *TPLL_GetRxPacket(void);
+
+/**
+ * @brief       Get the pid of the received packet.
+ * @param       rx_packet.
+ * @return      packet id.
+ */
+unsigned char TPLL_GetRxPacketId(unsigned char *rx_packet);
+
+
+/**
  * @brief       Set the frequency deviation of the transmitter, which follows the equation below.
  *              frequency deviation = bitrate/(modulation index)^2
  * @param       mi_value    Modulation index.
