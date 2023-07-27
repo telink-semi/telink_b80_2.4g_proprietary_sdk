@@ -2,7 +2,7 @@
 
 CI_FUNC             V1.0
 
-TAG_NAME            V3.2.3
+TAG_NAME            V3.2.4
 PACKAGE_NAME        telink_eaglet_2.4g_proprietary_sdk_S0
 SRC_GIT_URL         http://192.168.48.36/src/2.4g-proprietary/telink_eaglet_2.4g_proprietary_src.git
 
@@ -11,8 +11,8 @@ CPROJECT            ./.cproject                   2_4g_proprietary_sdk          
 
 #                          path                                                  macro                                                  macro_val
 MACRO               ./drivers/pm.c        OTP_PROTECTION_CODE_SELECT        OTP_PROTECTION_CODE_S0
-MACRO               ./common/sdk_version.h                  B80_SDK_VERSION_NUM                        B80_S0_V3.2.3
-MACRO               ./../common/sdk_version.h                  B80_SDK_VERSION_NUM                        B80_S0_V3.2.3
+MACRO               ./common/sdk_version.h                  B80_SDK_VERSION_NUM                        B80_S0_V3.2.4
+MACRO               ./../common/sdk_version.h                  B80_SDK_VERSION_NUM                        B80_S0_V3.2.4
 
 LIB_OBJ             ./ADC_SAMPLE/drivers/lib/src 
 REPLACED_LIB_PATH   ./drivers/lib/8208_core_drv_lib.a
@@ -23,7 +23,7 @@ REPLACED_LIB_PATH   ./drivers/lib/8208_core_drv_lib.a
 
 CI_FUNC             V1.0
 
-TAG_NAME            V3.2.3
+TAG_NAME            V3.2.4
 PACKAGE_NAME        telink_eaglet_2.4g_proprietary_sdk_S1
 SRC_GIT_URL         http://192.168.48.36/src/2.4g-proprietary/telink_eaglet_2.4g_proprietary_src.git
 
@@ -32,8 +32,8 @@ CPROJECT            ./.cproject                   2_4g_proprietary_sdk          
 
 #                          path                                                  macro                                                  macro_val
 MACRO               ./drivers/pm.c        OTP_PROTECTION_CODE_SELECT        OTP_PROTECTION_CODE_S1
-MACRO               ./common/sdk_version.h                  B80_SDK_VERSION_NUM                        B80_S1_V3.2.3
-MACRO               ./../common/sdk_version.h                  B80_SDK_VERSION_NUM                        B80_S1_V3.2.3
+MACRO               ./common/sdk_version.h                  B80_SDK_VERSION_NUM                        B80_S1_V3.2.4
+MACRO               ./../common/sdk_version.h                  B80_SDK_VERSION_NUM                        B80_S1_V3.2.4
 
 LLIB_OBJ             ./ADC_SAMPLE/drivers/lib/src 
 REPLACED_LIB_PATH   ./drivers/lib/8208_core_drv_lib.a
@@ -44,7 +44,7 @@ REPLACED_LIB_PATH   ./drivers/lib/8208_core_drv_lib.a
 
 CI_FUNC             V1.0
 
-TAG_NAME            V3.2.3
+TAG_NAME            V3.2.4
 PACKAGE_NAME        telink_eaglet_2.4g_proprietary_sdk_S2
 SRC_GIT_URL         http://192.168.48.36/src/2.4g-proprietary/telink_eaglet_2.4g_proprietary_src.git
 
@@ -53,8 +53,8 @@ CPROJECT            ./.cproject                   2_4g_proprietary_sdk          
 
 #                          path                                                  macro                                                  macro_val
 MACRO               ./drivers/pm.c        OTP_PROTECTION_CODE_SELECT        OTP_PROTECTION_CODE_S2
-MACRO               ./common/sdk_version.h                  B80_SDK_VERSION_NUM                        B80_S2_V3.2.3
-MACRO               ./../common/sdk_version.h                  B80_SDK_VERSION_NUM                        B80_S2_V3.2.3
+MACRO               ./common/sdk_version.h                  B80_SDK_VERSION_NUM                        B80_S2_V3.2.4
+MACRO               ./../common/sdk_version.h                  B80_SDK_VERSION_NUM                        B80_S2_V3.2.4
 
 LIB_OBJ             ./ADC_SAMPLE/drivers/lib/src 
 REPLACED_LIB_PATH   ./drivers/lib/8208_core_drv_lib.a
@@ -65,7 +65,7 @@ REPLACED_LIB_PATH   ./drivers/lib/8208_core_drv_lib.a
 
 CI_FUNC             V1.0
 
-TAG_NAME            V3.2.3
+TAG_NAME            V3.2.4
 PACKAGE_NAME        telink_eaglet_2.4g_proprietary_sdk_S3
 SRC_GIT_URL         http://192.168.48.36/src/2.4g-proprietary/telink_eaglet_2.4g_proprietary_src.git
 
@@ -74,8 +74,8 @@ CPROJECT            ./.cproject                   2_4g_proprietary_sdk          
 
 #                          path                                                  macro                                                  macro_val
 MACRO               ./drivers/pm.c        OTP_PROTECTION_CODE_SELECT        OTP_PROTECTION_CODE_S3
-MACRO               ./common/sdk_version.h                  B80_SDK_VERSION_NUM                        B80_S3_V3.2.3
-MACRO               ./../common/sdk_version.h                  B80_SDK_VERSION_NUM                        B80_S3_V3.2.3
+MACRO               ./common/sdk_version.h                  B80_SDK_VERSION_NUM                        B80_S3_V3.2.4
+MACRO               ./../common/sdk_version.h                  B80_SDK_VERSION_NUM                        B80_S3_V3.2.4
 
 LIB_OBJ             ./ADC_SAMPLE/drivers/lib/src 
 REPLACED_LIB_PATH   ./drivers/lib/8208_core_drv_lib.a
