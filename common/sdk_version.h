@@ -1,13 +1,12 @@
 /********************************************************************************************************
- * @file	sdk_version.h
+ * @file    sdk_version.h
  *
  * @brief	This is the header file for B80m
  *
- * @author	Driver Group
- * @date	2022
+ * @author  Driver Group
+ * @date    2022
  *
  * @par     Copyright (c) 2022, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -28,7 +27,7 @@
  * the replace rules is: "$$$B85m_driver_sdk_"#sdk_version_num"$$$", The "#sdk_version_num"
  * will replace with this macro value.
  */
-#define B80_SDK_VERSION_NUM				V3.2.4
+#define B80_SDK_VERSION_NUM				V3.3.0
 
 #define SDK_VERSION_NUM					B80_SDK_VERSION_NUM
 

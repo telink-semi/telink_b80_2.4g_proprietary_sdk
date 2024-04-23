@@ -1,13 +1,12 @@
 /********************************************************************************************************
- * @file	cstartup_flash.S
+ * @file    cstartup_flash.S
  *
- * @brief	This is the boot file for B80
+ * @brief   This is the boot file for B80
  *
- * @author	Driver Group
- * @date	2021
+ * @author  Driver Group
+ * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -25,6 +24,7 @@
 #ifdef MCU_STARTUP_FLASH
 
 #include "compiler.h"
+
 /**
  * @brief	1. If your usage is as follows, you need to set ALL_SRAM_CODE = 1:
  * 			The program is burned in flash, you want to power up and move all code to sram for execution.
@@ -228,14 +228,17 @@ __reset:
 
 #if 0
 	@ add debug, PB4 output 1
-	tloadr     	r1, DEBUG_GPIO    @0x80058a  PB oen
-	tmov		r0, #239      @0b 11101111
+	tloadr     	r1, DEBUG_GPIO_OEN    @0x80050a  PB oen
+	tmov		r0, #239		@0b 11101111
 	tstorerb	r0, [r1, #0]
 
+	tloadr     	r1, DEBUG_GPIO_OUTPUT
 	tmov		r0, #16			@0b 00010000
-	tstorerb	r0, [r1, #1]	@0x800583  PB output
+	tstorerb	r0, [r1, #0]	@0x8005c4  PB output set
 #endif
 
+    @B80_B is handled in the boot program.
+#if (MCU_CORE_B80)
 	@when running the flash program, let the otp enter the deep standby mode to reduce the power consumption of the chip.
 	tloadr		r3, OTP_CTRL	  @0x800010	otp ctrl
 	tloadrb		r1, [r3, #0]
@@ -247,6 +250,7 @@ __reset:
 	tmovs		r0, #207		  @0b 11001111 mc icct1
 	tand		r1, r0
  	tstorerb	r1, [r3, #1]	  @pdstb = 0  pldo = 0
+#endif
 
 @The design of the eaglet chip is to power off the flash when the chip goes to sleep,
 @and then power on the flash again after waking up, so there is no need to perform the flash wake-up action.
@@ -452,7 +456,11 @@ DAT0:
 	.word	0x13			    		@4		SVC
 	.word	(irq_stk + IRQ_STK_SIZE)	@8
 
+#if (MCU_CORE_B80)
 	.word	(0x844000)		    		@12  	stack end
+#elif (MCU_CORE_B80B)
+    .word	(0x845000)		    		@12  	stack end
+#endif
 
 	.word	(_start_bss_)               @16
 	.word	(_end_bss_)                 @20
@@ -478,8 +486,11 @@ DATA_I:
     .word	(0x000000f7)                @40
 	.word	(0x0080000c)                @44
 
-DEBUG_GPIO:
+DEBUG_GPIO_OEN:
 	.word	(0x80050a)                  @  PBx oen
+
+DEBUG_GPIO_OUTPUT:
+	.word	(0x8005c4)                  @  PBx output set
 
 OTP_CTRL:
 	.word	(0x800010)                  @  otp control
@@ -491,7 +502,11 @@ FLL_D:
 	.word	0xffffffff                	@0
 	.word	(_start_data_)    			@4
 
+#if (MCU_CORE_B80)
 	.word	(0x844000)		    		@12  	stack end
+#elif (MCU_CORE_B80B)
+    .word	(0x845000)		    		@12  	stack end
+#endif
 
 	.word   _ramcode_size_div_256_      @12
 

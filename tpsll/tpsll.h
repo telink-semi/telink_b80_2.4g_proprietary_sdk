@@ -1,4 +1,26 @@
-
+/********************************************************************************************************
+ * @file    tpsll.h
+ *
+ * @brief   This is the header file for B80
+ *
+ * @author  2.4G Group
+ * @date    2023
+ *
+ * @par     Copyright (c) 2023, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *
+ *          Licensed under the Apache License, Version 2.0 (the "License");
+ *          you may not use this file except in compliance with the License.
+ *          You may obtain a copy of the License at
+ *
+ *              http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *          Unless required by applicable law or agreed to in writing, software
+ *          distributed under the License is distributed on an "AS IS" BASIS,
+ *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *          See the License for the specific language governing permissions and
+ *          limitations under the License.
+ *
+ *******************************************************************************************************/
 #ifndef ASYNC_INIT_H_
 #define ASYNC_INIT_H_
 
@@ -438,14 +460,5 @@ _attribute_ram_code_sec_noinline_ void tpsll_pipe_open(tpsll_pipe_id_t pipe);
  */
 _attribute_ram_code_sec_noinline_ void tpsll_pipe_close(tpsll_pipe_id_t pipe);
 
-/**
- * @brief      This function servers to set the length in octet of the sync word
- *             field of the on-air data packet.
- * @param[in]  pipe  specify which pipe the sync word is to set for
- * @param[in]  sync_word  pointer to the sync word needs to be set
- * @param[out] none
- * @return     none.
- */
-_attribute_ram_code_sec_noinline_ void tpsll_tx_pipe_set(tpsll_pipe_id_t pipe);
 
 #endif /* ASYNC_INIT_H_ */

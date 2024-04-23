@@ -1,13 +1,12 @@
 /********************************************************************************************************
- * @file	printf.c
+ * @file    printf.c
  *
- * @brief	This is the source file for B80
+ * @brief   This is the source file for B80
  *
- * @author	Driver Group
- * @date	2021
+ * @author  Driver Group
+ * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -22,22 +21,12 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #include "register.h"
 #include "printf.h"
 #include "usbhw.h"
 #include "timer.h"
 
 
-
-typedef char* VA_LIST;
-#define VA_START(list, param) (list = (VA_LIST)((int)&param + sizeof(param)))
-#define VA_ARG(list, type) ((type *)(list += sizeof(type)))[-1]
-#define VA_END(list) (list = (VA_LIST)0)
-
-#ifndef   NULL
-#define   NULL				0
-#endif
 
 /**
  * @brief     This function send the data to usb print device
@@ -101,6 +90,15 @@ void log_msg(char *Str, unsigned char *Content, int Len)
     }
 }
 
+typedef char* VA_LIST;
+#define VA_START(list, param) (list = (VA_LIST)((int)&param + sizeof(param)))
+#define VA_ARG(list, type) ((type *)(list += sizeof(type)))[-1]
+#define VA_END(list) (list = (VA_LIST)0)
+
+#ifndef   NULL
+#define   NULL				0
+#endif
+
 #if(DEBUG_MODE==1)
 #if (DEBUG_BUS==DEBUG_IO)
 
@@ -109,7 +107,7 @@ void log_msg(char *Str, unsigned char *Content, int Len)
 #endif
 
 /**
- * @brief      This function serves to foramt string.
+ * @brief      This function serves to format string.
  * @param[in]  byte  -  a byte need to print
  * @return     none.
  */
@@ -126,9 +124,15 @@ _attribute_ram_code_sec_noinline_  void io_putchar(unsigned char byte){
 		init_flag = 0;
 	}
 
+#if (MCU_CORE_B80)
 	unsigned char tmp_bit0 = read_reg8(TX_PIN_OUTPUT_REG) & (~(DEBUG_INFO_TX_PIN & 0xff));
 	unsigned char tmp_bit1 = read_reg8(TX_PIN_OUTPUT_REG) | (DEBUG_INFO_TX_PIN & 0xff);
 	unsigned char bit[10] = {0};
+#elif (MCU_CORE_B80B)
+    unsigned short tmp_bit0 = (DEBUG_INFO_TX_PIN & 0xff) << 8;
+    unsigned short tmp_bit1 = DEBUG_INFO_TX_PIN & 0xff;
+    unsigned short bit[10] = {0};
+#endif
 
 	bit[0] = tmp_bit0;
 	bit[1] = (byte & 0x01)? tmp_bit1 : tmp_bit0;
@@ -148,7 +152,11 @@ _attribute_ram_code_sec_noinline_  void io_putchar(unsigned char byte){
 		while(t1 - t2 < BIT_INTERVAL){
 			t1  = read_reg32(0x740);
 		}
+#if (MCU_CORE_B80)
 		write_reg8(TX_PIN_OUTPUT_REG,bit[j]);        //send bit0
+#elif (MCU_CORE_B80B)
+        TX_PIN_OUTPUT_REG = bit[j]; // send bit0
+#endif
 	}
 }
 
@@ -156,7 +164,7 @@ _attribute_ram_code_sec_noinline_  void io_putchar(unsigned char byte){
 #define   FIFOTHRESHOLD  	4
 #define   BLOCK_MODE   		1
 /**
- * @brief      This function serves to foramt string.
+ * @brief      This function serves to format string.
  * @param[in]  byte  -  a byte need to print
  * @return     none.
  */
@@ -172,7 +180,7 @@ void usb_putchar (char c)
 #endif
 
 /**
- * @brief      This function serves to foramt string.
+ * @brief      This function serves to format string.
  * @param[in]  *out -  buffer to output
  * @param[in]  byte  -  a byte need to print
  * @return     none.
@@ -197,7 +205,7 @@ void tl_putchar(char **out, char c)
 }
 
 /**
- * @brief      This function serves to foramt string.
+ * @brief      This function serves to format string.
  * @param[in]  *out -  buffer to output
  * @param[in]  c  -  a number need to print
  * @return     none.
@@ -216,7 +224,7 @@ void tl_putnum(char **out, unsigned char c) {
 
 
 /**
- * @brief      This function serves to foramt string.
+ * @brief      This function serves to format string.
  * @param[in]  *out -  buffer to output
  * @param[in]  w  -  a integer need to print
  * @return     none.
@@ -233,7 +241,7 @@ void tl_putnumber(char **out, unsigned int w,int len) {
 }
 
 /**
- * @brief      This function serves to foramt string.
+ * @brief      This function serves to format string.
  * @param[in]  *out -  buffer to output
  * @param[in]  w  -  a integer need to print
  * @return     none.
@@ -269,7 +277,7 @@ void tl_putint(char **out, int w)
 }
 
 /**
- * @brief      This function serves to foramt string.
+ * @brief      This function serves to format string.
  * @param[in]  *out -  buffer to output
  * @param[in]  *str  -  string need to print
  * @return     none.
@@ -286,9 +294,24 @@ void  tl_putstring(char **out, char * str)
            s++;
 	}
 }
+/**
+ * @brief      This function serves to get the actual number field width of bytes. In particular, an output with a variable value of 0 is 1.
+ * @param[in]  num -  Input variable
+ * @return     the actual number field width of bytes, the returned values are 1 to 4.
+ */
+unsigned char get_field_width(unsigned int num)
+{	
+	unsigned char ret;
+	for(ret = 1; ret <= 32; ret++)
+	{
+		num >>= 1;
+		if(!num) break;
+	}
+	return (ret+7)>>3;
+}
 
 /**
- * @brief      This function serves to foramt string.
+ * @brief      This function serves to format string.
  * @param[in]  *out -  buffer to output
  * @param[in]  *f -  string need to format
  * @param[in]  a  -  string need to print
@@ -328,7 +351,7 @@ const char *tl_format_msg(char **out, const char *f, int a)
 		}
 		if(flag!=0)
 		{
-			if(fieldwidth==0)  fieldwidth=8;
+			if(fieldwidth==0)  fieldwidth=get_field_width(a);//Obtain get the actual number field width of variable a of type int adaptively.
 			break;
 		}
 	}
@@ -382,7 +405,7 @@ void tl_printf(const char *format, ...)
 	static int  first_time = 1;
 	if(first_time==1)
 	{
-		reg_usb_ep8_send_thre = FIFOTHRESHOLD;
+		reg_usb_ep8_send_thres = FIFOTHRESHOLD;
 		first_time = 0;
 	}
 #elif(DEBUG_BUS==DEBUG_IO)

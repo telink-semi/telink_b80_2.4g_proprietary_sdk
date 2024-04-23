@@ -46,7 +46,7 @@
 #include "rf_pa.h"
 #include "gpio.h"
 #include "compiler.h"
-#include "genfsk_ll.h"
+#include "../genfsk_ll/genfsk_ll.h"
 
 _attribute_data_retention_	rf_pa_callback_t  rf_pa_cb = 0;
 

@@ -1,13 +1,12 @@
 /********************************************************************************************************
- * @file	pm.h
+ * @file    pm.h
  *
- * @brief	This is the header file for B80
+ * @brief   This is the header file for B80
  *
- * @author	Driver Group
- * @date	2021
+ * @author  Driver Group
+ * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -28,7 +27,12 @@
 #include "gpio.h"
 #include "clock.h"
 #include "flash.h"
-#define PM_32KRC_CALIBRATION                1
+#define PM_DEBUG							0
+
+#if(PM_DEBUG)
+volatile unsigned char debug_pm_info;
+volatile unsigned int ana_32k_tick;
+#endif
 
 #define PM_LONG_SUSPEND_EN					1
 
@@ -40,7 +44,6 @@
 
 
 
-#define PM_LONG_SLEEP_WAKEUP_EN			    0 //if user need to make MCU sleep for a long time that is more than 268s, this macro need to be enabled and use "pm_long_sleep_wakeup" function
 
 /**
  * @brief analog register below can store information when MCU in deepsleep mode
@@ -119,7 +122,7 @@ enum {
 	 WAKEUP_STATUS_CORE  			= BIT(1),
 	 WAKEUP_STATUS_TIMER 			= BIT(2),
 
-	 STATUS_GPIO_ERR_NO_ENTER_PM  	= BIT(7),
+	 STATUS_GPIO_ERR_NO_ENTER_PM  	= BIT(8), /**<Bit8 is used to determine whether the wake source is normal.*/
 	 STATUS_ENTER_SUSPEND  			= BIT(30),
 };
 
@@ -263,7 +266,7 @@ static inline int pm_get_wakeup_src(void)
 
 /**
  * @brief		This function serves to set baseband/usb power on/off before suspend sleep,If power
- * 				on this module,the suspend curent will increase;power down this module will save current,
+ * 				on this module,the suspend current will increase;power down this module will save current,
  * 				but you need to re-init this module after suspend wakeup.All power down default to save
  * 				current.
  * @param[in]	value - weather to power on/off the baseband/usb.
@@ -323,11 +326,28 @@ void pm_register_tick32kGet_callback(tick_32k_get_t cb);
 
 /**
  * @brief   This function serves to initialize MCU
- * @param   power mode- set the power mode(LOD mode, DCDC mode, DCDC_LDO mode)
- * @param   xtal- set this parameter based on external crystal
+ * @param   xtal - set crystal for different application.
  * @return  none
+ * @note	1. In version A0, the chip cannot be lower than 2.2V when it is powered on for the first time.
+ * 				After calling this function, g_chip_version is the version number recorded.
+ * 			2. For crystal oscillators with very slow start-up or poor quality, after calling this function,
+ * 				a reboot will be triggered (whether a reboot has occurred can be judged by using DEEP_ANA_REG0[bit1]).
+ * 				For the case where the crystal oscillator used is very slow to start, you can call the pm_set_wakeup_time_param()
+ * 			 	to adjust the waiting time for the crystal oscillator to start before calling the cpu_wakeup_init().
+ * 			 	When this time is adjusted to meet the crystal oscillator requirements, it will not reboot.
+ * 			3. When this function called after power on or deep sleep wakeup, it will cost about 6~7ms for perform 32k RC calibration. 
+ * 				If do not want this logic, you can check the usage and precautions of cpu_wakeup_init_calib_32k_rc_cfg().
  */
 void cpu_wakeup_init(XTAL_TypeDef xtal) ;
+
+/**
+ * @brief 	  This function performs to configure whether to calibrate the 32k rc in the cpu_wakeup_init() when power-on or wakeup from deep sleep mode.If wakeup from deep retention sleep mode will not calibrate.
+ * @param[in] calib_flag - Choose whether to calibrate the 32k rc or not.
+ * 						1 - calibrate; 0 - not calibrate
+ * @return	  none
+ * @note	  This function will not take effect until it is called before cpu_wakeup_init(). 
+ */
+void cpu_wakeup_init_calib_32k_rc_cfg(char calib_flag);
 
 /**
  * @brief   This function serves to recover system timer from tick of internal 32k RC.
@@ -351,10 +371,14 @@ extern  pm_tim_recover_handler_t pm_tim_recover;
 
 /**
  * @brief      This function serves to set the working mode of MCU based on 32k rc,e.g. suspend mode, deepsleep mode, deepsleep with SRAM retention mode and shutdown mode.
- 				This chip use 1.5V power supply,the 32k rc ppm about 2000,if need the accuracy higher,need use software to improve it. 
  * @param[in]  sleep_mode - sleep mode type select.
- * @param[in]  wakeup_src - wake up source select, and if only KEY_SCAN is set as the wake-up source in sleep mode (there is no Timer wake-up source), the 32K watchdog will be turned off inside the function..
- * @param[in]  wakeup_tick - the time of short sleep, which means MCU can sleep for less than 5 minutes.
+ * @param[in]  wakeup_src - wake up source select,if only KEY_SCAN is set as the wake-up source in sleep mode (there is no Timer wake-up source), the 32K watchdog will be turned off inside the function.
+ * @param[in]  wakeup_tick_type	- tick type select. Use 32K tick count for long-term sleep and 16M tick count for short-term sleep.
+ * @param[in]  wakeup_tick - The tick value at the time of wake-up.
+							 If the wakeup_tick_type is PM_TICK_STIMER_16M, then wakeup_tick is converted to 16M. The range of tick that can be set is approximately:
+							 current tick value + (18352~0xe0000000), and the corresponding sleep time is approximately: 2ms~234.88s.It cannot go to sleep normally when it exceeds this range.
+							 If the wakeup_tick_type is PM_TICK_32K, then wakeup_tick is converted to 32K. The range of tick that can be set is approximately:
+							 64~0xffffffff, and the corresponding sleep time is approximately: 2ms~37hours.It cannot go to sleep normally when it exceeds this range.
  * @return     indicate whether the cpu is wake up successful.
  */
 int  cpu_sleep_wakeup_32k_rc(SleepMode_TypeDef sleep_mode,  SleepWakeupSrc_TypeDef wakeup_src, pm_wakeup_tick_type_e wakeup_tick_type, unsigned int  wakeup_tick);
@@ -363,7 +387,12 @@ int  cpu_sleep_wakeup_32k_rc(SleepMode_TypeDef sleep_mode,  SleepWakeupSrc_TypeD
  * @brief      This function serves to set the working mode of MCU based on 32k crystal,e.g. suspend mode, deepsleep mode, deepsleep with SRAM retention mode and shutdown mode.
  * @param[in]  sleep_mode - sleep mode type select.
  * @param[in]  wakeup_src - wake up source select, and if only KEY_SCAN is set as the wake-up source in sleep mode (there is no Timer wake-up source), the 32K watchdog will be turned off inside the function..
- * @param[in]  wakeup_tick - the time of short sleep, which means MCU can sleep for less than 5 minutes.
+ * @param[in]  wakeup_tick_type	- tick type select. Use 32K tick count for long-term sleep and 16M tick count for short-term sleep.
+ * @param[in]  wakeup_tick - The tick value at the time of wake-up.
+							 If the wakeup_tick_type is PM_TICK_STIMER_16M, then wakeup_tick is converted to 16M. The range of tick that can be set is approximately:
+							 current tick value + (18352~0xe0000000), and the corresponding sleep time is approximately: 2ms~234.88s.It cannot go to sleep normally when it exceeds this range.
+							 If the wakeup_tick_type is PM_TICK_32K, then wakeup_tick is converted to 32K. The range of tick that can be set is approximately:
+							 64~0xffffffff, and the corresponding sleep time is approximately: 2ms~37hours.It cannot go to sleep normally when it exceeds this range.
  * @return     indicate whether the cpu is wake up successful.
  */
 int  cpu_sleep_wakeup_32k_xtal(SleepMode_TypeDef sleep_mode,  SleepWakeupSrc_TypeDef wakeup_src, pm_wakeup_tick_type_e wakeup_tick_type, unsigned int  wakeup_tick);
@@ -408,6 +437,17 @@ static inline void blc_pm_select_external_32k_crystal(void)
  */
 void pm_set_vdd_f(Flash_VoltageDef voltage_ldo);
 
+#if 0
+/*
+ * Eaglet A0~A3 have the following issues (eaglet A4 and eaglet-b do not have): Operating OTP in RF rx state may result in errors. 
+ * The initial solution was:
+ * 1. All programs running in OTP can avoid this issue
+ * 2. If the program is relatively large and still need to run the OTP program, then need to open 32K wd and trim the calibration value from 1.2V to ATE (calibrated according to 1.15V)
+ * So in the driver SDK v1.5.0, it was processed according to the above scheme.
+ * Subsequently, it was discovered that lowering the voltage by 1.2V actually carries risks, as the digital function may not work properly. 
+ * Therefore, the final conclusion is that this interface is not allowed to be called in any usage scenario, so it has been removed here.
+ * (added by jilong.liu, confirmed by kaixin.chen at 20240307)
+ */
 /**
  * @brief		This function serves to set dig_ldo vdd_1v2.
  *              for otp products, if all codes cannot be executed in ram code, there is a risk of crash. need to enable 32K watchdog and trim vDD1V2 voltage to reduce the risk.
@@ -415,6 +455,7 @@ void pm_set_vdd_f(Flash_VoltageDef voltage_ldo);
  * @return		none.
  */
 void pm_set_vdd_1v2(pm_vdd_1v2_voltage_e vdd_1v2_voltage);
+#endif
 
 /**
  * @brief		This function is used to configure the early wake-up time.
@@ -447,12 +488,40 @@ extern  unsigned char       	pm_long_suspend;
 void sleep_start(void);
 
 
-//unsigned int cpu_get_32k_tick(void);
-
 void cpu_set_32k_tick(unsigned int tick);
 
 void soft_reboot_dly13ms_use24mRC(void);
 
+/**
+ * @brief	  This function serves to clear cache tag.
+ * @param[in] none.
+ * @return    none.
+ */
+_attribute_ram_code_sec_noinline_ void cache_tag_clr();
 
-
-
+#if SRAM_OTP_FLASH_HANDLE
+#include "lib/include/otp/otp_base.h"
+/**
+ * @brief   This function services to power on flash and OTP and indicates that the program is not an OTP program.
+ * @return  none
+ * @note
+ *          - When compile source code for SRAM program, this function does not call.
+ *          - When compile SDK code for SRAM program, this function is called in cpu_wakeup_init().
+ */
+extern unsigned char otp_program_flag;
+static inline void sram_program_handler(void)
+{
+    analog_write(0x05, analog_read(0x05) & ~(BIT(5))); /* <5>:Power down of Flash LDO, 1: Power down  0: Power up */
+    otp_set_active_mode();
+    otp_program_flag = 0; /* Indicates the program is not an OTP program */
+}
+#else
+/**
+ * @brief   This function services to power on flash and OTP and indicates that the program is not an OTP program.
+ * @return  none
+ * @note
+ *          - When compile source code for SRAM program, this function does not call.
+ *          - When compile SDK code for SRAM program, this function is called in cpu_wakeup_init().
+ */
+__attribute__((weak)) void sram_program_handler(void);
+#endif

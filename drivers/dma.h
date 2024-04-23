@@ -1,13 +1,12 @@
 /********************************************************************************************************
- * @file	dma.h
+ * @file    dma.h
  *
- * @brief	This is the header file for B80
+ * @brief   This is the header file for B80
  *
- * @author	Driver Group
- * @date	2021
+ * @author  Driver Group
+ * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -57,7 +56,7 @@ typedef enum{
 	DMA5_AES_CODE,
 	DMA6,
 	DMA7_PWM,
-}DMA_chn_Typdef; 
+}DMA_chn_Typedef; 
 
 /**
  * @brief     This function resets the DMA module.
@@ -90,7 +89,7 @@ static inline void dma_irq_disable(unsigned int msk)
 }
 
 /**
- * @brief     This function performs to enable DMA chnnel.
+ * @brief     This function performs to enable DMA channel.
  * @param[in] en - en: 1 enable. 0 disable.
  * @return    none.
  */
@@ -104,7 +103,70 @@ static inline void dma_chn_enable(unsigned char chn, unsigned int en)
 		reg_dma_chn_en &= ~chn;
 	}
 }
+#if(MCU_CORE_B80B)
 
+/**
+ * @brief     This function performs to enable DMA interrupt.
+ * @param[in] chn - variable to config the DMA interrupt channel.
+ * @param[in] en - en: 1 enable. 0 disable.
+ * @return    none.
+ */
+
+static inline void dma_chn_irq_enable(unsigned short chn, unsigned int en)
+{
+	reg_dma_irq_status = chn;
+
+	if(en){
+		if(chn<BIT(8)){
+			reg_dma_chn_irq_msk |= chn;
+		}else{
+			reg_dma_chn_irq_msk_h |= (chn&0xff);
+		}
+
+	}
+	else{
+		if(chn<BIT(8)){
+			reg_dma_chn_irq_msk &= ~chn;
+		}else{
+			reg_dma_chn_irq_msk_h &= ~(chn&0xff);
+		}
+
+	}
+}
+
+/**
+ * @brief      Clear IRQ status of uart.
+ * @param[in]  irq_src - select tx or rx irq.
+ * @return     none
+ */
+
+static inline void dma_chn_irq_status_clr(unsigned short chn)
+{
+	if(chn<BIT(8)){
+		reg_dma_irq_status = chn;
+	}else{
+		reg_dma_irq_status_h = (chn&0xff);
+	}
+
+}
+
+
+/**
+ * @brief      Get IRQ status of uart.
+ * @param[in]  irq_src - select tx or rx irq.
+ * @return     none
+ */
+
+static inline unsigned char dma_chn_irq_status_get(unsigned short chn)
+{
+	if(chn<BIT(8)){
+	    return reg_dma_irq_status&chn;
+	}else{
+		return reg_dma_irq_status_h&(chn&0xff);
+	}
+
+}
+#else
 /**
  * @brief     This function performs to enable DMA interrupt.
  * @param[in] chn - variable to config the DMA interrupt channel.
@@ -146,13 +208,13 @@ static inline unsigned char dma_chn_irq_status_get(void)
 {
     return reg_dma_irq_status;
 }
-
+#endif
 /**
  * @brief      This function serves to set the size of dma buffer
  * @param[in]  size - select tx or rx irq. caution: max size = 2048
  * @return     none
  */
-static inline void dma_set_buff_size(DMA_chn_Typdef chn,unsigned int size)
+static inline void dma_set_buff_size(DMA_chn_Typedef chn,unsigned int size)
 {
 	reg_dma_size(chn) = (unsigned char)(size/16);
 }

@@ -64,16 +64,24 @@ typedef enum {
 }pa_type;
 
 #ifndef PA_TXEN_PIN
+#if (MCU_CORE_B80)
 #define PA_TXEN_PIN                         GPIO_PB1
+#elif(MCU_CORE_B80B)
+#define PA_TXEN_PIN                         GPIO_PC5
+#endif
 #endif
 
 #ifndef PA_RXEN_PIN
+#if (MCU_CORE_B80)
 #define PA_RXEN_PIN                         GPIO_PB3
+#elif(MCU_CORE_B80B)
+#define PA_RXEN_PIN                         GPIO_PC6
+#endif
 #endif
 
 
 
-typedef void (*rf_pa_callback_t)(int type);
+typedef void (*rf_pa_callback_t)(pa_type type);
 extern rf_pa_callback_t  rf_pa_cb;
 
 

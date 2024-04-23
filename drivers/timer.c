@@ -1,13 +1,12 @@
 /********************************************************************************************************
- * @file	timer.c
+ * @file    timer.c
  *
- * @brief	This is the source file for B80
+ * @brief   This is the source file for B80
  *
- * @author	Driver Group
- * @date	2021
+ * @author  Driver Group
+ * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -66,8 +65,8 @@ void timer0_gpio_init(GPIO_PinTypeDef pin, GPIO_PolTypeDef pol)
 		BM_CLR(reg_gpio_irq_lvl,bit);
 	}
 	gpio_set_func(pin ,AS_GPIO);
-	/*clear gpio interrupt sorce (after setting gpio polarity,before enable interrupt)to avoid unexpected interrupt. confirm by minghai*/
-	reg_irq_src |= FLD_IRQ_GPIO_RISC0_EN;
+	/*clear gpio interrupt source(after setting gpio polarity,before enable interrupt)to avoid unexpected interrupt. confirm by minghai*/
+	reg_irq_src = FLD_IRQ_GPIO_RISC0_EN;
 
 }
 /**
@@ -99,8 +98,8 @@ void timer1_gpio_init(GPIO_PinTypeDef pin,GPIO_PolTypeDef pol)
 		BM_CLR(reg_gpio_irq_lvl,bit);
 	}
 	gpio_set_func(pin ,AS_GPIO);
-	/*clear gpio interrupt sorce (after setting gpio polarity,before enable interrupt)to avoid unexpected interrupt. confirm by minghai*/
-	reg_irq_src |= FLD_IRQ_GPIO_RISC1_EN;
+	/*clear gpio interrupt source(after setting gpio polarity,before enable interrupt)to avoid unexpected interrupt. confirm by minghai*/
+	reg_irq_src = FLD_IRQ_GPIO_RISC1_EN;
 }
 /**
  * @brief     initiate GPIO for gpio trigger and gpio width mode of timer2.
@@ -285,7 +284,7 @@ void timer2_set_mode(TIMER_ModeTypeDef mode,unsigned int init_tick, unsigned int
 	}
 }
 /**
- * @brief     the specifed timer start working.
+ * @brief     the specified timer start working.
  * @param[in] type - select the timer to start.
  * @return    none
  */
@@ -307,7 +306,7 @@ void timer_start(TIMER_TypeDef type)
 	}
 }
 /**
- * @brief     the specifed timer stop working.
+ * @brief     the specified timer stop working.
  * @param[in] type - select the timer to stop.
  * @return    none
  */

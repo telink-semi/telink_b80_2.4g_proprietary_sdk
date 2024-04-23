@@ -7,7 +7,6 @@
  * @date	2018
  *
  * @par     Copyright (c) 2018, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -33,29 +32,49 @@ extern "C" {
 #define	 USB_MOUSE          1
 #define	 USB_KEYBOARD		2
 #define	 USB_CDC	        3
-
+#if (!MCU_CORE_B80 && !MCU_CORE_B80B)
+#define	 USB_MICROPHONE		4
+#define	 USB_SPEAKER		5
+#endif
 
 #define	 USB_DEMO_TYPE		USB_CDC
-#define  MCU_CORE_B80       1
+
 
 #if	(USB_DEMO_TYPE == USB_MOUSE)
 	#define	USB_MOUSE_ENABLE 		1
 #elif (USB_DEMO_TYPE == USB_KEYBOARD)
 	#define	USB_KEYBOARD_ENABLE 	1
+#elif (USB_DEMO_TYPE == USB_MICROPHONE)
+	#define	  USB_MIC_ENABLE 		1
+#elif (USB_DEMO_TYPE == USB_SPEAKER)
+	#define	USB_SPEAKER_ENABLE 		1
 #elif (USB_DEMO_TYPE == USB_CDC)
 	#define USB_CDC_ENABLE          1
 #endif
 
 
-
+#if (MCU_CORE_B80)
 #define LED1     		        GPIO_PA4
 #define LED2     		        GPIO_PA5
 #define LED3     		        GPIO_PA6
 #define LED4     		        GPIO_PA7
-
+#elif (MCU_CORE_B80B)
+#define LED1                    GPIO_PB3
+#define LED2                    GPIO_PB4
+#define LED3                    GPIO_PB5
+#define LED4                    GPIO_PB6
+#endif
 
 #define ON            				1
 #define OFF           				0
+
+
+/*config for spk */
+#define AUDIO_USB_TO_SDM			1
+
+#define  AUDIO_SPK_MODE				1
+
+
 
 /* Define system clock */
 #define CLOCK_SYS_CLOCK_HZ  	24000000

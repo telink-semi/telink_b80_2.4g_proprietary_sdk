@@ -1,13 +1,12 @@
 /********************************************************************************************************
- * @file	sdk_version.c
+ * @file    sdk_version.c
  *
- * @brief	This is the header file for B80m
+ * @brief   This is the header file for B85m
  *
- * @author	Driver Group
- * @date	2022
+ * @author  Driver Group
+ * @date    2022
  *
  * @par     Copyright (c) 2022, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.

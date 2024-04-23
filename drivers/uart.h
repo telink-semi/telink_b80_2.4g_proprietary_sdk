@@ -1,13 +1,12 @@
 /********************************************************************************************************
- * @file	uart.h
+ * @file    uart.h
  *
- * @brief	This is the header file for B80
+ * @brief   This is the header file for B80
  *
- * @author	Driver Group
- * @date	2021
+ * @author  Driver Group
+ * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -22,6 +21,23 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
+/**	@page UART
+ *
+ *	Header File: uart.h
+ *
+ *	How to use this driver
+ *	==============
+ *  nodma usage instructions:
+ *  -# rx_irq interrupt processing: Use reg_uart_buf_cnt to determine the number of FIFOs and use uart_ndma_read_byte () to read all data in fifo;
+ *  -# The depth size of the uart fifo is 8. If the time before and after entering the rx_irq interrupt exceeds the time of receiving 8 bytes, the fifo pointer may be disturbed, resulting in abnormal received data.
+ *     You can determine whether reg_uart_buf_cnt is greater than 8 as an exception,If this exception occurs, it is recommended to use dma mode to receive.
+ *
+ *  dma:
+ *  advantage: Automatically received by dma hardware, does not require mcu polling receive,
+ *  shortcoming:dma maximum receive length (4079-4) bytes, if this length is reached, excess data will overwrite the previously received data.
+ *
+ */
+#if (MCU_CORE_B80)
 #include "register.h"
 #include "gpio.h"
 #include "compiler.h"
@@ -83,6 +99,8 @@ static inline unsigned char uart_tx_is_busy(void)
  * @brief     This function resets the UART module.
  * @param[in] none
  * @return    none
+ * @note      After calling the uart_reset interface, uart_ndma_clear_tx_index and uart_ndma_clear_rx_index must be called to clear the read/write pointer,
+ *            after the uart_reset interface is invoked, the hardware read and write Pointers are cleared to zero,therefore the software read and write Pointers are cleared to ensure logical correctness.
  */
 static inline void uart_reset(void)
 {
@@ -104,7 +122,7 @@ static inline void uart_clr_tx_done(void)
  * @brief      	This function is used to enable the rtx function.
  * @return     	none.
  */
-static inline void uart_rtx_en()
+static inline void uart_rtx_en(void)
 {
 	reg_uart_rx_timeout1 |=FLD_UART_P7816_EN;
 }
@@ -146,7 +164,7 @@ static inline void uart_mask_tx_done_irq_enable(void){
  * @param[in]  StopBit     - selected length of stop bit for UART interface
  * @return     none
  */
-extern void uart_init(unsigned short g_uart_div, unsigned char g_bwpc, UART_ParityTypeDef Parity, UART_StopBitTypeDef StopBit);
+void uart_init(unsigned short g_uart_div, unsigned char g_bwpc, UART_ParityTypeDef Parity, UART_StopBitTypeDef StopBit);
 /**
  * @brief      This function initializes the UART module.
  * @param[in]  Baudrate  	- uart baud rate
@@ -155,7 +173,7 @@ extern void uart_init(unsigned short g_uart_div, unsigned char g_bwpc, UART_Pari
  * @param[in]  StopBit     	- selected length of stop bit for UART interface
  * @return     none
  */
-extern void uart_init_baudrate(unsigned int Baudrate,unsigned int System_clock , UART_ParityTypeDef Parity, UART_StopBitTypeDef StopBit);
+void uart_init_baudrate(unsigned int Baudrate,unsigned int System_clock , UART_ParityTypeDef Parity, UART_StopBitTypeDef StopBit);
 
 /**
  * @brief     enable uart DMA mode, in dma mode, rx_dma_en and tx_dma_en must set 1
@@ -164,17 +182,18 @@ extern void uart_init_baudrate(unsigned int Baudrate,unsigned int System_clock ,
  * @param[in] tx_dma_en
  * @return    none
  */
-extern void uart_dma_enable(unsigned char rx_dma_en, unsigned char tx_dma_en);
+void uart_dma_enable(unsigned char rx_dma_en, unsigned char tx_dma_en);
 
 /**
  * @brief     config the irq of uart tx and rx
  * @param[in] rx_irq_en - 1:enable rx irq. 0:disable rx irq
  * @param[in] tx_irq_en - 1:enable tx irq. 0:disable tx irq
+ *                        (In general, nodma does not use this interrupt,is sent in polling mode, uart_tx_is_busy() is used to determine whether the sending is complete)
  * @return    none
  */
 
 
-extern void uart_irq_enable(unsigned char rx_irq_en, unsigned char tx_irq_en);
+void uart_irq_enable(unsigned char rx_irq_en, unsigned char tx_irq_en);
 //use this index to cycle the four register of uart. this index should be reset to 0,when send data after system wakeup.
 extern unsigned char uart_TxIndex;
 /**
@@ -185,10 +204,10 @@ extern unsigned char uart_TxIndex;
  * @param[in] uartData - the data to be send.
  * @return    none
  */
-extern void uart_ndma_send_byte(unsigned char uartData);
+void uart_ndma_send_byte(unsigned char uartData);
 /**
  * @brief     This function is used to set the 'uart_TxIndex' to 0.
- *			  After wakeup from power-saving mode, you must call this function before sending the data.
+ *			  After wakeup from power-saving mode or uart_reset(), you must call this function before sending the data.
  * @param[in] none.
  * @return    none.
  */
@@ -205,10 +224,10 @@ extern unsigned char uart_RxIndex;
  * @param[in] none.
  * @return    data received.
  */
-extern volatile unsigned char uart_ndma_read_byte(void);
+volatile unsigned char uart_ndma_read_byte(void);
 /**
  * @brief     This function is used to set the 'uart_RxIndex' to 0.
- *			  After wakeup from power-saving mode, you must call this function before read data.
+ *			  After wakeup from power-saving mode or uart_reset, you must call this function before read data.
  * @param[in] none.
  * @return    none.
  */
@@ -217,16 +236,12 @@ static inline void uart_ndma_clear_rx_index(void)
     uart_RxIndex=0;
 }
 /**
- * @brief     config the number level setting the irq bit of status register 0x9d
- *            ie 0x9d[3].
- *          uart_ndma_get_irq  If the cnt register value(0x9c[0,3]) larger or equal than the value of 0x99[0,3]
- *            or the cnt register value(0x9c[4,7]) less or equal than the value of 0x99[4,7],
- *            it will set the irq bit of status register 0x9d, ie 0x9d[3]
- * @param[in] rx_level - receive level value. ie 0x99[0,3]
- * @param[in] tx_level - transmit level value.ie 0x99[4,7]
+ * @brief     configure the trigger level setting the rx_irq and tx_irq interrupt
+ * @param[in] rx_level - rx_irq trigger level value.When the number of rxfifo is greater than or equal to the rx_level, an interrupt is generated, and the interrupt flag is automatically cleared.
+ * @param[in] tx_level - tx_irq trigger level value.When the number of txfifo is less than or equal to the tx_level, an interrupt is generated and the interrupt flag is automatically cleared.
  * @return    none
  */
-extern void uart_ndma_irq_triglevel(unsigned char rx_level, unsigned char tx_level);
+void uart_ndma_irq_triglevel(unsigned char rx_level, unsigned char tx_level);
 
 /**
  * @brief     get the status of uart irq.
@@ -235,19 +250,19 @@ extern void uart_ndma_irq_triglevel(unsigned char rx_level, unsigned char tx_lev
  *            not 0: indicate tx or rx irq
  */
 
-extern unsigned char uart_ndmairq_get(void);
+unsigned char uart_ndmairq_get(void);
 
 /**
- * @brief     uart send data function, this  function tell the DMA to get data from the RAM and start the DMA transmission
- * @param[in] Addr - pointer to the buffer containing data need to send
+ * @brief     Send an amount of data in DMA mode.
+ * @param[in] Addr   - Pointer to data buffer. It must be 4-bytes aligned address,
+ *                     The first four bytes of addr store the send length,the send length can only send (4079-4) bytes one time at most.
  * @return    none
  * @note      If you want to use uart DMA mode to send data, it is recommended to use this function.
  *            This function just triggers the sending action, you can use interrupt or polling with the FLD_UART_TX_DONE flag to judge whether the sending is complete. 
  *            After the current packet has been sent, this FLD_UART_TX_DONE will be set to 1, and FLD_UART_TX_DONE interrupt can be generated. 
  *			  If you use interrupt mode, you need to call uart_clr_tx_done() in the interrupt processing function, uart_clr_tx_done() will set FLD_UART_TX_DONE to 0.
- *            DMA can only send 2047-bytes one time at most.
  */
-extern void uart_send_dma(unsigned char* Addr);
+void uart_send_dma(unsigned char* Addr);
 
 /**
  * @brief     This function is saved for compatibility with other SDK and isn't be used in driver sdk.Because it has the following problems:
@@ -260,10 +275,10 @@ extern void uart_send_dma(unsigned char* Addr);
  * @return    1: DMA triggered successfully
  *            0: UART busy : last packet not send over,you can't start to send the current packet data
  *
- * @note      DMA can only send 2047-bytes one time at most.
+ * @note      DMA can only send (4079-4) bytes one time at most.
  *			  
  */
-extern volatile unsigned char uart_dma_send(unsigned char* Addr);
+volatile unsigned char uart_dma_send(unsigned char* Addr);
 
 /**
  * @brief     uart send data function, this  function tell the DMA to get data from the RAM and start
@@ -272,16 +287,18 @@ extern volatile unsigned char uart_dma_send(unsigned char* Addr);
  * @return    1: send success ;
  *            0: DMA busy
  */
-extern volatile unsigned char uart_send_byte(unsigned char byte);
+volatile unsigned char uart_send_byte(unsigned char byte);
 /**
- * @brief     data receive buffer initiate function. DMA would move received uart data to the address space,
- *            uart packet length needs to be no larger than (recBuffLen - 4).
- * @param[in] RecvAddr - pointer to the receiving buffer
- * @param[in] RecvBufLen - length in byte of the receiving buffer
+ * @brief     Receive an amount of data in DMA mode.
+ * @param[in] RecvAddr - Pointer to data buffer, it must be 4-bytes aligned.
+ * @param[in] RecvBufLen - Length of DMA in bytes, it must be multiple of 16,the maximum value can be up to 4079,
+ *                         RecvBufLen contains the first four bytes to indicate the received length,so uart packet length needs to be no larger than (recBuffLen - 4).
  * @return    none
+ * @note      -# If the dma receive length reaches the set length, the uart is still receiving data, no rxtimeout is generated,
+ *               the dma will continue to receive, but no buff overflow occurs, and the loopback receive overwrites the received data.
  */
 
-extern void uart_recbuff_init(unsigned char *RecvAddr, unsigned short RecvBufLen);
+void uart_recbuff_init(unsigned char *RecvAddr, unsigned short RecvBufLen);
 
 
 
@@ -291,7 +308,7 @@ extern void uart_recbuff_init(unsigned char *RecvAddr, unsigned short RecvBufLen
  * @return    1: parity error ;
  *            0: no parity error
  */
-extern unsigned char uart_is_parity_error(void);
+unsigned char uart_is_parity_error(void);
 
 /**
  * @brief     This function clears parity error status once when it occurs.
@@ -305,7 +322,7 @@ extern unsigned char uart_is_parity_error(void);
  * When parity error occurs, clear parity error flag after UART receives the data.
  * Cycle the four registers (0x90 0x91 0x92 0x93) from register "0x90" to get data when UART receives the data next time.
  */
-extern void  uart_clear_parity_error(void);
+void  uart_clear_parity_error(void);
 
 /**
  * @brief     UART hardware flow control configuration. Configure RTS pin.
@@ -318,7 +335,7 @@ extern void  uart_clear_parity_error(void);
  * @return    none
  */
 
-extern void uart_set_rts(unsigned char Enable, UART_RTSModeTypeDef Mode, unsigned char Thresh, unsigned char Invert,  GPIO_PinTypeDef pin);
+void uart_set_rts(unsigned char Enable, UART_RTSModeTypeDef Mode, unsigned char Thresh, unsigned char Invert,  GPIO_PinTypeDef pin);
 
 /**
  * @brief     This function sets the RTS pin's level manually
@@ -327,7 +344,7 @@ extern void uart_set_rts(unsigned char Enable, UART_RTSModeTypeDef Mode, unsigne
  */
 
 
-extern void uart_set_rts_level(unsigned char Polarity);
+void uart_set_rts_level(unsigned char Polarity);
 
 /**
  * @brief      UART hardware flow control configuration. Configure CTS pin.
@@ -336,7 +353,7 @@ extern void uart_set_rts_level(unsigned char Polarity);
  * @param[in]  pin   - CTS pin select.
  * @return     none
  */
-extern void uart_set_cts(unsigned char Enable, unsigned char Select,GPIO_PinTypeDef pin);
+void uart_set_cts(unsigned char Enable, unsigned char Select,GPIO_PinTypeDef pin);
 
 /**
 * @brief      This function serves to select pin for UART module.
@@ -344,43 +361,44 @@ extern void uart_set_cts(unsigned char Enable, unsigned char Select,GPIO_PinType
 * @param[in]  rx_pin   - the pin to receive data.
 * @return     none
 */
-extern void uart_gpio_set(GPIO_PinTypeDef tx_pin,GPIO_PinTypeDef rx_pin);
+void uart_gpio_set(GPIO_PinTypeDef tx_pin,GPIO_PinTypeDef rx_pin);
 
 /**
  * @brief   This function enables the irq when UART module receives error data.
  * @param[in] none
  * @return    none
  */
-extern void uart_mask_error_irq_enable(void);
+void uart_mask_error_irq_enable(void);
 
 /**
 * @brief      This function serves to set rtx pin for UART module.
 * @param[in]  rtx_pin  - the rtx pin need to set.
 * @return     none
 */
-extern void uart_set_rtx_pin(GPIO_PinTypeDef rtx_pin);
+void uart_set_rtx_pin(GPIO_PinTypeDef rtx_pin);
 
 /**
  * @brief     This function enables the rx_done irq.
  * @param[in] none
  * @return    none
  */
-extern void uart_rxdone_irq_en(void);
+void uart_rxdone_irq_en(void);
 
 /**
  * @brief     This function disable the rx_done irq.
  * @param[in] none
  * @return    none
  */
-extern void uart_rxdone_irq_dis(void);
+void uart_rxdone_irq_dis(void);
 
 /**
  * @brief     This function disables the irq when UART module receives error data.
  * @param[in] none
  * @return    none
  */
-extern void uart_mask_error_irq_dis(void);
+void uart_mask_error_irq_dis(void);
 
 
+#endif
 #endif
 

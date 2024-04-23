@@ -1,46 +1,28 @@
 /********************************************************************************************************
- * @file	fw_update.c
+ * @file    fw_update.c
  *
- * @brief	This is the source file for b80
+ * @brief   This is the source file for B80
  *
- * @author	2.4G Group
- * @date	2021
+ * @author  2.4G Group
+ * @date    2021
  *
- * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd.
  *          All rights reserved.
  *
- *          Redistribution and use in source and binary forms, with or without
- *          modification, are permitted provided that the following conditions are met:
+ *          The information contained herein is confidential property of Telink
+ *          Semiconductor (Shanghai) Co., Ltd. and is available under the terms
+ *          of Commercial License Agreement between Telink Semiconductor (Shanghai)
+ *          Co., Ltd. and the licensee or the terms described here-in. This heading
+ *          MUST NOT be removed from this file.
  *
- *              1. Redistributions of source code must retain the above copyright
- *              notice, this list of conditions and the following disclaimer.
+ *          Licensee shall not delete, modify or alter (or permit any third party to delete, modify, or
+ *          alter) any information contained herein in whole or in part except as expressly authorized
+ *          by Telink semiconductor (shanghai) Co., Ltd. Otherwise, licensee shall be solely responsible
+ *          for any claim to the extent arising out of or relating to such deletion(s), modification(s)
+ *          or alteration(s).
  *
- *              2. Unless for usage inside a TELINK integrated circuit, redistributions
- *              in binary form must reproduce the above copyright notice, this list of
- *              conditions and the following disclaimer in the documentation and/or other
- *              materials provided with the distribution.
- *
- *              3. Neither the name of TELINK, nor the names of its contributors may be
- *              used to endorse or promote products derived from this software without
- *              specific prior written permission.
- *
- *              4. This software, with or without modification, must only be used with a
- *              TELINK integrated circuit. All other usages are subject to written permission
- *              from TELINK and different commercial license may apply.
- *
- *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
- *              relating to such deletion(s), modification(s) or alteration(s).
- *
- *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
- *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *          Licensees are granted free, non-transferable use of the information in this
+ *          file under Mutual Non-Disclosure Agreement. NO WARRANTY of ANY KIND is provided.
  *
  *******************************************************************************************************/
 #include "fw_update.h"
@@ -56,9 +38,17 @@
 #define FW_UPDATE_REBOOT_WAIT               (100 * 1000) //in us
 #define FW_UPDATE_BOOT_FLAG_OFFSET          8
 
-#define GREEN_LED_PIN                       GPIO_PA5
-#define WHITE_LED_PIN                       GPIO_PA6
-#define RED_LED_PIN                         GPIO_PA7
+#if (MCU_CORE_B80)
+#define BLUE_LED_PIN     		        GPIO_PA4
+#define GREEN_LED_PIN     		        GPIO_PA5
+#define WHITE_LED_PIN     		        GPIO_PA6
+#define RED_LED_PIN     		        GPIO_PA7
+#elif (MCU_CORE_B80B)
+#define BLUE_LED_PIN                    GPIO_PB3
+#define GREEN_LED_PIN                   GPIO_PB4
+#define WHITE_LED_PIN                   GPIO_PB5
+#define RED_LED_PIN                     GPIO_PB6
+#endif
 
 typedef struct {
     unsigned int Type;
@@ -161,6 +151,7 @@ void FW_UPDATE_RxIrq(unsigned char *Data)
     }
 }
 
+#if(!FW_UPDATE_MASTER_EN)
 static unsigned short FW_CRC16_Cal(unsigned short crc, unsigned char* pd, int len)
 {
     // unsigned short       crc16_poly[2] = { 0, 0xa001 }; //0x8005 <==> 0xa001
@@ -181,6 +172,7 @@ static unsigned short FW_CRC16_Cal(unsigned short crc, unsigned char* pd, int le
 
     return crc;
 }
+#endif
 
 #ifdef FW_UPDATE_MASTER_EN
 
@@ -629,7 +621,7 @@ void FW_UPDATE_SlaveStart(void)
                         if (FW_UPDATE_rspWaitTimer) {
                             ev_unon_timer(&FW_UPDATE_rspWaitTimer);
                         }
-//                        printf("block_num:%d, len:%d, PktCRC:%2x\r\n", BlockNum, RxFrame.Len - 2, SlaveCtrl.PktCRC);
+                        printf("block_num:%d, len:%d, PktCRC:%2x\r\n", BlockNum, RxFrame.Len - 2, SlaveCtrl.PktCRC);
 
                         /*
                          * write received data to flash,
@@ -750,7 +742,7 @@ void FW_UPDATE_SlaveStart(void)
         int len = 0;
 //        SlaveCtrl.TotalBinSize -= FW_APPEND_INFO_LEN;
         flash_read_page((unsigned long)SlaveCtrl.FlashAddr + SlaveCtrl.TotalBinSize - FW_APPEND_INFO_LEN,
-                2, &SlaveCtrl.TargetFwCRC);
+                2, (unsigned char*)&SlaveCtrl.TargetFwCRC);
         while (1)
         {
             if (SlaveCtrl.TotalBinSize - block_idx * (FW_UPDATE_FRAME_PAYLOAD_MAX -2) > (FW_UPDATE_FRAME_PAYLOAD_MAX - 2))
@@ -777,13 +769,13 @@ void FW_UPDATE_SlaveStart(void)
                   break;
             }
             block_idx++;
-//            printf("fw block idx:%d, len:%d, FwCRC:%2x\r\n", block_idx, len, SlaveCtrl.FwCRC);
+            printf("fw block idx:%d, len:%d, FwCRC:%2x\r\n", block_idx, len, SlaveCtrl.FwCRC);
         }
-//        printf("fw block idx:%d, len:%d, FwCRC:%2x  \r\n", block_idx + 1, len, SlaveCtrl.FwCRC);
-//        printf("pkt_crc:%2x, fw_crc:%2x, target_fw_crc:%2x\r\n", SlaveCtrl.PktCRC, SlaveCtrl.FwCRC, SlaveCtrl.TargetFwCRC);
+        printf("fw block idx:%d, len:%d, FwCRC:%2x  \r\n", block_idx + 1, len, SlaveCtrl.FwCRC);
+        printf("pkt_crc:%2x, fw_crc:%2x, target_fw_crc:%2x\r\n", SlaveCtrl.PktCRC, SlaveCtrl.FwCRC, SlaveCtrl.TargetFwCRC);
         if (SlaveCtrl.FwCRC != SlaveCtrl.PktCRC || SlaveCtrl.TargetFwCRC != SlaveCtrl.FwCRC)
         {
-//            printf("Crc Check Error\r\n");
+            printf("Crc Check Error\r\n");
             SlaveCtrl.State = FW_UPDATE_SLAVE_STATE_ERROR;
             return;
         }
@@ -802,16 +794,16 @@ void FW_UPDATE_SlaveStart(void)
 #endif
         if (SlaveCtrl.FlashAddr == 0x00)
         {
-//            printf("cur_boot_addr:%4x, next_boot_addr:%4x\r\n", FW_UPDATE_SLAVE_BIN_ADDR, 0x0000);
+            printf("cur_boot_addr:%4x, next_boot_addr:%4x\r\n", FW_UPDATE_SLAVE_BIN_ADDR, 0x0000);
 
         }
         else if (SlaveCtrl.FlashAddr == FW_UPDATE_SLAVE_BIN_ADDR_20000)
         {
-//        	printf("cur_boot_addr:%4x, next_boot_addr:%4x\r\n", 0x0000, FW_UPDATE_SLAVE_BIN_ADDR_20000);
+        	printf("cur_boot_addr:%4x, next_boot_addr:%4x\r\n", 0x0000, FW_UPDATE_SLAVE_BIN_ADDR_20000);
         }
         else
         {
-//        	printf("cur_boot_addr:%4x, next_boot_addr:%4x\r\n", 0x0000, FW_UPDATE_SLAVE_BIN_ADDR_40000);
+        	printf("cur_boot_addr:%4x, next_boot_addr:%4x\r\n", 0x0000, FW_UPDATE_SLAVE_BIN_ADDR_40000);
         }
 
         //reboot

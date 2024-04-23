@@ -1,3 +1,26 @@
+/********************************************************************************************************
+ * @file	main.c
+ *
+ * @brief	This is the source file for B80
+ *
+ * @author	2.4G Group
+ * @date	2024
+ *
+ * @par     Copyright (c) 2024, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *
+ *          Licensed under the Apache License, Version 2.0 (the "License");
+ *          you may not use this file except in compliance with the License.
+ *          You may obtain a copy of the License at
+ *
+ *              http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *          Unless required by applicable law or agreed to in writing, software
+ *          distributed under the License is distributed on an "AS IS" BASIS,
+ *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *          See the License for the specific language governing permissions and
+ *          limitations under the License.
+ *
+ *******************************************************************************************************/
 #include "driver.h"
 #include "genfsk_ll.h"
 
@@ -29,7 +52,7 @@ _attribute_ram_code_sec_noinline_ __attribute__((optimize("-Os")))void irq_handl
             rx_ptr = (rx_ptr + 1) % RX_BUF_NUM;
             gen_fsk_rx_buffer_set((unsigned char *)(rx_buf + rx_ptr * RX_BUF_LEN), RX_BUF_LEN);
      
-            if (gen_fsk_is_rx_crc_ok(rx_packet))
+            if (gen_fsk_is_rx_crc_ok((unsigned char *)rx_packet))
             {
                 rx_flag = 1;
             }
@@ -58,13 +81,11 @@ void user_init(void)
 
     gen_fsk_pipe_open(GEN_FSK_PIPE0); //enable pipe0's reception
 
-    gen_fsk_tx_pipe_set(GEN_FSK_PIPE0); //set pipe0 as the TX pipe
-
     gen_fsk_packet_format_set(GEN_FSK_PACKET_FORMAT_FIXED_PAYLOAD, 8);
 
     gen_fsk_radio_power_set(GEN_FSK_RADIO_POWER_N0p22dBm);
 
-    gen_fsk_rx_buffer_set(rx_buf + rx_ptr * RX_BUF_LEN, RX_BUF_LEN);
+    gen_fsk_rx_buffer_set((unsigned char *)rx_buf + rx_ptr * RX_BUF_LEN, RX_BUF_LEN);
 
     gen_fsk_channel_set(7); //set rf freq as 2403.5MHz
 
@@ -96,9 +117,9 @@ int main(void)
         if (rx_flag)
         {
             rx_flag = 0;
-            rx_payload = gen_fsk_rx_payload_get(rx_packet, &rx_payload_len);
-            rssi = (gen_fsk_rx_packet_rssi_get(rx_packet) + 110);
-            rx_timestamp = gen_fsk_rx_timestamp_get(rx_packet);
+            rx_payload = gen_fsk_rx_payload_get((unsigned char *)rx_packet, (unsigned char *)&rx_payload_len);
+            rssi = (gen_fsk_rx_packet_rssi_get((unsigned char *)rx_packet) + 110);
+            rx_timestamp = gen_fsk_rx_timestamp_get((unsigned char *)rx_packet);
             gpio_toggle(GREEN_LED_PIN);
         }
     }

@@ -1,51 +1,80 @@
 # Release Note
 
-## V3.2.4
+## V3.3.0
 
 ### Version
-* SDK version : telink_b80_2.4g_proprietary_sdk V3.2.4
+* SDK version : telink_b80_2.4g_proprietary_sdk V3.3.0.
+* This version of SDK supports  B80(A1), B80B chips.
+* The default configuration of LEDs and KEYs match the following hardware revisions:
+*	B80	 	C1T261A30_V1_1
+*	B80B	C1T261A20_V1_0
 
-### Refactoring
-
-* N/A
-
-### Features
-
-* Add interfaces to get rx_packet and pid of tpll.
-
-### Bug Fixes
-
-* Fix the problem that the local CRC will not be updated and the next four packets will all be repeat packets when received a wrong crc packet.
-* Update the RF related enumeration class to solve the problem of incorrect power enumeration values.
-* Update the interrupt status flag bit of i2c_slave_dma to solve the problem of not receiving data correctly.
+### Dependency Updates
+* telink_b85m_driver_sdk_V1.8.0
 
 ### BREAKING CHANGES
 
 * N/A
 
-## V3.2.4
-
-### Version
-* SDK 版本: telink_b80_2.4g_proprietary_sdk V3.2.4
-
-### Refactoring
+### Bug Fixes
 
 * N/A
 
 ### Features
 
-* 添加获取tpll rx_packet地址以及pid的接口。
+* Add B80B project.
+* Update driver code.
 
-### Bug Fixes
+### Refactoring
 
-* 在tl_tpll中修复了当收到crc错误包时，local pid与crc不变，接下去四包连续为重复包的问题。
-* 更新rf相关枚举类来解决power枚举值错误问题。
-* 更新i2c_slave_dma的中断状态标志位来解决无法正确接收数据问题。
+* Put B80 and B80B projects into the project folder.
+* Unify adc/aes_128/flash/debug/i2c/pm/pwm/spi/timer/uart/ota/uart_fw_update related routines in a separate demo to reduce compilation options.
+
+### Known Issues
+
+* The SPI(dma mode) routine of B80B is currently unavailable
+
+### Note
+
+
+## V3.3.0
+
+### 版本
+
+* SDK版本: telink_b80_2.4g_proprietary_sdk V3.3.0。
+* 此版本SDK支持B80(A1)、B80B芯片。
+* LED和KEY的默认配置匹配以下硬件版本:
+*	B80	 	C1T261A30_V1_1
+*	B80B	C1T261A20_V1_0
+
+### Dependency Updates
+* telink_b85m_driver_sdk_V1.8.0
 
 ### BREAKING CHANGES
 
 * N/A
 
+### Bug Fixes
+
+* N/A
+
+### Features
+
+* 增加B80B工程。
+* 更新驱动代码。
+
+### Refactoring
+
+* 将B80跟B80B工程放入project文件夹中。
+* 将adc/aes_128/flash/debug/i2c/pm/pwm/spi/timer/uart/ota/uart_fw_update相关例程统一在单独demo里以便减少编译选项。
+
+### Known Issues
+
+* B80B的spi例程的dma 模式还暂时不能用。 
+
+### Note
+
+* N/A
 
 ## V3.2.3
 

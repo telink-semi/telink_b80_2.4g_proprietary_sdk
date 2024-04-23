@@ -1,11 +1,41 @@
+/********************************************************************************************************
+ * @file	main.c
+ *
+ * @brief	This is the source file for B80
+ *
+ * @author	2.4G Group
+ * @date	2024
+ *
+ * @par     Copyright (c) 2024, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *
+ *          Licensed under the Apache License, Version 2.0 (the "License");
+ *          you may not use this file except in compliance with the License.
+ *          You may obtain a copy of the License at
+ *
+ *              http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *          Unless required by applicable law or agreed to in writing, software
+ *          distributed under the License is distributed on an "AS IS" BASIS,
+ *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *          See the License for the specific language governing permissions and
+ *          limitations under the License.
+ *
+ *******************************************************************************************************/
 #include "driver.h"
 #include "genfsk_ll.h"
 #include "common.h"
 
-#define BLUE_LED_PIN GPIO_PA4
-#define GREEN_LED_PIN GPIO_PA5
-#define WHITE_LED_PIN GPIO_PA6
-#define RED_LED_PIN GPIO_PA7
+#if (MCU_CORE_B80)
+#define BLUE_LED_PIN     		        GPIO_PA4
+#define GREEN_LED_PIN     		        GPIO_PA5
+#define WHITE_LED_PIN     		        GPIO_PA6
+#define RED_LED_PIN     		        GPIO_PA7
+#elif (MCU_CORE_B80B)
+#define BLUE_LED_PIN                    GPIO_PB3
+#define GREEN_LED_PIN                   GPIO_PB4
+#define WHITE_LED_PIN                   GPIO_PB5
+#define RED_LED_PIN                     GPIO_PB6
+#endif
 #define DEBUG_PIN GPIO_PB2
 #define DBG_EXECUTE_TIME GPIO_PB6
 
@@ -99,9 +129,9 @@ typedef struct ll_comm_ctrl_data
     uint8_t chnl_map[CHNL_MAP_LEN];
     uint8_t chnl_tbl[TOTAL_NB_CHNNEL];
     int8_t qlty[TOTAL_NB_CHNNEL];
-    char chnl_abd[AFH_NB_CHANNEL_ADB];
-    char abd_head; // chnl_abd is FIFO, head and tail is FIFO ptr
-    char abd_tail;
+    char chnl_abd[(char)AFH_NB_CHANNEL_ADB];
+    unsigned char abd_head; // chnl_abd is FIFO, head and tail is FIFO ptr
+    unsigned char abd_tail;
     unsigned char chnl_used;
     u8 snnesn;
     u8 con_tx_cnt;
@@ -146,6 +176,8 @@ unsigned char sycn_tx_frame[APP_FIX_PAYLOAD_LEN] = {
     0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10,
     0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f, 0x20,
 };
+
+_attribute_ram_code_sec_noinline_ void refresh_chnl_map();
 
 _attribute_ram_code_sec_noinline_ __attribute__((optimize("-Os"))) void irq_handler(
     void)
@@ -248,7 +280,6 @@ void user_init(void)
     gen_fsk_sync_word_len_set(SYNC_WORD_LEN_4BYTE);
     gen_fsk_sync_word_set(GEN_FSK_PIPE0, sync_word); // set pipe0's sync word
     gen_fsk_pipe_open(GEN_FSK_PIPE0);                // enable pipe0's reception
-    gen_fsk_tx_pipe_set(GEN_FSK_PIPE0);              // set pipe0 as the TX pipe
     gen_fsk_packet_format_set(GEN_FSK_PACKET_FORMAT_FIXED_PAYLOAD, SYNC_FIX_PAYLOAD_LEN);
     gen_fsk_radio_power_set(GEN_FSK_RADIO_POWER_N0p22dBm);
     gen_fsk_rx_buffer_set((unsigned char *)(rx_buf + rx_ptr * RX_BUF_LEN), RX_BUF_LEN);
@@ -341,7 +372,7 @@ _attribute_ram_code_sec_noinline_ void refresh_chnl_map()
             }
             else
             {
-                //只有当channel被放到abd数组才清chnl_map,防止这个channel丢失
+                //鍙湁褰揷hannel琚斁鍒癮bd鏁扮粍鎵嶆竻chnl_map,闃叉杩欎釜channel涓㈠け
                 BIT_CLR(ll_ctrl_data.chnl_map[i / 8], i % 8);
                 ll_ctrl_data.qlty[i] = 0;
                 ll_ctrl_data.chnl_used--;
@@ -355,7 +386,7 @@ _attribute_ram_code_sec_noinline_ void refresh_chnl_map()
     if (need_afh_flag == 2) // slave have channel map changed
         need_afh_flag = 1;
 
-    while (ll_ctrl_data.chnl_used < AFH_NB_CHANNEL_MIN) //最少需要维持AFH_NB_CHANNEL_MIN (8)个可用channel
+    while (ll_ctrl_data.chnl_used < AFH_NB_CHANNEL_MIN) //鏈�灏戦渶瑕佺淮鎸丄FH_NB_CHANNEL_MIN (8)涓彲鐢╟hannel
     {
         if (ll_ctrl_data.abd_head == ll_ctrl_data.abd_tail)
         {
@@ -387,8 +418,8 @@ _attribute_ram_code_sec_noinline_ void refresh_chnl_abd()
                 if (BIT_IS_SET(v, j))
                 {
                     slave_chnl_chg_times++;
-                    need_afh_flag = 2;                           //立即执行LL_CHG_CHNL_MAP_REQ(1)或等到下一次TIMER0到期(2)
-                    ll_ctrl_data.chnl_map[i] &= chnl_map_new[i]; // 清空对应的bit
+                    need_afh_flag = 2;                           //绔嬪嵆鎵цLL_CHG_CHNL_MAP_REQ(1)鎴栫瓑鍒颁笅涓�娆IMER0鍒版湡(2)
+                    ll_ctrl_data.chnl_map[i] &= chnl_map_new[i]; // 娓呯┖瀵瑰簲鐨刡it
                     ll_ctrl_data.chnl_used--;
 
                     if ((ll_ctrl_data.abd_tail + 1) % AFH_NB_CHANNEL_ADB == ll_ctrl_data.abd_head)
@@ -414,7 +445,7 @@ _attribute_ram_code_sec_noinline_ int chn_table_calc(u8 *chn_map, u8 hop)
     for (int i = 0; i < TOTAL_NB_CHNNEL; i++)
     {
 
-        if (chn_map[i >> 3] & BIT(i & 0x07)) //取出chnl map中的可用chnl，chnl_map中一个字节对应8个chnl
+        if (chn_map[i >> 3] & BIT(i & 0x07)) //鍙栧嚭chnl map涓殑鍙敤chnl锛宑hnl_map涓竴涓瓧鑺傚搴�8涓猚hnl
         {
             tmp_table[numused++] = i;
         }
@@ -440,7 +471,7 @@ _attribute_ram_code_sec_noinline_ int chn_table_calc(u8 *chn_map, u8 hop)
             {
                 m -= numused;
             }
-            ll_ctrl_data.chnl_tbl[ll] = tmp_table[m]; //将channel放入chnl_table
+            ll_ctrl_data.chnl_tbl[ll] = tmp_table[m]; //灏哻hannel鏀惧叆chnl_table
         }
         ll++;
     }
@@ -532,7 +563,7 @@ _attribute_ram_code_sec_noinline_ void app_sync_task(void)
         rx_flag = 0;
         async_rx_cnt++;
         gpio_toggle(GREEN_LED_PIN);
-        rx_payload = gen_fsk_rx_payload_get(rx_packet, &rx_payload_len);
+        rx_payload = gen_fsk_rx_payload_get((unsigned char *)rx_packet, (unsigned char *)&rx_payload_len);
         if (rx_payload[0] == LL_SYNC_RSP)
         {
             gen_fsk_packet_format_set(GEN_FSK_PACKET_FORMAT_FIXED_PAYLOAD, APP_FIX_PAYLOAD_LEN);
@@ -551,7 +582,7 @@ _attribute_ram_code_sec_noinline_ void app_sync_task(void)
             conn_req_pkt->tx_int = SYNC_TX_INT_MS;
             memcpy((unsigned char *)&(conn_req_pkt->chm[0]), channel_map, sizeof(channel_map));
             conn_req_pkt->hop = AFH_HOP;
-            chn_table_calc(channel_map, conn_req_pkt->hop); //提前算出channel table,但是并没有启用
+            chn_table_calc(channel_map, conn_req_pkt->hop); //鎻愬墠绠楀嚭channel table,浣嗘槸骞舵病鏈夊惎鐢�
 
             gen_fsk_stx2rx_start(tx_buffer, sync_anchor_point, 350);
 
@@ -646,7 +677,7 @@ _attribute_ram_code_sec_noinline_ void app_cycle_send_task(void)
 #if 1
         gpio_toggle(GREEN_LED_PIN);
 
-        rx_payload = gen_fsk_rx_payload_get(rx_packet, &rx_payload_len);
+        rx_payload = gen_fsk_rx_payload_get((unsigned char *)rx_packet, (unsigned char *)&rx_payload_len);
         proc_rx_data();
 
         if (ll_ctrl_data.snnesn & LL_FLOW_SENT ||

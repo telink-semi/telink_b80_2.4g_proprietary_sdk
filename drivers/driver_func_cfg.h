@@ -1,13 +1,12 @@
 /********************************************************************************************************
- * @file	driver_func_cfg.h
+ * @file    driver_func_cfg.h
  *
- * @brief	This is the header file for B80
+ * @brief   This is the header file for B80
  *
- * @author	Driver Group
- * @date	2021
+ * @author  Driver Group
+ * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -24,7 +23,6 @@
  *******************************************************************************************************/
 #ifndef DRIVER_FUNCTION_CONFIG_H_
 #define DRIVER_FUNCTION_CONFIG_H_
-
 /**
  * @brief	The program is not burned into OTP/Flash, but is directly downloaded into sram through the tool for execution (that is, the scene that the jig and BDT tool will use).
  * 			The reasons are as follows:
@@ -39,11 +37,16 @@
  * 			 2. Flash and OTP will be turned off before sleep, and turned on after suspend wake up, this will introduce another problem, that is, the working current will be larger,
  * 			 but the jig application does not care about the working current, so we ignore this effect.
  * 			 When the program is running, the specific current data when OTP and FLASH are turned off and turned on are as follows:
+ *                      otp active mode            otp deep standby mode
+ *  open flash ldo          6.80mA                          5.35mA
+ *  close flash ldo         4.44mA                          2.99mA
+ * @note
+ *        - This macro takes effect in the C source file(Defined in TC32 Compiler not in TC32 Assembler).
+ *        - Since the SRAM program is only for debugging purposes, the low power consumption function may not be realized.
+ *        - If the SDK project uses this macro instead of the source project, in addition to the above problems, \n
+ *          the current in the low-power part will be high (since the sdk uses this macro just to do debugging and won't use the low-power, the program doesn't deal with this scenario)
+ * 
  */
-/////////////////////////////////////////////////////////////////////////////////////////////
-// 		  				otp active mode	    otp deep standby mode
-// open flash ldo 			6.80mA					5.35mA
-// close flash ldo			4.44mA					2.99mA
 #ifndef SRAM_OTP_FLASH_HANDLE
 #define SRAM_OTP_FLASH_HANDLE				0
 #endif

@@ -7,7 +7,6 @@
  * @date	2018
  *
  * @par     Copyright (c) 2018, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -23,11 +22,21 @@
  *
  *******************************************************************************************************/
 #include "app_config.h"
+#include "calibration.h"
 
 
 
 extern void user_init();
 extern void main_loop (void);
+
+#if (MCU_CORE_B80B)
+#include "application/usbstd/usb.h"
+volatile unsigned int sof_cnt = 0;
+volatile unsigned int set_intf_cnt;
+volatile unsigned int sof_frame[4] = {0};
+volatile unsigned int sys_tick[4] = {0};
+volatile unsigned char usb_edps_irq_flag = 0;
+#endif
 
 /**
  * @brief		This function serves to handle the interrupt of MCU
@@ -36,8 +45,33 @@ extern void main_loop (void);
  */
 _attribute_ram_code_sec_noinline_ void irq_handler(void)
 {
+#if (MCU_CORE_B80B)
 
+#if (USB_ENUM_IN_INTERRUPT == 1)
+    /* sof interrupt. */
+    if (usbhw_get_irq_status(USB_IRQ_SOF_STATUS))
+    {
+        usbhw_clr_irq_status(USB_IRQ_SOF_STATUS);
+        sof_cnt++;
+        sof_frame[sof_cnt & 3] = (reg_usb_sof_frame1 << 8) | reg_usb_sof_frame0;
+        sys_tick[sof_cnt & 3] = usbhw_get_timer_stamp();
+    }
+    /* set interface interrupt. */
+    if (usbhw_get_irq_status(USB_IRQ_EP_INTF_STATUS))
+    {
+        usbhw_clr_irq_status(USB_IRQ_EP_INTF_STATUS);
+        set_intf_cnt++;
+    }
+#endif
 
+    /* edps irq */
+    if (usbhw_get_eps_irq() & FLD_USB_EDP4_IRQ)
+    {
+    	usb_edps_irq_flag = usbhw_get_eps_irq();
+        /* clear interrupt flag of endpoint 4 */
+        usbhw_clr_eps_irq(FLD_USB_EDP4_IRQ);
+    }
+#endif
 }
 /**
  * @brief		This is main function
@@ -48,9 +82,15 @@ int main (void)
 {
 	cpu_wakeup_init(EXTERNAL_XTAL_24M);
 
-    wd_32k_stop();
+	wd_32k_stop();
 
+	//Note: This function must be called, otherwise an abnormal situation may occur.
+	//Called immediately after cpu_wakeup_init, set in other positions, some calibration values may not take effect.
+#if(PACKAGE_TYPE == OTP_PACKAGE)
+	user_read_otp_value_calib();
+#elif(PACKAGE_TYPE == FLASH_PACKAGE)
 	user_read_flash_value_calib();
+#endif
 
 	clock_init(SYS_CLK);
 

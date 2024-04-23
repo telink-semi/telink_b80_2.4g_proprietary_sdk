@@ -7,7 +7,6 @@
  * @date	2018
  *
  * @par     Copyright (c) 2018, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -60,7 +59,7 @@ extern u8 usb_just_wakeup_from_suspend;
 extern u8 usb_has_suspend_irq;
 extern u8 edp_toggle[8];
 
-void usb_init();
+void usb_init(void);
 
 #ifndef		USB_SOFTWARE_CRC_CHECK
 #define		USB_SOFTWARE_CRC_CHECK		0

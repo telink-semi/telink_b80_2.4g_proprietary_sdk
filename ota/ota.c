@@ -1,54 +1,35 @@
 /********************************************************************************************************
- * @file	ota.c
+ * @file    ota.c
  *
- * @brief	This is the source file for b80
+ * @brief   This is the source file for B80
  *
- * @author	2.4G Group
- * @date	2019
+ * @author  2.4G Group
+ * @date    2019
  *
- * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd.
  *          All rights reserved.
  *
- *          Redistribution and use in source and binary forms, with or without
- *          modification, are permitted provided that the following conditions are met:
+ *          The information contained herein is confidential property of Telink
+ *          Semiconductor (Shanghai) Co., Ltd. and is available under the terms
+ *          of Commercial License Agreement between Telink Semiconductor (Shanghai)
+ *          Co., Ltd. and the licensee or the terms described here-in. This heading
+ *          MUST NOT be removed from this file.
  *
- *              1. Redistributions of source code must retain the above copyright
- *              notice, this list of conditions and the following disclaimer.
+ *          Licensee shall not delete, modify or alter (or permit any third party to delete, modify, or
+ *          alter) any information contained herein in whole or in part except as expressly authorized
+ *          by Telink semiconductor (shanghai) Co., Ltd. Otherwise, licensee shall be solely responsible
+ *          for any claim to the extent arising out of or relating to such deletion(s), modification(s)
+ *          or alteration(s).
  *
- *              2. Unless for usage inside a TELINK integrated circuit, redistributions
- *              in binary form must reproduce the above copyright notice, this list of
- *              conditions and the following disclaimer in the documentation and/or other
- *              materials provided with the distribution.
- *
- *              3. Neither the name of TELINK, nor the names of its contributors may be
- *              used to endorse or promote products derived from this software without
- *              specific prior written permission.
- *
- *              4. This software, with or without modification, must only be used with a
- *              TELINK integrated circuit. All other usages are subject to written permission
- *              from TELINK and different commercial license may apply.
- *
- *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
- *              relating to such deletion(s), modification(s) or alteration(s).
- *
- *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
- *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *          Licensees are granted free, non-transferable use of the information in this
+ *          file under Mutual Non-Disclosure Agreement. NO WARRANTY of ANY KIND is provided.
  *
  *******************************************************************************************************/
-
 #include "ota.h"
 #include "common.h"
 #include "driver.h"
 #include "mac.h"
-#include "genfsk_ll.h"
+#include "../genfsk_ll/genfsk_ll.h"
 
 #define BLUE_LED_PIN            GPIO_PA4
 #define GREEN_LED_PIN           GPIO_PA5
@@ -119,7 +100,7 @@ void OTA_RxIrq(unsigned char *Data)
         OTA_MsgQueuePush(NULL, OTA_MSG_TYPE_INVALID_DATA, &MsgQueue);
     }
     else {
-        if (Data[0]) { // Data[0]为 payload首字节
+        if (Data[0]) { // Data[0]涓� payload棣栧瓧鑺�
             OTA_MsgQueuePush(Data, OTA_MSG_TYPE_DATA, &MsgQueue);
         }
         else {
@@ -133,6 +114,7 @@ void OTA_RxTimeoutIrq(unsigned char *Data)
     OTA_MsgQueuePush(NULL, OTA_MSG_TYPE_TIMEOUT, &MsgQueue);
 }
 
+#if(!OTA_MASTER_EN)
 static unsigned short OTA_CRC16_Cal(unsigned short crc, unsigned char* pd, int len)
 {
     // unsigned short       crc16_poly[2] = { 0, 0xa001 }; //0x8005 <==> 0xa001
@@ -153,7 +135,7 @@ static unsigned short OTA_CRC16_Cal(unsigned short crc, unsigned char* pd, int l
 
     return crc;
 }
-
+#endif
 
 #ifdef OTA_MASTER_EN
 
@@ -610,7 +592,7 @@ void OTA_SlaveStart(void)
         int block_idx = 0;
         int len = 0;
         flash_read_page((unsigned long)SlaveCtrl.FlashAddr + SlaveCtrl.TotalBinSize - OTA_APPEND_INFO_LEN,
-                2, &SlaveCtrl.TargetFwCRC);
+                2, (unsigned char*)&SlaveCtrl.TargetFwCRC);
         while (1)
         {
             if (SlaveCtrl.TotalBinSize - block_idx * (OTA_FRAME_PAYLOAD_MAX - 2) > (OTA_FRAME_PAYLOAD_MAX - 2))
@@ -663,7 +645,7 @@ void OTA_SlaveStart(void)
 #endif
         if (SlaveCtrl.FlashAddr == 0x00)
         {
-//            printf("cur_boot_addr:%4x, next_boot_addr:%4x\r\n", OTA_SLAVE_BIN_ADDR, 0x0000);
+//           printf("cur_boot_addr:%4x, next_boot_addr:%4x\r\n", OTA_SLAVE_BIN_ADDR, 0x0000);
 
         }
         else if (SlaveCtrl.FlashAddr == OTA_SLAVE_BIN_ADDR_0x20000)

@@ -1,11 +1,42 @@
+/********************************************************************************************************
+ * @file	main.c
+ *
+ * @brief	This is the source file for B80
+ *
+ * @author	2.4G Group
+ * @date	2024
+ *
+ * @par     Copyright (c) 2024, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *
+ *          Licensed under the Apache License, Version 2.0 (the "License");
+ *          you may not use this file except in compliance with the License.
+ *          You may obtain a copy of the License at
+ *
+ *              http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *          Unless required by applicable law or agreed to in writing, software
+ *          distributed under the License is distributed on an "AS IS" BASIS,
+ *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *          See the License for the specific language governing permissions and
+ *          limitations under the License.
+ *
+ *******************************************************************************************************/
 #include "driver.h"
 #include "genfsk_ll.h"
 #include "common.h"
 
-#define BLUE_LED_PIN GPIO_PA4
-#define GREEN_LED_PIN GPIO_PA5
-#define WHITE_LED_PIN GPIO_PA6
-#define RED_LED_PIN GPIO_PA7
+#if (MCU_CORE_B80)
+#define BLUE_LED_PIN     		        GPIO_PA4
+#define GREEN_LED_PIN     		        GPIO_PA5
+#define WHITE_LED_PIN     		        GPIO_PA6
+#define RED_LED_PIN     		        GPIO_PA7
+#elif (MCU_CORE_B80B)
+#define BLUE_LED_PIN                    GPIO_PB3
+#define GREEN_LED_PIN                    GPIO_PB4
+#define WHITE_LED_PIN                    GPIO_PB5
+#define RED_LED_PIN                    GPIO_PB6
+#endif
+
 #define DBG_RXTIMEOUT_IRQ_PIN GPIO_PB7
 #define DBG_RX_IRQ_PIN GPIO_PB2
 #define DBG_SUSPEND_PIN GPIO_PB5
@@ -243,7 +274,6 @@ void user_init(void)
     gen_fsk_sync_word_len_set(SYNC_WORD_LEN_4BYTE);
     gen_fsk_sync_word_set(GEN_FSK_PIPE0, sync_word); // set pipe0's sync word
     gen_fsk_pipe_open(GEN_FSK_PIPE0);                // enable pipe0's reception
-    gen_fsk_tx_pipe_set(GEN_FSK_PIPE0);              // set pipe0 as the TX pipe
     gen_fsk_packet_format_set(GEN_FSK_PACKET_FORMAT_FIXED_PAYLOAD, SYNC_FIX_PAYLOAD_LEN);
     gen_fsk_radio_power_set(GEN_FSK_RADIO_POWER_N0p22dBm);
     gen_fsk_rx_buffer_set((unsigned char *)(rx_buf + rx_ptr * RX_BUF_LEN), RX_BUF_LEN);
@@ -260,14 +290,13 @@ void user_init(void)
 
 _attribute_ram_code_sec_noinline_ void rf_recovery_init(void)
 {
-    unsigned char sync_word[4] = {0x53, 0x78, 0x56, 0x52};
+//    unsigned char sync_word[4] = {0x53, 0x78, 0x56, 0x52};
     // it needs to notice that this api is different from vulture / kite
     gen_fsk_datarate_set(GEN_FSK_DATARATE_1MBPS); // Note that this API must be invoked first before all other APIs
     gen_fsk_preamble_len_set(4);
     gen_fsk_sync_word_len_set(SYNC_WORD_LEN_4BYTE);
     gen_fsk_sync_word_set(GEN_FSK_PIPE0, conn_req_pkt.ac); // set pipe0's sync word
     gen_fsk_pipe_open(GEN_FSK_PIPE0);                      // enable pipe0's reception
-    gen_fsk_tx_pipe_set(GEN_FSK_PIPE0);                    // set pipe0 as the TX pipe
     gen_fsk_packet_format_set(GEN_FSK_PACKET_FORMAT_FIXED_PAYLOAD, APP_FIX_PAYLOAD_LEN);
     gen_fsk_radio_power_set(GEN_FSK_RADIO_POWER_N0p22dBm);
     gen_fsk_rx_buffer_set((unsigned char *)(rx_buf + rx_ptr * RX_BUF_LEN), RX_BUF_LEN);
@@ -348,14 +377,14 @@ _attribute_ram_code_sec_noinline_ int main(void)
     return 0;
 }
 
-_attribute_ram_code_sec_noinline_ static void led_blink(unsigned char cnt)
-{
-    while (cnt--)
-    {
-        gpio_toggle(GREEN_LED_PIN);
-        WaitMs(50);
-    }
-}
+//_attribute_ram_code_sec_noinline_ static void led_blink(unsigned char cnt)
+//{
+//    while (cnt--)
+//    {
+//        gpio_toggle(GREEN_LED_PIN);
+//        WaitMs(50);
+//    }
+//}
 
 _attribute_ram_code_sec_noinline_ int chn_table_calc(u8 *chn_map, u8 hop)
 {
@@ -427,7 +456,10 @@ _attribute_ram_code_sec_noinline_ u8 ll_flow_process(u8 peer, u8 local)
     u8 local_nesn = local & LL_FLOW_NESN;
     u8 local_sn = local & LL_FLOW_SN ? LL_FLOW_NESN : 0;
 
-    if (peer_sn == local_nesn && !rx_crc_err_flag) 
+    //鏇存柊local鐨凬ESN锛�
+    //鏇存柊鐨勫師瑙勫垯鏄�:濡傛灉peer_sn涓巐ocal_nesn鐩稿悓锛屽垯璁や负鏄竴涓柊鍖咃紝姝ゆ椂闇�瑕佹帴鏀舵柊鍖呭苟toggle nesn
+    //濡傛灉peer_sn涓巐ocal_nesn涓嶅悓锛屽垯璇存槑杩欐槸涓�涓噸浼犲寘锛屽暐涔熶笉鐢ㄥ共
+    if (peer_sn == local_nesn && !rx_crc_err_flag) // 濡傛灉姝ゆ椂no RX BUFFER or MCU busy锛屼篃鍙互涓峵oggle nesn,璁╁鏂归噸鍙戞鍖�
     {
         local = (local & ~LL_FLOW_NESN) | (peer_sn ? 0 : LL_FLOW_NESN);
         local |= LL_FLOW_RCVD;
@@ -436,6 +468,9 @@ _attribute_ram_code_sec_noinline_ u8 ll_flow_process(u8 peer, u8 local)
     if (rx_crc_err_flag)
         rx_crc_err_flag = 0;
 
+    //涓嬮潰鏇存柊local鐨凷N
+    //鏇存柊鐨勫師瑙勫垯鏄�:peer_nesn涓巐ocal_sn涓嶅悓锛岃鏄庢槸涓�涓狝CK锛屽皢鏈湴鐨剆n+1锛屽苟鍙戦�佹柊鍖�
+    // peer_nesn涓巐ocal_sn鐩稿悓锛屽垯璇存槑鏄竴涓狽AK,骞跺笇鏈涘彂閫佹棫鍖咃紙閲嶄紶锛�
     if (peer_nesn != local_sn) // ACK
     {
         // prepare next packet with SN = peer_nesn;
@@ -465,7 +500,7 @@ _attribute_ram_code_sec_noinline_ void app_sync_task(void)
     {
         rx_flag = 0;
         sync_rx_cnt++;
-        rx_payload = gen_fsk_rx_payload_get(rx_packet, &rx_payload_len);
+        rx_payload = gen_fsk_rx_payload_get((unsigned char*)rx_packet, (unsigned char*)&rx_payload_len);
         if (rx_payload[0] == LL_SYNC_REQ)
         {
             tx_buffer[4] = LL_SYNC_RSP;
@@ -540,7 +575,7 @@ _attribute_ram_code_sec_noinline_ void proc_rx_data_1()
         ptx->cmd = LL_ACCEPTED;
         ptx->data[0] = LL_CHNL_CLASSIFICATION_REQ;
     }
-    else if (cmd = LL_SYNC_DATA)
+    else if (cmd == LL_SYNC_DATA)
     {
         if (need_clsf_flag == 1 && ll_ctrl_data.afh_mode == 1)
         {
@@ -613,7 +648,7 @@ _attribute_ram_code_sec_noinline_ void app_low_energy_task(void)
             sync_first_tx = 0;
             ll_snnesn_init();
 
-            memcpy((const void *)&conn_req_pkt.opcode, (const void *)&rx_payload[0], sizeof(conn_req_pkt));
+            memcpy((void *)&conn_req_pkt.opcode, (const void *)&rx_payload[0], sizeof(conn_req_pkt));
             memcpy(ll_ctrl_data.chnl_map, conn_req_pkt.chm, sizeof(ll_ctrl_data.chnl_map));
             sync_tx_interval_ms = conn_req_pkt.tx_int;
 
@@ -705,7 +740,7 @@ _attribute_ram_code_sec_noinline_ void app_low_energy_task(void)
 
         if (expand_win_us < (sync_tx_interval_ms * CLOCK_16M_SYS_TIMER_CLK_1MS * 10 / 100))
         {
-            expand_win_us += expand_step_us; //提前开窗
+            expand_win_us += expand_step_us; //鎻愬墠寮�绐�
         }
 
         cpu_sleep_wakeup(SUSPEND_MODE, PM_WAKEUP_TIMER, next_rx_point - RX_MARGIN_PM_CALIB - expand_win_us);
@@ -713,7 +748,7 @@ _attribute_ram_code_sec_noinline_ void app_low_energy_task(void)
         rf_recovery_init();
         next_chnn_idx = (next_chnn_idx + 1) % TOTAL_NB_CHNNEL;
         rf_set_channel(ll_ctrl_data.chnl_tbl[next_chnn_idx], 0);
-        gen_fsk_srx_start(clock_time(), RX_LONG_WINDOW_US + ((expand_win_us / 16) * 2)); //两头扩窗
+        gen_fsk_srx_start(clock_time(), RX_LONG_WINDOW_US + ((expand_win_us / 16) * 2)); //涓ゅご鎵╃獥
         gpio_write(DBG_SUSPEND_PIN, 1);
     }
 }

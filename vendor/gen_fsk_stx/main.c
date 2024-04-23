@@ -1,6 +1,29 @@
+/********************************************************************************************************
+ * @file	main.c
+ *
+ * @brief	This is the source file for B80
+ *
+ * @author	2.4G Group
+ * @date	2024
+ *
+ * @par     Copyright (c) 2024, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *
+ *          Licensed under the Apache License, Version 2.0 (the "License");
+ *          you may not use this file except in compliance with the License.
+ *          You may obtain a copy of the License at
+ *
+ *              http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *          Unless required by applicable law or agreed to in writing, software
+ *          distributed under the License is distributed on an "AS IS" BASIS,
+ *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *          See the License for the specific language governing permissions and
+ *          limitations under the License.
+ *
+ *******************************************************************************************************/
 #include "driver.h"
 #include "genfsk_ll.h"
-
+#include "string.h"
 #define GREEN_LED_PIN           GPIO_PA5
 #define DEBUG_PIN               GPIO_PB2
 
@@ -50,8 +73,6 @@ void user_init(void)
 
     gen_fsk_pipe_open(GEN_FSK_PIPE0); // enable pipe0's reception
 
-    gen_fsk_tx_pipe_set(GEN_FSK_PIPE0); // set pipe0 as the TX pipe
-
     gen_fsk_packet_format_set(GEN_FSK_PACKET_FORMAT_FIXED_PAYLOAD, sizeof(tx_payload));
 
     gen_fsk_radio_power_set(GEN_FSK_RADIO_POWER_N0p22dBm);
@@ -84,7 +105,7 @@ int main(void)
     tx_buffer[1] = 0x00;
     tx_buffer[2] = 0x00;
     tx_buffer[3] = 0x00;
-    memcpy(&tx_buffer[4], tx_payload, sizeof(tx_payload));
+    memcpy(&tx_buffer[4], (const void *)tx_payload, sizeof(tx_payload));
 
     while (1)
     {

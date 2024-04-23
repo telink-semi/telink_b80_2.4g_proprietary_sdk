@@ -7,7 +7,6 @@
  * @date	2018
  *
  * @par     Copyright (c) 2018, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -23,7 +22,45 @@
  *
  *******************************************************************************************************/
 #pragma once
-#include "app_config.h"
+
+#define	AUTO_TEST_SWITCH		0
+
+#if(1 == AUTO_TEST_SWITCH)
+#define	FLOW_NO_OS				1
+#define	USB_PRINTER_ENABLE 		1
+#define	USB_MOUSE_ENABLE 		1
+#define ID_VENDOR				0x248a		// for report
+#define ID_VERSION              0x0100
+#define STRING_VENDOR			L"Telink Semi-conductor Ltd, Co"
+#define STRING_PRODUCT			L"Telink Mouse"
+#define STRING_SERIAL			L"Mouse demo"
+
+#define CHIP_U26				1
+#define CHIP_U27				2
+#define CHIP_LABEL				CHIP_U27
+
+#if(CHIP_LABEL == CHIP_U26)
+#define ID_PRODUCT	   			0x8726
+#elif(CHIP_LABEL == CHIP_U27)
+#define ID_PRODUCT	   			0x8727
+#endif
+
+#if (MCU_CORE_B80B)
+/* control endpoint size config. */
+#define USB_CTR_ENDPOINT_SIZE       8 /* 8/16/32/64 */
+#define USB_CTR_SIZE                (USB_CTR_ENDPOINT_SIZE == 64) ? SIZE_64_BYTE :                 \
+                                    ((USB_CTR_ENDPOINT_SIZE == 32) ? SIZE_32_BYTE :                \
+                                    ((USB_CTR_ENDPOINT_SIZE == 16) ? SIZE_16_BYTE :                \
+                                    ((USB_CTR_ENDPOINT_SIZE == 8) ? SIZE_8_BYTE : SIZE_64_BYTE)))
+#endif
+
+/* control endpoint size default is 8 bytes. */
+#ifndef USB_CTR_ENDPOINT_SIZE
+#define USB_CTR_ENDPOINT_SIZE       8
+#endif
+
+#else
+	#include "app_config.h"
 //////////// product  Information  //////////////////////////////
 #define	FLOW_NO_OS				1
 #define APPLICATION_DONGLE							1
@@ -61,16 +98,46 @@
 	#endif
 #endif
 
+#if (MCU_CORE_B80)
+#define USB_PHYSICAL_EDP_CDC_IN     USB_EDP_CDC_IN  /* physical in endpoint */
+#define USB_PHYSICAL_EDP_CDC_OUT    USB_EDP_CDC_OUT /* physical out endpoint */
+#elif (MCU_CORE_B80B)
+/* control endpoint size config. */
+#define USB_CTR_ENDPOINT_SIZE       8 /* 8/16/32/64 */
+#define USB_CTR_SIZE                (USB_CTR_ENDPOINT_SIZE == 64) ? SIZE_64_BYTE :                 \
+                                    ((USB_CTR_ENDPOINT_SIZE == 32) ? SIZE_32_BYTE :                \
+                                    ((USB_CTR_ENDPOINT_SIZE == 16) ? SIZE_16_BYTE :                \
+                                    ((USB_CTR_ENDPOINT_SIZE == 8) ? SIZE_8_BYTE : SIZE_64_BYTE)))
+
+#define USB_MAP_EN                  0 /* 1:usb map function enable, 0:usb map function disable. */
+
+#define USB_PHYSICAL_EDP_CDC_IN     USB_EDP_CDC_IN  /* physical in endpoint */
+#define USB_PHYSICAL_EDP_CDC_OUT    USB_EDP_CDC_OUT /* physical out endpoint */
+
+#if (USB_MAP_EN == 1)
+#define CDC_RX_EPNUM                USB_EDP_CDC_OUT /* logical in endpoint */
+#define CDC_TX_EPNUM                USB_EDP_CDC_OUT /* logical out endpoint */
+#else
+#define CDC_RX_EPNUM                USB_PHYSICAL_EDP_CDC_OUT /* USB_MAP_EN = 0, logical endpoint is the same as the physical endpoint */
+#define CDC_TX_EPNUM                USB_PHYSICAL_EDP_CDC_IN /* USB_MAP_EN = 0, logical endpoint is the same as the physical endpoint*/
+#endif
+
+#endif
+
+/* control endpoint size default is 8 bytes. */
+#ifndef USB_CTR_ENDPOINT_SIZE
+#define USB_CTR_ENDPOINT_SIZE       8
+#endif
 
 //////////////////// Audio /////////////////////////////////////
 #define MIC_RESOLUTION_BIT		16
 #define MIC_SAMPLE_RATE			16000//set sample for mic and spk
-#define MIC_CHANNLE_COUNT		1
-#define	MIC_ENOCDER_ENABLE		0
+#define MIC_CHANNEL_COUNT		1
+#define	MIC_ENCODER_ENABLE		0
 
 #define SPK_RESOLUTION_BIT		16
 #define SPEAKER_SAMPLE_RATE     16000
-#define   SPK_CHANNLE_COUNT     1
+#define   SPK_CHANNEL_COUNT     1
 #if(USB_MIC_ENABLE||USB_SPEAKER_ENABLE)
 	#define USB_MODE_AUDIO_EN				1
 #endif
@@ -84,7 +151,7 @@
 #define ID_PRODUCT			    0x8006
 #endif
 
-#define  ID_VERDION             0x0100
+#define  ID_VERSION             0x0100
 
 #if(USB_MODE_CDC_EN)
 #define STRING_VENDOR				L"Telink Semi-conductor Ltd, Co"
@@ -128,10 +195,7 @@
 #define STRING_PRODUCT				L"Telink No Product"
 #define STRING_SERIAL				L"USB demo"
 #endif
-
-
-
-
+#endif
 
 
 ///////////////////  USB   /////////////////////////////////
@@ -168,12 +232,12 @@
 #define USB_MASS_STORAGE_ENABLE  	0
 #endif
 
-#ifndef MIC_CHANNLE_COUNT
-#define MIC_CHANNLE_COUNT  			1
+#ifndef MIC_CHANNEL_COUNT
+#define MIC_CHANNEL_COUNT  			1
 #endif
 
-#ifndef USB_DESCRIPTER_CONFIGURATION_FOR_KM_DONGLE
-#define USB_DESCRIPTER_CONFIGURATION_FOR_KM_DONGLE  			0
+#ifndef USB_DESCRIPTOR_CONFIGURATION_FOR_KM_DONGLE
+#define USB_DESCRIPTOR_CONFIGURATION_FOR_KM_DONGLE  			0
 #endif
 
 #ifndef USB_ID_AND_STRING_CUSTOM

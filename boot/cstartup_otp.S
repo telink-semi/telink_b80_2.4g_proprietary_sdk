@@ -1,13 +1,12 @@
 /********************************************************************************************************
- * @file	cstartup_otp.S
+ * @file    cstartup_otp.S
  *
- * @brief	This is the boot file for B80
+ * @brief   This is the boot file for B80
  *
- * @author	Driver Group
- * @date	2021
+ * @author  Driver Group
+ * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -28,9 +27,8 @@
 /**
  * @brief	If your usage is as follows, you need to set ALL_SRAM_CODE = 1:
  * 			The program is burned in flash, you want to power up and move all code to sram for execution.
- * 			Note: 1. Configure the bin file compiled by ALL_SRAM_CODE=1. It is not recommended to use tools to directly download to sram for execution,
- * 			         this method of use may lead to abnormal current and abnormal flash function.
- *                2. when set ALL_SRAM_CODE = 1,meanwhile set OTP_ALL_SRAM_CODE =1 in calibration.h.
+ * 			Note:  Configure the bin file compiled by ALL_SRAM_CODE=1. It is not recommended to use tools to directly download to sram for execution,
+ * 			       this method of use may lead to abnormal current and abnormal flash function.
  *
  */
 #ifndef	ALL_SRAM_CODE
@@ -223,9 +221,12 @@ __reset:
 	 * When running the otp program, after the retention sleep wakes up, the otp ack enablement will be lost, causing the program to freeze,
 	 * and you need to re-enable otp ack, add by junhui.hu, confirmed by jianzhi 20211021.
 	 */
+    @B80_B is handled in the boot program.
+#if (MCU_CORE_B80)
 	tloadr		r1, MC_ICCT1
 	tmovs		r0, #1		  	  @0b 00000001
 	tstorerb	r0, [r1, #0]	  @otp ack = 1
+#endif
 
 
 @********************************************************************************************************
@@ -405,7 +406,11 @@ DAT0:
 	.word	0x13			    		@4		SVC
 	.word	(irq_stk + IRQ_STK_SIZE)	@8
 
+#if (MCU_CORE_B80)
 	.word	(0x844000)		    		@12  	stack end
+#elif (MCU_CORE_B80B)
+    .word	(0x845000)		    		@12  	stack end
+#endif
 
 	.word	(_start_bss_)               @16
 	.word	(_end_bss_)                 @20
@@ -444,7 +449,11 @@ FLL_D:
 	.word	0xffffffff                	@0
 	.word	(_start_data_)    			@4
 
+#if (MCU_CORE_B80)
 	.word	(0x844000)		    		@12  	stack end
+#elif (MCU_CORE_B80B)
+    .word	(0x845000)		    		@12  	stack end
+#endif
 
 	.word   _ramcode_size_div_256_      @12
 

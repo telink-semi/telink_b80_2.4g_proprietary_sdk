@@ -1,13 +1,12 @@
 /********************************************************************************************************
- * @file	adc.h
+ * @file    adc.h
  *
- * @brief	This is the header file for B80
+ * @brief   This is the header file for B80
  *
- * @author	Driver Group
- * @date	2021
+ * @author  Driver Group
+ * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -41,8 +40,11 @@ extern unsigned char   adc_vbat_divider;
  *  ADC reference voltage
  */
 typedef enum{
+#if ADC_INTER_TEST
 	ADC_VREF_0P9V = 0x01,
+#else
 	ADC_VREF_1P2V = 0x02,
+#endif
 }ADC_RefVolTypeDef;
 
 /**
@@ -51,7 +53,9 @@ typedef enum{
 typedef enum{
 	ADC_VBAT_DIVIDER_OFF = 0,
 	ADC_VBAT_DIVIDER_1F4=1,
+#if ADC_INTER_TEST
 	ADC_VBAT_DIVIDER_1F3=2,
+#endif
 }ADC_VbatDivTypeDef;
 
 /**
@@ -71,8 +75,8 @@ typedef enum {
 	A3N,
 	PGA0N,
 	PGA1N,
-	TEMSENSORN,
-	TEMSENSORN_EE,
+	TEMPERATURE_SENSOR_N,
+	TEMPERATURE_SENSOR_N_EE,
 	GND,
 }ADC_InputNchTypeDef;
 
@@ -93,8 +97,8 @@ typedef enum {
 	A3P,
 	PGA0P,
 	PGA1P,
-	TEMSENSORP,
-	TEMSENSORP_EE,
+	TEMPERATURE_SENSOR_P,
+	TEMPERATURE_SENSOR_P_EE,
 	VBAT,
 }ADC_InputPchTypeDef;
 
@@ -102,10 +106,13 @@ typedef enum {
  *	ADC resolution
  */
 typedef enum{
-	RES8,
-	RES10,
-	RES12,
-	RES14
+#if ADC_INTER_TEST
+	RES8 = 0,
+	RES10 = 1,
+	RES12 = 2,
+#else
+	RES14 = 3
+#endif
 }ADC_ResTypeDef;
 
 /**
@@ -119,9 +126,9 @@ typedef enum{
  *  ADC Sampling cycles
  */
 typedef enum{
-	SAMPLING_CYCLES_3,
-	SAMPLING_CYCLES_6,
-	SAMPLING_CYCLES_9,
+#if ADC_INTER_TEST
+	SAMPLING_CYCLES_3 = 0,
+	SAMPLING_CYCLES_9 = 2,
 	SAMPLING_CYCLES_12,
 	SAMPLING_CYCLES_15,
 	SAMPLING_CYCLES_18,
@@ -135,6 +142,9 @@ typedef enum{
 	SAMPLING_CYCLES_42,
 	SAMPLING_CYCLES_45,
 	SAMPLING_CYCLES_48,
+#else
+	SAMPLING_CYCLES_6 = 1,
+#endif
 }ADC_SampCycTypeDef;
 
 /**
@@ -146,10 +156,13 @@ typedef enum{
 
 
 typedef enum{
-	ADC_PRESCALER_1   = 0x00,
+#if ADC_INTER_TEST
 	ADC_PRESCALER_1F2 = 0x01,
 	ADC_PRESCALER_1F4 = 0x02,
+#else
+	ADC_PRESCALER_1   = 0x00,
 	ADC_PRESCALER_1F8 = 0x03,
+#endif
 }ADC_PreScalingTypeDef;
 
 
