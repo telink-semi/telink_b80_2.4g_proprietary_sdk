@@ -41,16 +41,13 @@ stages:
     - fw_update/
     - genfsk_ll/
     - ota/
+    - project/
     - script/
     - tl_tpll/
     - tpll/
     - tpsll/
     - vendor/
-    - .cproject/
-    - .project/
     - README.md
-    - boot.link/
-    - div_mod.S/
   when: manual
 
 
