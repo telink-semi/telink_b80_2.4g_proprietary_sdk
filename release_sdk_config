@@ -1,169 +1,169 @@
-[release_sdk_S0]
+[release_sdk_S0_B80]
 
 CI_FUNC             V1.0
 
 TAG_NAME            V3.3.0
 PACKAGE_NAME        telink_b80_2.4g_proprietary_sdk_S0
-SRC_GIT_URL         http://192.168.48.36/src/2.4g-proprietary/telink_eaglet_2.4g_proprietary_src.git
+SRC_GIT_URL         http://192.168.48.36/src/2.4g-proprietary/telink_b80_2.4g_proprietary_src.git
 
 #                          .cproject                                                        project_name                         module
-CPROJECT            ./tlsr_tc32/B80/.cproject                   telink_b80_2.4g_proprietary_src                  ADC_DEMO
+CPROJECT            ./project/tlsr_tc32/B80/.cproject                   telink_b80_2.4g_proprietary_src                  ADC_DEMO
 
 #                          path                                                  macro                                                  macro_val
 MACRO               ./drivers/lib/src/pm.c        OTP_PROTECTION_CODE_SELECT        OTP_PROTECTION_CODE_S0
 MACRO               ./common/sdk_version.h                  B80_SDK_VERSION_NUM                        B80_S0_V3.3.0
 MACRO               ./../common/sdk_version.h                  B80_SDK_VERSION_NUM                        B80_S0_V3.3.0
 
-LIB_OBJ             ./ADC_DEMO/drivers/lib/src 
+LIB_OBJ             ./project/tlsr_tc32/B80/ADC_DEMO/drivers/lib/src 
 REPLACED_LIB_PATH   ./drivers/lib/8208_core_drv_lib.a
-[release_sdk_S0_end]
+[release_sdk_S0_B80_end]
 
 
-[release_sdk_S1]
+[release_sdk_S1_B80]
 
 CI_FUNC             V1.0
 
 TAG_NAME            V3.3.0
 PACKAGE_NAME        telink_b80_2.4g_proprietary_sdk_S1
-SRC_GIT_URL         http://192.168.48.36/src/2.4g-proprietary/telink_eaglet_2.4g_proprietary_src.git
+SRC_GIT_URL         http://192.168.48.36/src/2.4g-proprietary/telink_b80_2.4g_proprietary_src.git
 
 #                          .cproject                                                        project_name                         module
-CPROJECT            ./tlsr_tc32/B80/.cproject                   telink_b80_2.4g_proprietary_src                  ADC_DEMO
+CPROJECT            ./project/tlsr_tc32/B80/.cproject                   telink_b80_2.4g_proprietary_src                  ADC_DEMO
 
 #                          path                                                  macro                                                  macro_val
 MACRO               ./drivers/lib/src/pm.c        OTP_PROTECTION_CODE_SELECT        OTP_PROTECTION_CODE_S1
 MACRO               ./common/sdk_version.h                  B80_SDK_VERSION_NUM                        B80_S1_V3.3.0
 MACRO               ./../common/sdk_version.h                  B80_SDK_VERSION_NUM                        B80_S1_V3.3.0
 
-LLIB_OBJ             ./ADC_DEMO/drivers/lib/src 
+LIB_OBJ             ./project/tlsr_tc32/B80/ADC_DEMO/drivers/lib/src 
 REPLACED_LIB_PATH   ./drivers/lib/8208_core_drv_lib.a
-[release_sdk_S1_end]
+[release_sdk_S1_B80_end]
 
 
-[release_sdk_S2]
+[release_sdk_S2_B80]
 
 CI_FUNC             V1.0
 
 TAG_NAME            V3.3.0
 PACKAGE_NAME        telink_b80_2.4g_proprietary_sdk_S2
-SRC_GIT_URL         http://192.168.48.36/src/2.4g-proprietary/telink_eaglet_2.4g_proprietary_src.git
+SRC_GIT_URL         http://192.168.48.36/src/2.4g-proprietary/telink_b80_2.4g_proprietary_src.git
 
 #                          .cproject                                                        project_name                         module
-CPROJECT            ./tlsr_tc32/B80/.cproject                    telink_b80_2.4g_proprietary_src                  ADC_DEMO
+CPROJECT            ./project/tlsr_tc32/B80/.cproject                   telink_b80_2.4g_proprietary_src                  ADC_DEMO
 
 #                          path                                                  macro                                                  macro_val
 MACRO               ./drivers/lib/src/pm.c        OTP_PROTECTION_CODE_SELECT        OTP_PROTECTION_CODE_S2
 MACRO               ./common/sdk_version.h                  B80_SDK_VERSION_NUM                        B80_S2_V3.3.0
 MACRO               ./../common/sdk_version.h                  B80_SDK_VERSION_NUM                        B80_S2_V3.3.0
 
-LIB_OBJ             ./ADC_DEMO/drivers/lib/src 
+LIB_OBJ             ./project/tlsr_tc32/B80/ADC_DEMO/drivers/lib/src 
 REPLACED_LIB_PATH   ./drivers/lib/8208_core_drv_lib.a
-[release_sdk_S2_end]
+[release_sdk_S2_B80_end]
 
 
-[release_sdk_S3]
+[release_sdk_S3_B80]
 
 CI_FUNC             V1.0
 
 TAG_NAME            V3.3.0
 PACKAGE_NAME        telink_b80_2.4g_proprietary_sdk_S3
-SRC_GIT_URL         http://192.168.48.36/src/2.4g-proprietary/telink_eaglet_2.4g_proprietary_src.git
+SRC_GIT_URL         http://192.168.48.36/src/2.4g-proprietary/telink_b80_2.4g_proprietary_src.git
 
 #                          .cproject                                                        project_name                         module
-CPROJECT            ./tlsr_tc32/B80/.cproject                    telink_b80_2.4g_proprietary_src                  ADC_DEMO
+CPROJECT            ./project/tlsr_tc32/B80/.cproject                   telink_b80_2.4g_proprietary_src                  ADC_DEMO
 
 #                          path                                                  macro                                                  macro_val
 MACRO               ./drivers/lib/src/pm.c        OTP_PROTECTION_CODE_SELECT        OTP_PROTECTION_CODE_S3
 MACRO               ./common/sdk_version.h                  B80_SDK_VERSION_NUM                        B80_S3_V3.3.0
 MACRO               ./../common/sdk_version.h                  B80_SDK_VERSION_NUM                        B80_S3_V3.3.0
 
-LIB_OBJ             ./ADC_DEMO/drivers/lib/src 
+LIB_OBJ             ./project/tlsr_tc32/B80/ADC_DEMO/drivers/lib/src 
 REPLACED_LIB_PATH   ./drivers/lib/8208_core_drv_lib.a
-[release_sdk_S3_end]
+[release_sdk_S3_B80_end]
 
 
-[release_sdk_B80B_S0]
+[release_sdk_S0_B80B]
 
 CI_FUNC             V1.0
 
 TAG_NAME            V3.3.0
 PACKAGE_NAME        telink_b80b_2.4g_proprietary_sdk_S0
-SRC_GIT_URL         http://192.168.48.36/src/2.4g-proprietary/telink_eaglet_2.4g_proprietary_src.git
+SRC_GIT_URL         http://192.168.48.36/src/2.4g-proprietary/telink_b80_2.4g_proprietary_src.git
 
 #                          .cproject                                                        project_name                         module
-CPROJECT            ./tlsr_tc32/B80B/.cproject                   telink_b80B_2.4g_proprietary_src                  ADC_DEMO
+CPROJECT            ./project/tlsr_tc32/B80B/.cproject                   telink_b80B_2.4g_proprietary_src                  ADC_DEMO
 
 #                          path                                                  macro                                                  macro_val
 MACRO               ./drivers/lib/src/pm.c        OTP_PROTECTION_CODE_SELECT        OTP_PROTECTION_CODE_S0
-MACRO               ./common/sdk_version.h                  B80_SDK_VERSION_NUM                        B80_S0_V3.3.0
-MACRO               ./../common/sdk_version.h                  B80_SDK_VERSION_NUM                        B80_S0_V3.3.0
+MACRO               ./common/sdk_version.h                  B80_SDK_VERSION_NUM                        B80B_S0_V3.3.0
+MACRO               ./../common/sdk_version.h                  B80_SDK_VERSION_NUM                        B80B_S0_V3.3.0
 
-LIB_OBJ             ./ADC_DEMO/drivers/lib/src 
-REPLACED_LIB_PATH   ./drivers/lib/8208_core_drv_lib_B80B.a
-[release_sdk_B80B_S0_end]
+LIB_OBJ             ./project/tlsr_tc32/B80B/ADC_DEMO/drivers/lib/src 
+REPLACED_LIB_PATH   ./drivers/8208_core_drv_lib_B80B.a
+[release_sdk_S0_B80B_end]
 
 
-[release_sdk_B80B_S1]
+[release_sdk_S1_B80B]
 
 CI_FUNC             V1.0
 
 TAG_NAME            V3.3.0
 PACKAGE_NAME        telink_b80b_2.4g_proprietary_sdk_S1
-SRC_GIT_URL         http://192.168.48.36/src/2.4g-proprietary/telink_eaglet_2.4g_proprietary_src.git
+SRC_GIT_URL         http://192.168.48.36/src/2.4g-proprietary/telink_b80_2.4g_proprietary_src.git
 
 #                          .cproject                                                        project_name                         module
-CPROJECT            ./tlsr_tc32/B80B/.cproject                   telink_b80B_2.4g_proprietary_src                  ADC_DEMO
+CPROJECT            ./project/tlsr_tc32/B80B/.cproject                   telink_b80B_2.4g_proprietary_src                  ADC_DEMO
 
 #                          path                                                  macro                                                  macro_val
 MACRO               ./drivers/lib/src/pm.c        OTP_PROTECTION_CODE_SELECT        OTP_PROTECTION_CODE_S1
-MACRO               ./common/sdk_version.h                  B80_SDK_VERSION_NUM                        B80_S1_V3.3.0
-MACRO               ./../common/sdk_version.h                  B80_SDK_VERSION_NUM                        B80_S1_V3.3.0
+MACRO               ./common/sdk_version.h                  B80_SDK_VERSION_NUM                        B80B_S1_V3.3.0
+MACRO               ./../common/sdk_version.h                  B80_SDK_VERSION_NUM                        B80B_S1_V3.3.0
 
-LIB_OBJ             ./ADC_DEMO/drivers/lib/src 
+LIB_OBJ             ./project/tlsr_tc32/B80B/ADC_DEMO/drivers/lib/src 
 REPLACED_LIB_PATH   ./drivers/lib/8208_core_drv_lib_B80B.a
-[release_sdk_B80B_S1_end]
+[release_sdk_S1_B80B_end]
 
 
-[release_sdk_B80B_S2]
+[release_sdk_S2_B80B]
 
 CI_FUNC             V1.0
 
 TAG_NAME            V3.3.0
 PACKAGE_NAME        telink_b80b_2.4g_proprietary_sdk_S2
-SRC_GIT_URL         http://192.168.48.36/src/2.4g-proprietary/telink_eaglet_2.4g_proprietary_src.git
+SRC_GIT_URL         http://192.168.48.36/src/2.4g-proprietary/telink_b80_2.4g_proprietary_src.git
 
 #                          .cproject                                                        project_name                         module
-CPROJECT            ./tlsr_tc32/B80B/.cproject                   telink_b80B_2.4g_proprietary_src                  ADC_DEMO
+CPROJECT            ./project/tlsr_tc32/B80B/.cproject                   telink_b80B_2.4g_proprietary_src                  ADC_DEMO
 
 #                          path                                                  macro                                                  macro_val
 MACRO               ./drivers/lib/src/pm.c        OTP_PROTECTION_CODE_SELECT        OTP_PROTECTION_CODE_S2
-MACRO               ./common/sdk_version.h                  B80_SDK_VERSION_NUM                        B80_S2_V3.3.0
-MACRO               ./../common/sdk_version.h                  B80_SDK_VERSION_NUM                        B80_S2_V3.3.0
+MACRO               ./common/sdk_version.h                  B80_SDK_VERSION_NUM                        B80B_S2_V3.3.0
+MACRO               ./../common/sdk_version.h                  B80_SDK_VERSION_NUM                        B80B_S2_V3.3.0
 
-LIB_OBJ             ./ADC_DEMO/drivers/lib/src 
+LIB_OBJ             ./project/tlsr_tc32/B80B/ADC_DEMO/drivers/lib/src 
 REPLACED_LIB_PATH   ./drivers/lib/8208_core_drv_lib_B80B.a
-[release_sdk_B80B_S2_end]
+[release_sdk_S2_B80B_end]
 
 
-[release_sdk_B80B_S3]
+[release_sdk_S3_B80B]
 
 CI_FUNC             V1.0
 
 TAG_NAME            V3.3.0
 PACKAGE_NAME        telink_b80b_2.4g_proprietary_sdk_S3
-SRC_GIT_URL         http://192.168.48.36/src/2.4g-proprietary/telink_eaglet_2.4g_proprietary_src.git
+SRC_GIT_URL         http://192.168.48.36/src/2.4g-proprietary/telink_b80_2.4g_proprietary_src.git
 
 #                          .cproject                                                        project_name                         module
-CPROJECT            ./tlsr_tc32/B80B/.cproject                   telink_b80B_2.4g_proprietary_src                  ADC_DEMO
+CPROJECT            ./project/tlsr_tc32/B80B/.cproject                   telink_b80B_2.4g_proprietary_src                  ADC_DEMO
 
 #                          path                                                  macro                                                  macro_val
 MACRO               ./drivers/lib/src/pm.c        OTP_PROTECTION_CODE_SELECT        OTP_PROTECTION_CODE_S3
-MACRO               ./common/sdk_version.h                  B80_SDK_VERSION_NUM                        B80_S3_V3.3.0
-MACRO               ./../common/sdk_version.h                  B80_SDK_VERSION_NUM                        B80_S3_V3.3.0
+MACRO               ./common/sdk_version.h                  B80_SDK_VERSION_NUM                        B80B_S3_V3.3.0
+MACRO               ./../common/sdk_version.h                  B80_SDK_VERSION_NUM                        B80B_S3_V3.3.0
 
-LIB_OBJ             ./ADC_DEMO/drivers/lib/src 
+LIB_OBJ             ./project/tlsr_tc32/B80B/ADC_DEMO/drivers/lib/src 
 REPLACED_LIB_PATH   ./drivers/lib/8208_core_drv_lib_B80B.a
-[release_sdk_B80B_S3_end]
+[release_sdk_S3_B80B_end]
 
 
 [release_sdk_otp_S0]
