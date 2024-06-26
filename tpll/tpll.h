@@ -184,13 +184,6 @@ typedef enum {
 extern void TPLL_Init(TPLL_BitrateTypeDef bitrate);
 
 /**
- * @brief       Set the radio bitrate.
- * @param       bitrate  Radio bitrate.
- * @return      none.
- */
-extern void TPLL_SetBitrate(TPLL_BitrateTypeDef bitrate);
-
-/**
  * @brief       Set the channel to use for the radio. 
  * @param       channel Channel to use for the radio.
  * @return      none.
