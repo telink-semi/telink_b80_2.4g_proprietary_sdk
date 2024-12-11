@@ -44,7 +44,6 @@ volatile unsigned char Flash_Write_Buff[FLASH_BUFF_LEN]=
 		0x30,0x31,0x32,0x33,0x34,0x35,0x36,0x37,
 		0x38,0x39,0x3a,0x3b,0x3c,0x3d,0x3e,0x3f,
 
-
 		0x40,0x41,0x42,0x43,0x44,0x45,0x46,0x47,
 		0x48,0x49,0x4a,0x4b,0x4c,0x4d,0x4e,0x4f,
 		0x50,0x51,0x52,0x53,0x54,0x55,0x56,0x57,
@@ -118,78 +117,94 @@ unsigned char uid[16]={0};
 unsigned char flash_lock(unsigned int flash_mid){
 	switch(flash_mid)
 	{
-#if(MCU_CORE_B80B)
-	case  MID114485:
-		if(0 == flash_get_lock_block_mid114485()){
-			flash_lock_mid114485(FLASH_LOCK_LOW_64K_MID114485);
-		}
-		return 1;
-		break;
-#elif(MCU_CORE_B80)
-	case MID1160C8:
-		if(0 == flash_get_lock_block_mid1160c8()){
-			flash_lock_mid1160c8(FLASH_LOCK_LOW_64K_MID1160C8);
-		}
-		return 1;
-		break;
+#if(MCU_CORE_B80)
+		case MID1160C8:
+			if(0 == flash_get_lock_block_mid1160c8()){
+				flash_lock_mid1160c8(FLASH_LOCK_LOW_64K_MID1160C8);
+			}
+			return 1;
+			break;
+		case MID1360C8:
+			if(0 == flash_get_lock_block_mid1360c8()){
+				flash_lock_mid1360c8(FLASH_LOCK_LOW_256K_MID1360C8);
+			}
+			return 1;
+			break;
+		case MID13325e:
+			if(0 == flash_get_lock_block_mid13325e()){
+				flash_lock_mid13325e(FLASH_LOCK_LOW_256K_MID13325E);
+			}
+			return 1;
+			break;
 #endif
-#if(MCU_CORE_B80B)
-	case MID136085:
-		if(0 == flash_get_lock_block_mid136085()){
-			flash_lock_mid136085(FLASH_LOCK_LOW_64K_MID136085);
-		}
-	    return 1;
-		break;
-#elif(MCU_CORE_B80)
-	case MID1360C8:
-		if(0 == flash_get_lock_block_mid1360c8()){
-			flash_lock_mid1360c8(FLASH_LOCK_LOW_256K_MID1360C8);
-		}
-		return 1;
-		break;
-#endif
-	default:
-		   return 0;
-		break;
+		case  MID114485:
+			if(0 == flash_get_lock_block_mid114485()){
+				flash_lock_mid114485(FLASH_LOCK_LOW_64K_MID114485);
+			}
+			return 1;
+			break;
+		case MID136085:
+			if(0 == flash_get_lock_block_mid136085()){
+				flash_lock_mid136085(FLASH_LOCK_LOW_64K_MID136085);
+			}
+			return 1;
+			break;
+		case MID1164c8:
+			if(0 == flash_get_lock_block_mid1164c8()){
+				flash_lock_mid1164c8(FLASH_LOCK_LOW_64K_MID1164C8);
+			}
+			return 1;
+			break;
+		default:
+			   return 0;
+			break;
 	}
 }
 
 unsigned char flash_unlock(unsigned int flash_mid){
 	switch(flash_mid)
 	{
-#if(MCU_CORE_B80B)
-	case  MID114485:
-		if(0 != flash_get_lock_block_mid114485()){
-			flash_unlock_mid114485();
-		}
-		return 1;
-		break;
-#elif(MCU_CORE_B80)
-	case MID1160C8:
-		if(0 != flash_get_lock_block_mid1160c8()){
-			flash_unlock_mid1160c8();
-		}
-		return 1;
-		break;
+#if(MCU_CORE_B80)
+		case MID1160C8:
+			if(0 != flash_get_lock_block_mid1160c8()){
+				flash_unlock_mid1160c8();
+			}
+			return 1;
+			break;
+		case MID1360C8:
+			if(0 != flash_get_lock_block_mid1360c8()){
+				flash_unlock_mid1360c8();
+			}
+			return 1;
+			break;
+		case MID13325e:
+			if(0 != flash_get_lock_block_mid13325e()){
+				flash_unlock_mid13325e();
+			}
+			return 1;
+			break;
 #endif
-#if(MCU_CORE_B80B)
-	case MID136085:
-		if(0 != flash_get_lock_block_mid136085()){
-			flash_unlock_mid136085();
-		}
-	    return 1;
-		break;
-#elif(MCU_CORE_B80)
-	case MID1360C8:
-		if(0 != flash_get_lock_block_mid1360c8()){
-			flash_unlock_mid1360c8();
-		}
-		return 1;
-		break;
-#endif
-	default:
-		   return 0;
-		break;
+		case  MID114485:
+			if(0 != flash_get_lock_block_mid114485()){
+				flash_unlock_mid114485();
+			}
+			return 1;
+			break;
+		case MID136085:
+			if(0 != flash_get_lock_block_mid136085()){
+				flash_unlock_mid136085();
+			}
+			return 1;
+			break;
+		case MID1164c8:
+			if(0 != flash_get_lock_block_mid1164c8()){
+				flash_unlock_mid1164c8();
+			}
+			return 1;
+			break;
+		default:
+			   return 0;
+			break;
 	}
 }
 
@@ -254,7 +269,68 @@ void flash_mid1360c8_test(void)
 	}
 	check_status.unlock_check = 1;
 }
-#elif(MCU_CORE_B80B)
+
+void flash_mid13325e_test(void)
+{
+	int i;
+
+	status1 = flash_read_status_mid13325e();
+	flash_lock_mid13325e(FLASH_LOCK_LOW_256K_MID13325E);
+	status2 = flash_read_status_mid13325e();
+	flash_erase_sector(FLASH_ADDR);
+	flash_read_page(FLASH_ADDR+0x80,FLASH_BUFF_LEN,(unsigned char *)Flash_Read_Buff);
+	for(i=0; i<FLASH_BUFF_LEN; i++){
+		if(Flash_Read_Buff[i] != Flash_Write_Buff[i]){
+			err_status.lock_err = 1;
+			while(1);
+		}
+	}
+	check_status.lock_check = 1;
+
+	flash_unlock_mid13325e();
+	status3 = flash_read_status_mid13325e();
+	flash_erase_sector(FLASH_ADDR);
+	flash_read_page(FLASH_ADDR+0x80,FLASH_BUFF_LEN,(unsigned char *)Flash_Read_Buff);
+	for(i=0; i<FLASH_BUFF_LEN; i++){
+		if(Flash_Read_Buff[i] != 0xff){
+			err_status.unlock_err = 1;
+			while(1);
+		}
+	}
+	check_status.unlock_check = 1;
+}
+#endif
+
+void flash_mid114485_test(void)
+{
+	int i;
+
+	status1 = flash_read_status_mid114485();
+	flash_lock_mid114485(FLASH_LOCK_LOW_64K_MID114485);
+	status2 = flash_read_status_mid114485();
+	flash_erase_sector(FLASH_ADDR);
+	flash_read_page(FLASH_ADDR+0x80,FLASH_BUFF_LEN,(unsigned char *)Flash_Read_Buff);
+	for(i=0; i<FLASH_BUFF_LEN; i++){
+		if(Flash_Read_Buff[i] != Flash_Write_Buff[i]){
+			err_status.lock_err = 1;
+			while(1);
+		}
+	}
+	check_status.lock_check = 1;
+
+	flash_unlock_mid114485();
+	status3 = flash_read_status_mid114485();
+	flash_erase_sector(FLASH_ADDR);
+	flash_read_page(FLASH_ADDR+0x80,FLASH_BUFF_LEN,(unsigned char *)Flash_Read_Buff);
+	for(i=0; i<FLASH_BUFF_LEN; i++){
+		if(Flash_Read_Buff[i] != 0xff){
+			err_status.unlock_err = 1;
+			while(1);
+		}
+	}
+	check_status.unlock_check = 1;
+}
+
 void flash_mid136085_test(void)
 {
 	int i;
@@ -319,13 +395,13 @@ void flash_mid136085_test(void)
 	check_status.otp_lock_check = 1;
 #endif
 }
-void flash_mid114485_test(void)
+
+void flash_mid1164c8_test(void)
 {
 	int i;
-
-	status1 = flash_read_status_mid114485();
-	flash_lock_mid114485(FLASH_LOCK_LOW_64K_MID114485);
-	status2 = flash_read_status_mid114485();
+	status1 = flash_read_status_mid1164c8();
+	flash_lock_mid1164c8(FLASH_LOCK_LOW_64K_MID1164C8);
+	status2 = flash_read_status_mid1164c8();
 	flash_erase_sector(FLASH_ADDR);
 	flash_read_page(FLASH_ADDR+0x80,FLASH_BUFF_LEN,(unsigned char *)Flash_Read_Buff);
 	for(i=0; i<FLASH_BUFF_LEN; i++){
@@ -336,8 +412,8 @@ void flash_mid114485_test(void)
 	}
 	check_status.lock_check = 1;
 
-	flash_unlock_mid114485();
-	status3 = flash_read_status_mid114485();
+	flash_unlock_mid1164c8();
+	status3 = flash_read_status_mid1164c8();
 	flash_erase_sector(FLASH_ADDR);
 	flash_read_page(FLASH_ADDR+0x80,FLASH_BUFF_LEN,(unsigned char *)Flash_Read_Buff);
 	for(i=0; i<FLASH_BUFF_LEN; i++){
@@ -348,7 +424,7 @@ void flash_mid114485_test(void)
 	}
 	check_status.unlock_check = 1;
 }
-#endif
+
 
 #if (BATT_CHECK_ENABLE)
 static unsigned char  battery_power_check()
@@ -416,22 +492,27 @@ void user_init()
 	switch(mid)
 	{
 #if(MCU_CORE_B80)
-	case 0x1160c8:
-		flash_mid1160c8_test();
-		break;
-	case 0x1360c8:
-		flash_mid1360c8_test();
-		break;
-#elif(MCU_CORE_B80B)
-	case 0x136085:
-		flash_mid136085_test();
-		break;
-	case 0x114485:
-		flash_mid114485_test();
-		break;
+		case 0x1160c8:
+			flash_mid1160c8_test();
+			break;
+		case 0x1360c8:
+			flash_mid1360c8_test();
+			break;
+		case 0x13325e:
+			flash_mid13325e_test();
+			break;
 #endif
-	default:
-		break;
+		case 0x136085:
+			flash_mid136085_test();
+			break;
+		case 0x114485:
+			flash_mid114485_test();
+			break;
+		case 0x1164c8:
+			flash_mid1164c8_test();
+			break;
+		default:
+			break;
 	}
 
 
@@ -454,8 +535,6 @@ void user_init()
 		err_status.flash_unlock_init_add_err =1;
 		while(1);
 	}
-
-
 }
 
 void main_loop (void)
@@ -463,4 +542,3 @@ void main_loop (void)
 	sleep_ms(1000);
 	gpio_toggle(LED2);
 }
-

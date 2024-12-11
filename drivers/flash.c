@@ -529,6 +529,8 @@ unsigned int flash_get_vendor(unsigned int flash_mid)
 		return FLASH_ETOX_ZB;
 	case 0x000060C8:
 		return FLASH_ETOX_GD;
+	case 0x000064C8:
+		return FLASH_ETOX_GD;
 	case 0x00004051:
 		return FLASH_ETOX_GD;
 	case 0x00006085:
