@@ -10,11 +10,10 @@
 * Hardware EVK Version
   - B80(A1): C1T261A30_V1_1
   - B80B: C1T261A20_V1_0
+* Platform Version
+  - tc_platform_sdk V2.0.0
 * Toolchain Version
   - TC32 ELF GCC4.3(IDE: [TelinkIoTStudio_V2024.8](https://wiki.telink-semi.cn/wiki/IDE-and-Tools/Telink_IoT_Studio/))
-
-### Dependency Updates
-* telink_b85m_driver_sdk_V1.8.0
 
 ### BREAKING CHANGES
 
@@ -63,11 +62,10 @@
 * 硬件评估板版本
   - B80(A1): C1T261A30_V1_1
   - B80B: C1T261A20_V1_0
+* Platform 版本
+  - tc_platform_sdk V2.0.0
 * 工具链版本
   - TC32 ELF GCC4.3(IDE: [TelinkIoTStudio_V2024.8](https://wiki.telink-semi.cn/wiki/IDE-and-Tools/Telink_IoT_Studio/))
-
-### Dependency Updates
-* telink_b85m_driver_sdk_V1.8.0
 
 ### BREAKING CHANGES
 
