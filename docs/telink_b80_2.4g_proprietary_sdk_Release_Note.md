@@ -1,5 +1,110 @@
 # Release Note
 
+## V3.3.1(FR)
+
+### Version
+* SDK Version : telink_b80_2.4g_proprietary_sdk V3.3.1.
+* Chip Version
+  - B80(A1)
+  - B80B
+* Hardware EVK Version
+  - B80(A1): C1T261A30_V1_1
+  - B80B: C1T261A20_V1_0
+* Toolchain Version
+  - TC32 ELF GCC4.3(IDE: [TelinkIoTStudio_V2024.8](https://wiki.telink-semi.cn/wiki/IDE-and-Tools/Telink_IoT_Studio/))
+
+### Dependency Updates
+* telink_b85m_driver_sdk_V1.8.0
+
+### BREAKING CHANGES
+
+* N/A
+
+### Bug Fixes
+
+* N/A
+
+### Features
+
+* N/A
+
+### CodeSize
+* Units: KBytes
+
+|   chip   | genfsk_stx2rx (RAM/FLASH Size) | tpsll_stx2rx(RAM/FLASH Size) | tpll_ptx(RAM/FLASH Size) |
+| :------- | :----------------------------: | :--------------------------: | :----------------------: |
+| B80      | 7.8 / 8.5                      | 7.5 / 7.4                    | 9.1 / 8.9                |
+| B80B     | 7.5 / 8.2                      | 7.2 / 6.9                    | 8.8 / 8.5                |
+
+### Support Flash
+  - B80(A1): GD25LD10C, GD25LD40C, ZG25WD40B, P25Q40SU, P25D09U, GD25WD10EGIG
+  - B80B: P25Q40SU, P25D09U, GD25WD10EGIG
+
+### Refactoring
+
+* N/A
+
+### Known Issues
+
+* The SPI(dma mode) routine of B80B is currently unavailable
+
+### Note
+
+* N/A
+
+## V3.3.1
+
+### 版本
+
+* SDK版本: telink_b80_2.4g_proprietary_sdk V3.3.1。
+* 芯片版本
+  - B80(A1)
+  - B80B
+* 硬件评估板版本
+  - B80(A1): C1T261A30_V1_1
+  - B80B: C1T261A20_V1_0
+* 工具链版本
+  - TC32 ELF GCC4.3(IDE: [TelinkIoTStudio_V2024.8](https://wiki.telink-semi.cn/wiki/IDE-and-Tools/Telink_IoT_Studio/))
+
+### Dependency Updates
+* telink_b85m_driver_sdk_V1.8.0
+
+### BREAKING CHANGES
+
+* N/A
+
+### Bug Fixes
+
+* N/A
+
+### Features
+
+* N/A
+
+### CodeSize
+* 单位: KBytes
+
+|   chip   | genfsk_stx2rx (RAM/FLASH Size) | tpsll_stx2rx(RAM/FLASH Size) | tpll_ptx(RAM/FLASH Size) |
+| :------- | :----------------------------: | :--------------------------: | :----------------------: |
+| B80      | 7.8 / 8.5                      | 7.5 / 7.4                    | 9.1 / 8.9                |
+| B80B     | 7.5 / 8.2                      | 7.2 / 6.9                    | 8.8 / 8.5                |
+
+### 支持Flash
+  - B80(A1): GD25LD10C, GD25LD40C, ZG25WD40B, P25Q40SU, P25D09U, GD25WD10EGIG
+  - B80B: P25Q40SU, P25D09U, GD25WD10EGIG
+
+### Refactoring
+
+* N/A
+
+### Known Issues
+
+* B80B的spi例程的dma 模式还暂时不能用。 
+
+### Note
+
+* N/A
+
 ## V3.3.0
 
 ### Version
