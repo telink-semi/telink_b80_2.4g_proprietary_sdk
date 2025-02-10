@@ -1,6 +1,6 @@
 # Release Note
 
-## V3.3.1(FR)
+## V3.3.1(PR)
 
 ### Version
 * SDK Version : telink_b80_2.4g_proprietary_sdk V3.3.1.
